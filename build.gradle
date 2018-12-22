@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url uri("http://trevorism-build.eastus.cloudapp.azure.com/nexus/repository/maven-releases")
+        }
+    }
+    dependencies {
+        classpath 'com.google.cloud.tools:appengine-gradle-plugin:1.3.5'
+        classpath 'com.trevorism:gradle-acceptance-plugin:1.3.4'
+        classpath 'com.trevorism:gradle-gae-deploy-plugin:1.1.1'
+        classpath 'com.trevorism:gradle-release-plugin:0.3.0'
+    }
+}
+
+
+plugins {
+    id "groovy"
+    id "war"
+    id "jacoco"
+}
+
+apply plugin: 'com.google.cloud.tools.appengine'
+apply plugin: "com.trevorism.gradle.acceptance"
+apply plugin: "com.trevorism.gradle.gae.deploy"
+apply plugin: "com.trevorism.gradle.release"
+
+repositories {
+    mavenCentral()
+    maven {
+        url uri("http://trevorism-build.eastus.cloudapp.azure.com/nexus/repository/maven-releases")
+    }
+}
+
+def appengineVersion = "1.9.64"
+def jerseyVersion = "2.27"
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.15'
+
+    compile "com.google.appengine:appengine-api-1.0-sdk:$appengineVersion"
+
+    compile "org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion"
+    compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jerseyVersion"
+    compile "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
+    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.9.6'
+
+    compile 'org.slf4j:slf4j-nop:1.7.25'
+    compile 'io.swagger:swagger-jersey2-jaxrs:1.5.21'
+
+    compile 'com.trevorism:secure-utils:1.0.1'
+    //compile 'com.trevorism:datastore-client:1.2.0'
+    //compile 'com.trevorism:eventhub-client:1.4.0'
+
+    acceptanceCompile 'info.cukes:cucumber-groovy:1.2.5'
+    acceptanceCompile 'com.trevorism:http-utils:1.0.1'
+    acceptanceCompile 'org.apache.httpcomponents:httpclient:4.5.6'
+
+    testCompile 'junit:junit:4.12'
+    testCompile "com.google.appengine:appengine-testing:$appengineVersion"
+    testCompile "com.google.appengine:appengine-api-stubs:$appengineVersion"
+    testCompile "com.google.appengine:appengine-api-labs:$appengineVersion"
+    testCompile "com.google.appengine:appengine-tools-sdk:$appengineVersion"
+}
+
+acceptance {
+    stepDefinitionRoots = ['src/acceptance/groovy/com/trevorism/gcloud']
+    finalizedBy("sendAcceptanceTestEvents")
+}
+
+appengine {
+    deploy {
+        project = "trevorism-gcloud"
+        stopPreviousVersion = true
+        promote = true
+    }
+}
+
+check {
+    dependsOn('jacocoTestReport')
+}
+
+task deliver {
+    dependsOn("build","appengineDeploy", "acceptance")
+    acceptance.mustRunAfter("appengineDeploy")
+    appengineDeploy.mustRunAfter("check")
+}
