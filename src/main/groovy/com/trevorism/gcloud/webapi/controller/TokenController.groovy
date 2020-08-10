@@ -1,8 +1,5 @@
 package com.trevorism.gcloud.webapi.controller
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import com.trevorism.secure.PasswordProvider
 import io.swagger.annotations.ApiOperation
 
 import javax.ws.rs.GET
@@ -20,9 +17,9 @@ class TokenController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     String token() {
-        Algorithm algorithm = Algorithm.HMAC256(new PasswordProvider().getPassword())
-        String token = JWT.create().withIssuer("trevorism").sign(algorithm)
-        return token
+
+
+
     }
 
 

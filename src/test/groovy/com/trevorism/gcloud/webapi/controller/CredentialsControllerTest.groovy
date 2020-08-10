@@ -5,11 +5,11 @@ import org.junit.Test
 /**
  * @author tbrooks
  */
-class AuthorizeControllerTest {
+class CredentialsControllerTest {
 
     @Test
     void testAuthorize() {
-        AuthorizeController authorizeController = new AuthorizeController()
+        CredentialsController authorizeController = new CredentialsController()
         authorizeController.authorize()
 
     }
