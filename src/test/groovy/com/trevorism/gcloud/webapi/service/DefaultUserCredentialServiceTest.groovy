@@ -7,8 +7,8 @@ class DefaultUserCredentialServiceTest {
 
 
     @Test
-    void testGetUser() {
-
+    void testConstructor() {
+        assert new DefaultUserCredentialService()
     }
 
     void testDeleteUser() {
