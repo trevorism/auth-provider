@@ -113,8 +113,8 @@ class DefaultUserCredentialService implements UserCredentialService{
     }
 
     private static User cleanUser(User user) {
-        user.password = null
-        user.salt = null
+        user?.password = null
+        user?.salt = null
         return user
     }
 
