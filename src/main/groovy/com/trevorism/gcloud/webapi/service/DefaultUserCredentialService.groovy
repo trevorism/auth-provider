@@ -1,19 +1,18 @@
 package com.trevorism.gcloud.webapi.service
 
-import com.google.common.base.Charsets
 import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
+import com.trevorism.gcloud.webapi.model.Identity
+import com.trevorism.gcloud.webapi.model.SaltedPassword
 import com.trevorism.gcloud.webapi.model.User
-import io.jsonwebtoken.io.Decoders
-import io.jsonwebtoken.io.Encoders
 
-import java.security.MessageDigest
-import java.security.SecureRandom
+import java.time.Instant
+import java.time.ZoneId
 
 class DefaultUserCredentialService implements UserCredentialService{
 
-    private static final String HASHING_ALGORITHM = "SHA-512"
     private Repository<User> repository = new PingingDatastoreRepository<>(User)
+    private final Emailer emailer = new Emailer()
 
     @Override
     User getUser(String id) {
@@ -40,6 +39,10 @@ class DefaultUserCredentialService implements UserCredentialService{
             throw new RuntimeException("Unable to register user without credentials")
         }
 
+        user.active = true
+        user.dateCreated = new Date()
+        user.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
+
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
         return cleanUser(createdUser)
@@ -49,11 +52,16 @@ class DefaultUserCredentialService implements UserCredentialService{
     boolean validateCredentials(String username, String password) {
         User user = getUserCredential(username)
 
-        if(!user || !user.username || !user.password || !user.salt){
+        if(!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)){
             return false
         }
 
         return validatePasswordsMatch(user, password)
+    }
+
+    @Override
+    Identity getIdentity(String identifier) {
+        getUserCredential(identifier)
     }
 
     @Override
@@ -70,42 +78,55 @@ class DefaultUserCredentialService implements UserCredentialService{
         return true
     }
 
+    @Override
+    boolean changePassword(Identity identity, String currentPassword, String newPassword) {
+        User user = getUserCredential(identity.getIdentifer())
+        if(!validatePasswordsMatch(user, currentPassword)){
+            return false
+        }
+        user.password = newPassword
+        user = setPasswordAndSalt(user)
+        user.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
+
+        repository.update(user.id, user)
+    }
+
+    @Override
+    void forgotPassword(Identity identity) {
+        User user = getUserCredential(identity.getIdentifer())
+        if(!user){
+            throw new RuntimeException("Unable to locate user: ${identity.identifer}")
+        }
+        String newPassword = HashUtils.generateRawSecret()
+        user.password = newPassword
+        user = setPasswordAndSalt(user)
+        user.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusDays(1).toDate()
+        repository.update(user.id, user)
+
+        emailer.sendForgotPasswordEmail(user.email, newPassword)
+    }
+
     private User getUserCredential(String username) {
         return repository.list().find{
             it.username == username
         }
     }
 
-    private byte [] createSalt() {
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG")
-        byte[] salt = new byte[16]
-        sr.nextBytes(salt)
-        return salt
-    }
-
-    private User cleanUser(User user) {
+    private static User cleanUser(User user) {
         user.password = null
         user.salt = null
         return user
     }
 
-    private User setPasswordAndSalt(User user) {
-        MessageDigest md = MessageDigest.getInstance(HASHING_ALGORITHM)
-        byte[] saltBytes = createSalt()
-        md.update(saltBytes)
-        byte[] hashed = md.digest(user.password.getBytes(Charsets.UTF_8))
-
-        user.salt = Encoders.BASE64.encode(saltBytes)
-        user.password = Encoders.BASE64.encode(hashed)
-
+    private static User setPasswordAndSalt(User user) {
+        SaltedPassword sp = HashUtils.createPasswordAndSalt(user.password)
+        user.salt = sp.salt
+        user.password = sp.password
         return user
     }
 
     private static boolean validatePasswordsMatch(User user, String password) {
-        MessageDigest md = MessageDigest.getInstance(HASHING_ALGORITHM)
-        md.update(Decoders.BASE64.decode(user.salt))
-        byte[] hashed = md.digest(password.getBytes(Charsets.UTF_8))
-        String hashedPasswordString = Encoders.BASE64.encode(hashed)
-        return hashedPasswordString == user.password
+        SaltedPassword sp = new SaltedPassword(user.salt, user.password)
+        return HashUtils.validatePasswordsMatch(sp, password)
     }
 }

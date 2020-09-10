@@ -1,7 +1,11 @@
 package com.trevorism.gcloud.webapi.controller
 
-import com.trevorism.gcloud.webapi.model.User
+import com.trevorism.gcloud.webapi.model.Identity
+import com.trevorism.gcloud.webapi.model.TokenRequest
 import com.trevorism.gcloud.webapi.service.AccessTokenService
+import com.trevorism.gcloud.webapi.service.AppRegistrationService
+import com.trevorism.gcloud.webapi.service.CredentialValidator
+import com.trevorism.gcloud.webapi.service.DefaultAppRegistrationService
 import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
 import com.trevorism.gcloud.webapi.service.TokenService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
@@ -16,21 +20,26 @@ import javax.ws.rs.core.MediaType
  * @author tbrooks
  *
  */
-@Path("/authorize")
+@Path("/token")
 class CredentialsController {
 
-
-    private UserCredentialService service = new DefaultUserCredentialService()
+    private UserCredentialService userCredentialService = new DefaultUserCredentialService()
+    private AppRegistrationService appRegistrationService = new DefaultAppRegistrationService()
     private TokenService tokenService = new AccessTokenService()
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    String token(User userCredential) {
-        boolean valid = service.validateCredentials(userCredential.username, userCredential.password)
+    String token(TokenRequest tokenRequest) {
+        CredentialValidator service = appRegistrationService
+        if(tokenRequest.type == TokenRequest.USER_TYPE){
+            service = userCredentialService
+        }
+        boolean valid = service.validateCredentials(tokenRequest.getId(), tokenRequest.password)
 
         if(valid){
-            return tokenService.issueToken(userCredential)
+            Identity identity = service.getIdentity(tokenRequest.getId())
+            return tokenService.issueToken(identity, tokenRequest)
         }
 
         return null

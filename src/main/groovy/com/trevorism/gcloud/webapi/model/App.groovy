@@ -3,15 +3,16 @@ package com.trevorism.gcloud.webapi.model
 import groovy.transform.ToString
 
 @ToString
-class User implements Identity{
+class App implements Identity{
 
     String id
-    String username
-    String email
-    String image
-
-    String password
+    String appName
+    String clientId
+    String clientSecret
     String salt
+
+    List<String> replyUrls
+    List<String> logoutUrls
 
     boolean active
     Date dateCreated
@@ -19,6 +20,6 @@ class User implements Identity{
 
     @Override
     String getIdentifer() {
-        return username
+        return clientId
     }
 }
