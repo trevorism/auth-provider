@@ -27,7 +27,7 @@ class RootController {
     @ApiOperation(value = "Returns 'pong' if the application is alive")
     @GET
     @Path("ping")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     String ping() {
         "pong"
     }

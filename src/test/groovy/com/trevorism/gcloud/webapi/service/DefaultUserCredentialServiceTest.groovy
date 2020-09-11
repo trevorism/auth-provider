@@ -68,8 +68,18 @@ class DefaultUserCredentialServiceTest {
     @Test
     void testForgotPassword() {
         UserCredentialService service = new DefaultUserCredentialService()
-        service.forgotPassword(new User(username: "trevor"))
+        service.repository = new TestUserRepository()
+        service.emailer = [sendForgotPasswordEmail: {a,b -> }] as Emailer
+        service.forgotPassword(new User(username: "test"))
     }
+
+    @Test
+    void testActivateUser() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert service.activateUser(new User(username: "trevor"))
+    }
+
 
     class TestUserRepository implements Repository<User>{
 

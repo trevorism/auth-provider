@@ -12,7 +12,7 @@ import java.time.ZoneId
 class DefaultUserCredentialService implements UserCredentialService{
 
     private Repository<User> repository = new PingingDatastoreRepository<>(User)
-    private final Emailer emailer = new Emailer()
+    private Emailer emailer = new Emailer()
 
     @Override
     User getUser(String id) {
@@ -76,6 +76,20 @@ class DefaultUserCredentialService implements UserCredentialService{
             return false
 
         return true
+    }
+
+    @Override
+    boolean activateUser(User user) {
+        User toUpdate = getIdentity(user.identifer)
+        toUpdate.active = true
+        return repository.update(toUpdate.id, toUpdate)
+    }
+
+    @Override
+    boolean deactivateUser(User user) {
+        User toUpdate = getIdentity(user.identifer)
+        toUpdate.active = false
+        return repository.update(toUpdate.id, toUpdate)
     }
 
     @Override

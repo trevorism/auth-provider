@@ -10,7 +10,6 @@ import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
 import com.trevorism.gcloud.webapi.service.TokenService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
 import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
 
 import javax.ws.rs.Consumes
 import javax.ws.rs.POST
@@ -30,9 +29,8 @@ class TokenController {
     private AppRegistrationService appRegistrationService = new DefaultAppRegistrationService()
     private TokenService tokenService = new AccessTokenService()
 
-    @ApiOperation(value = "Get a token with valid credentials")
     @POST
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)
     String token(TokenRequest tokenRequest) {
         CredentialValidator service = appRegistrationService

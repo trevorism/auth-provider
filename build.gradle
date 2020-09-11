@@ -34,7 +34,7 @@ repositories {
     }
 }
 
-def jerseyVersion = "2.31"
+def jerseyVersion = "2.29.1"
 
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:2.5.8'
@@ -42,9 +42,9 @@ dependencies {
     implementation "org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion"
     implementation "org.glassfish.jersey.media:jersey-media-json-jackson:$jerseyVersion"
     implementation "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
-    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.11.1'
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.0'
 
-    implementation 'org.slf4j:slf4j-nop:1.7.30'
+    implementation 'org.slf4j:slf4j-nop:1.7.28'
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.5.23'
 
     implementation 'com.trevorism:secure-utils:1.0.2'
