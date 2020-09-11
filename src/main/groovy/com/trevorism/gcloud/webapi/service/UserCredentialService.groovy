@@ -12,7 +12,7 @@ interface UserCredentialService extends CredentialValidator {
     User registerUser(User user)
     boolean validateRegistration(User user)
 
-    boolean activateUser(User user)
+    boolean activateUser(User user, String role)
     boolean deactivateUser(User user)
 
     boolean changePassword(Identity identity, String currentPassword, String newPassword)

@@ -1,6 +1,6 @@
 package com.trevorism.gcloud.webapi.controller
 
-import com.trevorism.gcloud.webapi.model.Identity
+import com.trevorism.gcloud.webapi.model.ActivationRequest
 import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
@@ -61,24 +61,24 @@ class UserController {
     }
 
     @ApiOperation(value = "Activate a user by username **Secure")
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Secure
-    @Path("{username}/activate")
-    boolean activateUser(@PathParam("username") String username) {
-        User user = userCredentialService.getIdentity(username)
-        userCredentialService.activateUser(user)
+    @Path("activate")
+    boolean activateUser(ActivationRequest activationRequest) {
+        User user = userCredentialService.getIdentity(activationRequest.username)
+        userCredentialService.activateUser(user, activationRequest.role)
     }
 
     @ApiOperation(value = "Deactivate a user by username **Secure")
-    @GET
+    @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Secure
-    @Path("{username}/deactivate")
-    boolean deactivateUser(@PathParam("username") String username) {
-        User user = userCredentialService.getIdentity(username)
+    @Path("deactivate")
+    boolean deactivateUser(ActivationRequest activationRequest) {
+        User user = userCredentialService.getIdentity(activationRequest.username)
         userCredentialService.deactivateUser(user)
     }
 }

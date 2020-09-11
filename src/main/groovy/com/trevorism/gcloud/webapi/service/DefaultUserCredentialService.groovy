@@ -5,14 +5,19 @@ import com.trevorism.data.Repository
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.SaltedPassword
 import com.trevorism.gcloud.webapi.model.User
+import com.trevorism.gcloud.webapi.model.UserRole
+import com.trevorism.secure.Roles
 
 import java.time.Instant
 import java.time.ZoneId
+import java.util.logging.Logger
 
 class DefaultUserCredentialService implements UserCredentialService{
 
+    private RoleService roleService = new DefaultUserRoleService()
     private Repository<User> repository = new PingingDatastoreRepository<>(User)
     private Emailer emailer = new Emailer()
+    private static final Logger log = Logger.getLogger(DefaultUserCredentialService.class.name)
 
     @Override
     User getUser(String id) {
@@ -39,9 +44,8 @@ class DefaultUserCredentialService implements UserCredentialService{
             throw new RuntimeException("Unable to register user without credentials")
         }
 
-        user.active = true
+        user.active = false
         user.dateCreated = new Date()
-        user.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
 
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
@@ -79,10 +83,24 @@ class DefaultUserCredentialService implements UserCredentialService{
     }
 
     @Override
-    boolean activateUser(User user) {
+    boolean activateUser(User user, String role) {
         User toUpdate = getIdentity(user.identifer)
         toUpdate.active = true
+        toUpdate.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
+        setUserRole(user, role)
         return repository.update(toUpdate.id, toUpdate)
+    }
+
+    private void setUserRole(User user, String role) {
+        if(!Roles.validate(role)) {
+            log.warning("Role for activation not valid: ${role}")
+            return
+        }
+        UserRole existingUserRole = roleService.findByUserId(user.id)
+        if (existingUserRole) {
+            roleService.delete(existingUserRole.id)
+        }
+        roleService.create(new UserRole(userId: user.id, role: role))
     }
 
     @Override

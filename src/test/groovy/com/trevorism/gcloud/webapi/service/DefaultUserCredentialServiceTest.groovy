@@ -2,6 +2,7 @@ package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.Repository
 import com.trevorism.gcloud.webapi.model.User
+import com.trevorism.secure.Roles
 import org.junit.Test
 
 class DefaultUserCredentialServiceTest {
@@ -77,7 +78,7 @@ class DefaultUserCredentialServiceTest {
     void testActivateUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        assert service.activateUser(new User(username: "test"))
+        assert service.activateUser(new User(username: "test"), Roles.CREATE)
     }
 
 
