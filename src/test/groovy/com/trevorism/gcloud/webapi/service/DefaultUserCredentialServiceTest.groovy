@@ -77,7 +77,7 @@ class DefaultUserCredentialServiceTest {
     void testActivateUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        assert service.activateUser(new User(username: "trevor"))
+        assert service.activateUser(new User(username: "test"))
     }
 
 
@@ -117,12 +117,12 @@ class DefaultUserCredentialServiceTest {
 
         @Override
         User update(String s, User user) {
-            return null
+            return update(s, user, null)
         }
 
         @Override
         User update(String s, User user, String s1) {
-            return null
+            return user
         }
 
         @Override

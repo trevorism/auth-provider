@@ -4,7 +4,9 @@ import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
+import com.trevorism.secure.Secure
 import io.swagger.annotations.Api
+import io.swagger.annotations.ApiOperation
 
 import javax.ws.rs.Consumes
 import javax.ws.rs.DELETE
@@ -21,6 +23,7 @@ class UserController {
 
     UserCredentialService userCredentialService = new DefaultUserCredentialService()
 
+    @ApiOperation(value = "Register a user with username, password, and email")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -28,41 +31,51 @@ class UserController {
         userCredentialService.registerUser(user)
     }
 
+    @ApiOperation(value = "Returns the list of all users **Secure")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Secure
     List<User> listUsers() {
         userCredentialService.listUsers()
     }
 
+    @ApiOperation(value = "Get a user by id **Secure")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{username}")
-    Identity getUser(@PathParam("username") String username) {
-        userCredentialService.getIdentity(username)
+    @Path("{id}")
+    @Secure
+    User getUser(@PathParam("id") String id) {
+        userCredentialService.getUser(id)
     }
 
+    @ApiOperation(value = "Delete a user by id **Secure")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Secure
     @Path("{username}")
     User removeUser(@PathParam("username") String username) {
         User user = userCredentialService.getIdentity(username)
         userCredentialService.deleteUser(user.id)
     }
 
+    @ApiOperation(value = "Activate a user by username **Secure")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Secure
     @Path("{username}/activate")
     boolean activateUser(@PathParam("username") String username) {
         User user = userCredentialService.getIdentity(username)
         userCredentialService.activateUser(user)
     }
 
+    @ApiOperation(value = "Deactivate a user by username **Secure")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Secure
     @Path("{username}/deactivate")
     boolean deactivateUser(@PathParam("username") String username) {
         User user = userCredentialService.getIdentity(username)
