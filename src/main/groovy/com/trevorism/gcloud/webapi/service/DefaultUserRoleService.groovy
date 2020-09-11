@@ -2,7 +2,6 @@ package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
-import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.gcloud.webapi.model.UserRole
 
 class DefaultUserRoleService implements RoleService{
