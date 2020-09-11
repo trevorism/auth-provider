@@ -2,6 +2,7 @@ package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.gcloud.webapi.model.TokenRequest
 import com.trevorism.gcloud.webapi.model.User
+import com.trevorism.secure.PasswordProvider
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
@@ -31,11 +32,7 @@ class AccessTokenServiceTest {
     }
 
     private static void assertTokenDecodes(String token) {
-        Properties properties = new Properties()
-        properties.load(AccessTokenService.class.getClassLoader().getResourceAsStream("secrets.properties") as InputStream)
-
-        String signingKey = properties.get("signingKey")
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signingKey))
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(new PasswordProvider().getSigningKey()))
 
         Jws<Claims> decoded = Jwts.parserBuilder()
                 .setAllowedClockSkewSeconds(10)
