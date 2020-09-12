@@ -4,6 +4,7 @@ import com.trevorism.gcloud.webapi.model.ActivationRequest
 import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
+import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -34,7 +35,7 @@ class UserController {
     @ApiOperation(value = "Returns the list of all users **Secure")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Secure
+    @Secure(Roles.SYSTEM)
     List<User> listUsers() {
         userCredentialService.listUsers()
     }
@@ -44,7 +45,7 @@ class UserController {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{id}")
-    @Secure
+    @Secure(Roles.USER)
     User getUser(@PathParam("id") String id) {
         userCredentialService.getUser(id)
     }
@@ -53,7 +54,7 @@ class UserController {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Secure
+    @Secure(Roles.SYSTEM)
     @Path("{username}")
     User removeUser(@PathParam("username") String username) {
         User user = userCredentialService.getIdentity(username)
@@ -64,7 +65,7 @@ class UserController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Secure
+    @Secure(Roles.ADMIN)
     @Path("activate")
     boolean activateUser(ActivationRequest activationRequest) {
         User user = userCredentialService.getIdentity(activationRequest.username)
@@ -75,7 +76,7 @@ class UserController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Secure
+    @Secure(Roles.SYSTEM)
     @Path("deactivate")
     boolean deactivateUser(ActivationRequest activationRequest) {
         User user = userCredentialService.getIdentity(activationRequest.username)
