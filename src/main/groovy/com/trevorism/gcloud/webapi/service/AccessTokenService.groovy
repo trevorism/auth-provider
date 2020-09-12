@@ -24,6 +24,7 @@ class AccessTokenService implements TokenService {
 
         String aud = tokenRequest.audience ?: "trevorism.com"
         String role = getRoleForIdentity(identity)
+        Map claims = ["role": role, "id": identity.id]
 
         return Jwts.builder()
                 .setSubject(identity.getIdentifer())
@@ -31,7 +32,7 @@ class AccessTokenService implements TokenService {
                 .setIssuedAt(new Date())
                 .setExpiration(Instant.now().plusSeconds(FIFTEEN_MINUTES_IN_SECONDS).toDate())
                 .setAudience(aud)
-                .addClaims(["role": role])
+                .addClaims(claims)
                 .signWith(key)
                 .compressWith(CompressionCodecs.GZIP)
                 .compact()
