@@ -47,7 +47,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-nop:1.7.28'
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.5.23'
 
-    implementation 'com.trevorism:secure-utils:2.0.1'
+    implementation 'com.trevorism:secure-utils:2.1.0'
     implementation 'com.trevorism:datastore-client:1.2.0'
     implementation 'com.trevorism:eventhub-client:1.4.2'
 
@@ -68,7 +68,7 @@ appengine {
         projectId = "trevorism-auth"
         stopPreviousVersion = true
         promote = true
-        version = "0-2-1"
+        version = "0-3-0"
     }
 }
 

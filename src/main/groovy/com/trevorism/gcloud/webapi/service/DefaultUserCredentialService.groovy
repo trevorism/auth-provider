@@ -5,8 +5,6 @@ import com.trevorism.data.Repository
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.SaltedPassword
 import com.trevorism.gcloud.webapi.model.User
-import com.trevorism.gcloud.webapi.model.UserRole
-import com.trevorism.secure.Roles
 
 import java.time.Instant
 import java.time.ZoneId
@@ -14,7 +12,6 @@ import java.util.logging.Logger
 
 class DefaultUserCredentialService implements UserCredentialService{
 
-    private RoleService roleService = new DefaultUserRoleService()
     private Repository<User> repository = new PingingDatastoreRepository<>(User)
     private Emailer emailer = new Emailer()
     private static final Logger log = Logger.getLogger(DefaultUserCredentialService.class.name)
@@ -71,41 +68,33 @@ class DefaultUserCredentialService implements UserCredentialService{
     @Override
     boolean validateRegistration(User user) {
         if(!user || !user.username || !user.password || !user.email){
+            log.warning("Registration missing a required field")
             return false
         }
         if(getUserCredential(user.username)){
+            log.warning("Registration detected duplicate username")
             return false
         }
-        if(user.password.length() < 6)
+        if(user.username.length() < 3 || user.password.length() < 6) {
+            log.warning("Registration username/password length not acceptable")
             return false
+        }
 
         return true
     }
 
     @Override
-    boolean activateUser(User user, String role) {
-        User toUpdate = getIdentity(user.identifer)
+    boolean activateUser(User user, boolean admin) {
+        User toUpdate = getIdentity(user.identifer) as User
         toUpdate.active = true
+        toUpdate.admin = admin
         toUpdate.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
-        setUserRole(user, role)
         return repository.update(toUpdate.id, toUpdate)
-    }
-
-    private void setUserRole(User user, String role) {
-        if(!Roles.validate(role)) {
-            log.warning("Role for activation not valid: ${role}")
-            return
-        }
-        UserRole existingUserRole = roleService.findByUserId(user.id)
-        if (existingUserRole) {
-            roleService.delete(existingUserRole.id)
-        }
-        roleService.create(new UserRole(userId: user.id, role: role))
     }
 
     @Override
     boolean deactivateUser(User user) {
-        User toUpdate = getIdentity(user.identifer)
+        User toUpdate = getIdentity(user.identifer) as User
         toUpdate.active = false
         return repository.update(toUpdate.id, toUpdate)
     }

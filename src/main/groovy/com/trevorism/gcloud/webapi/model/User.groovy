@@ -13,6 +13,8 @@ class User implements Identity{
     String password
     String salt
 
+    boolean admin
+
     boolean active
     Date dateCreated
     Date dateExpired

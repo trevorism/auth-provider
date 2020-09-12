@@ -68,7 +68,7 @@ class UserController {
     @Path("activate")
     boolean activateUser(ActivationRequest activationRequest) {
         User user = userCredentialService.getIdentity(activationRequest.username)
-        userCredentialService.activateUser(user, activationRequest.role)
+        userCredentialService.activateUser(user, activationRequest.isAdmin)
     }
 
     @ApiOperation(value = "Deactivate a user by username **Secure")

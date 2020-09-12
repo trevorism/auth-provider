@@ -1,10 +1,11 @@
 package com.trevorism.gcloud.webapi.service
 
-import com.trevorism.gcloud.webapi.model.*
+import com.trevorism.gcloud.webapi.model.Identity
+import com.trevorism.gcloud.webapi.model.TokenRequest
+import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.secure.PasswordProvider
 import com.trevorism.secure.Roles
 import io.jsonwebtoken.CompressionCodecs
-import io.jsonwebtoken.JwtBuilder
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -14,7 +15,6 @@ import java.time.Instant
 
 class AccessTokenService implements TokenService {
 
-    private RoleService roleService = new DefaultUserRoleService();
     private PasswordProvider passwordProvider = new PasswordProvider()
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
 
@@ -23,31 +23,29 @@ class AccessTokenService implements TokenService {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(passwordProvider.getSigningKey()))
 
         String aud = tokenRequest.audience ?: "trevorism.com"
+        String role = getRoleForIdentity(identity)
 
-        JwtBuilder builder = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(identity.getIdentifer())
                 .setIssuer("https://trevorism.com")
                 .setIssuedAt(new Date())
                 .setExpiration(Instant.now().plusSeconds(FIFTEEN_MINUTES_IN_SECONDS).toDate())
                 .setAudience(aud)
-
-        builder = setRoleForIdentity(identity, builder)
-        return builder.signWith(key).compressWith(CompressionCodecs.GZIP).compact()
+                .addClaims(["role": role])
+                .signWith(key)
+                .compressWith(CompressionCodecs.GZIP)
+                .compact()
 
     }
 
-    private JwtBuilder setRoleForIdentity(Identity identity, JwtBuilder builder) {
-        String role
-        if (identity instanceof App) {
-            role = Roles.TENANT_ADMIN
-        } else if (identity instanceof User) {
-            UserRole userRole = roleService.findByUserId(identity.id)
-            role = userRole?.role
+    private static String getRoleForIdentity(Identity identity) {
+        String role = Roles.SYSTEM
+        if (identity instanceof User) {
+            role = Roles.USER
+            if (identity.admin) {
+                role = Roles.ADMIN
+            }
         }
-
-        if (role) {
-            builder.addClaims(["role": role])
-        }
-        return builder
+        return role
     }
 }

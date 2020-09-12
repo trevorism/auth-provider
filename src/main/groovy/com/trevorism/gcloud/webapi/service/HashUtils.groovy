@@ -11,9 +11,10 @@ import java.security.SecureRandom
 class HashUtils {
 
     private static final String HASHING_ALGORITHM = "SHA-512"
+    public static final String SHA1_PRNG = "SHA1PRNG"
 
     private static byte [] createSalt() {
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG")
+        SecureRandom sr = SecureRandom.getInstance(SHA1_PRNG)
         byte[] salt = new byte[16]
         sr.nextBytes(salt)
         return salt

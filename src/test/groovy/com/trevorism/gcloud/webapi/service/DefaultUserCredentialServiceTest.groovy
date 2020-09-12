@@ -78,7 +78,7 @@ class DefaultUserCredentialServiceTest {
     void testActivateUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        assert service.activateUser(new User(username: "test"), Roles.CREATE)
+        assert service.activateUser(new User(username: "test"), false)
     }
 
 
