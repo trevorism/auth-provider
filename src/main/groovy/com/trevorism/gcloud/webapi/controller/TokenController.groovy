@@ -2,13 +2,11 @@ package com.trevorism.gcloud.webapi.controller
 
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.TokenRequest
-import com.trevorism.gcloud.webapi.service.AccessTokenService
-import com.trevorism.gcloud.webapi.service.AppRegistrationService
-import com.trevorism.gcloud.webapi.service.CredentialValidator
-import com.trevorism.gcloud.webapi.service.DefaultAppRegistrationService
-import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
-import com.trevorism.gcloud.webapi.service.TokenService
-import com.trevorism.gcloud.webapi.service.UserCredentialService
+import com.trevorism.gcloud.webapi.service.*
+import com.trevorism.secure.ClaimProperties
+import com.trevorism.secure.ClaimsProvider
+import com.trevorism.secure.Roles
+import com.trevorism.secure.Secure
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 
@@ -16,11 +14,12 @@ import javax.ws.rs.Consumes
 import javax.ws.rs.POST
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
+import javax.ws.rs.core.Context
+import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.MediaType
 
 /**
- * @author tbrooks
- *
+ * @author tbrooks*
  */
 @Api("Token Operations")
 @Path("/token")
@@ -36,17 +35,33 @@ class TokenController {
     @Consumes(MediaType.APPLICATION_JSON)
     String token(TokenRequest tokenRequest) {
         CredentialValidator service = appRegistrationService
-        if(tokenRequest.type == TokenRequest.USER_TYPE){
+        if (tokenRequest.type == TokenRequest.USER_TYPE) {
             service = userCredentialService
         }
         boolean valid = service.validateCredentials(tokenRequest.getId(), tokenRequest.password)
 
-        if(valid){
+        if (valid) {
             Identity identity = service.getIdentity(tokenRequest.getId())
-            return tokenService.issueToken(identity, tokenRequest)
+            return tokenService.issueToken(identity, tokenRequest.getAudience())
         }
 
         return null
     }
 
+    @ApiOperation(value = "Create a new bearer token from an existing one.")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Secure(Roles.USER)
+    @Path("refresh")
+    String regenerateToken(@Context HttpHeaders httpheaders) {
+        ClaimProperties properties = ClaimsProvider.getClaims(getBearerToken(httpheaders))
+        Identity identity = userCredentialService.getIdentity(properties.getSubject())
+        tokenService.issueToken(identity, properties.getAudience())
+    }
+
+    private static String getBearerToken(HttpHeaders httpHeaders) {
+        String bearerString = httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION)
+        return bearerString.substring("bearer ".length())
+    }
 }

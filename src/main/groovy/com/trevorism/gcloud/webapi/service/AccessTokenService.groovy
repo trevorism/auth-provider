@@ -1,5 +1,6 @@
 package com.trevorism.gcloud.webapi.service
 
+import com.trevorism.gcloud.webapi.model.App
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.TokenRequest
 import com.trevorism.gcloud.webapi.model.User
@@ -15,16 +16,17 @@ import java.time.Instant
 
 class AccessTokenService implements TokenService {
 
-    private PasswordProvider passwordProvider = new PasswordProvider()
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
+    public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
     @Override
-    String issueToken(Identity identity, TokenRequest tokenRequest) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(passwordProvider.getSigningKey()))
+    String issueToken(Identity identity, String audience) {
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(PasswordProvider.getInstance().getSigningKey()))
 
-        String aud = tokenRequest.audience ?: "trevorism.com"
+        String aud = audience ?: "trevorism.com"
         String role = getRoleForIdentity(identity)
-        Map claims = ["role": role, "id": identity.id]
+        String type = getTypeForIdentity(identity)
+        Map claims = ["role": role, "dbId": identity.id, "type": type]
 
         return Jwts.builder()
                 .setSubject(identity.getIdentifer())
@@ -48,5 +50,29 @@ class AccessTokenService implements TokenService {
             }
         }
         return role
+    }
+
+    @Override
+    String issueRefreshToken(Identity identity) {
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(PasswordProvider.getInstance().getSigningKey()))
+
+        String aud = "auth.trevorism.com"
+        String type = identity instanceof App ? "app" : "user"
+        Map claims = ["dbId": identity.id, "type": type]
+
+        return Jwts.builder()
+                .setSubject(identity.getIdentifer())
+                .setIssuer("https://trevorism.com")
+                .setIssuedAt(new Date())
+                .setExpiration(Instant.now().plusSeconds(ONE_DAY_IN_SECONDS).toDate())
+                .setAudience(aud)
+                .addClaims(claims)
+                .signWith(key)
+                .compressWith(CompressionCodecs.GZIP)
+                .compact()
+    }
+
+    private static String getTypeForIdentity(Identity identity) {
+        identity instanceof User ? TokenRequest.USER_TYPE : TokenRequest.APP_TYPE
     }
 }

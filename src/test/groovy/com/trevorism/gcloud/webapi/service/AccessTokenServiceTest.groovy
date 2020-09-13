@@ -17,8 +17,9 @@ class AccessTokenServiceTest {
     @Test
     void testIssueToken() {
         TokenService accessTokenService = new AccessTokenService()
-        String token = accessTokenService.issueToken(new User(username: "testUsername"), new TokenRequest(audience: "testAudience"))
+        String token = accessTokenService.issueToken(new User(username: "testUsername"), "testAudience")
 
+        println token
         assert token
         assertTokenDecodes(token)
     }
@@ -26,13 +27,13 @@ class AccessTokenServiceTest {
     @Test
     void testIssueTokenNullUserAudienceStillWorks() {
         TokenService accessTokenService = new AccessTokenService()
-        String token = accessTokenService.issueToken(new User(), new TokenRequest())
+        String token = accessTokenService.issueToken(new User(), "")
 
         assert token
     }
 
     private static void assertTokenDecodes(String token) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(new PasswordProvider().getSigningKey()))
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(PasswordProvider.getInstance().getSigningKey()))
 
         Jws<Claims> decoded = Jwts.parserBuilder()
                 .setAllowedClockSkewSeconds(10)
