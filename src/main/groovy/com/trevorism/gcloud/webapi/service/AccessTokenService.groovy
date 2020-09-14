@@ -57,7 +57,7 @@ class AccessTokenService implements TokenService {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(PasswordProvider.getInstance().getSigningKey()))
 
         String aud = "auth.trevorism.com"
-        String type = identity instanceof App ? "app" : "user"
+        String type = getTypeForIdentity(identity)
         Map claims = ["dbId": identity.id, "type": type]
 
         return Jwts.builder()
@@ -73,6 +73,6 @@ class AccessTokenService implements TokenService {
     }
 
     private static String getTypeForIdentity(Identity identity) {
-        identity instanceof User ? TokenRequest.USER_TYPE : TokenRequest.APP_TYPE
+        return identity instanceof User ? TokenRequest.USER_TYPE : TokenRequest.APP_TYPE
     }
 }
