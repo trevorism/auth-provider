@@ -1,6 +1,6 @@
 package com.trevorism.gcloud.webapi.service
 
-import com.trevorism.gcloud.webapi.model.App
+
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.TokenRequest
 import com.trevorism.gcloud.webapi.model.User
@@ -26,7 +26,7 @@ class AccessTokenService implements TokenService {
         String aud = audience ?: "trevorism.com"
         String role = getRoleForIdentity(identity)
         String type = getTypeForIdentity(identity)
-        Map claims = ["role": role, "dbId": identity.id, "type": type]
+        Map claims = ["role": role, "dbId": identity.id, "entityType": type]
 
         return Jwts.builder()
                 .setSubject(identity.getIdentifer())
@@ -58,7 +58,7 @@ class AccessTokenService implements TokenService {
 
         String aud = "auth.trevorism.com"
         String type = getTypeForIdentity(identity)
-        Map claims = ["dbId": identity.id, "type": type]
+        Map claims = ["dbId": identity.id, "entityType": type]
 
         return Jwts.builder()
                 .setSubject(identity.getIdentifer())
