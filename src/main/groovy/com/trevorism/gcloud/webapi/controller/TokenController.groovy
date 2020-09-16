@@ -64,4 +64,5 @@ class TokenController {
         String bearerString = httpHeaders.getHeaderString(HttpHeaders.AUTHORIZATION)
         return bearerString.substring("bearer ".length())
     }
+
 }
