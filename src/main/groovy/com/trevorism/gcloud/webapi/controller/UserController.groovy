@@ -9,13 +9,7 @@ import com.trevorism.secure.Secure
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 
-import javax.ws.rs.Consumes
-import javax.ws.rs.DELETE
-import javax.ws.rs.GET
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.PathParam
-import javax.ws.rs.Produces
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api("User Operations")
@@ -81,5 +75,20 @@ class UserController {
     boolean deactivateUser(ActivationRequest activationRequest) {
         User user = userCredentialService.getIdentity(activationRequest.username)
         userCredentialService.deactivateUser(user)
+    }
+
+    @ApiOperation(value = "Reset Password **Secure")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Secure(Roles.SYSTEM)
+    @Path("reset")
+    boolean resetPassword(ActivationRequest activationRequest) {
+        try {
+            userCredentialService.forgotPassword(new User(username: activationRequest.username))
+        } catch (Exception ignored) {
+            return false
+        }
+        return true
     }
 }
