@@ -10,6 +10,7 @@ import com.trevorism.secure.Secure
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 
+import javax.ws.rs.BadRequestException
 import javax.ws.rs.Consumes
 import javax.ws.rs.POST
 import javax.ws.rs.Path
@@ -45,7 +46,7 @@ class TokenController {
             return tokenService.issueToken(identity, tokenRequest.getAudience())
         }
 
-        return null
+        throw new BadRequestException("Unable to issue token")
     }
 
     @ApiOperation(value = "Create a new bearer token from an existing one.")

@@ -54,7 +54,6 @@ class DefaultAppRegistrationServiceTest {
         assert registered.dateCreated
         assert registered.dateExpired
         assert registered.clientId
-
     }
 
     @Test

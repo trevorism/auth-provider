@@ -71,15 +71,18 @@ class DefaultUserCredentialService implements UserCredentialService{
             log.warning("Registration missing a required field")
             return false
         }
-        if(getUserCredential(user.username)){
-            log.warning("Registration detected duplicate username")
-            return false
-        }
         if(user.username.length() < 3 || user.password.length() < 6) {
             log.warning("Registration username/password length not acceptable")
             return false
         }
-
+        if(!user.email.contains("@")) {
+            log.warning("Email is not formatted correctly")
+            return false
+        }
+        if(getUserCredential(user.username)){
+            log.warning("Registration detected duplicate username")
+            return false
+        }
         return true
     }
 

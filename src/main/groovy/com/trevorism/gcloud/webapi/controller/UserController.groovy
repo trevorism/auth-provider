@@ -1,6 +1,7 @@
 package com.trevorism.gcloud.webapi.controller
 
 import com.trevorism.gcloud.webapi.model.ActivationRequest
+import com.trevorism.gcloud.webapi.model.ChangePasswordRequest
 import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.gcloud.webapi.service.DefaultUserCredentialService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
@@ -51,7 +52,7 @@ class UserController {
     @Secure(Roles.SYSTEM)
     @Path("{username}")
     User removeUser(@PathParam("username") String username) {
-        User user = userCredentialService.getIdentity(username)
+        User user = userCredentialService.getIdentity(username) as User
         userCredentialService.deleteUser(user.id)
     }
 
@@ -62,7 +63,7 @@ class UserController {
     @Secure(Roles.ADMIN)
     @Path("activate")
     boolean activateUser(ActivationRequest activationRequest) {
-        User user = userCredentialService.getIdentity(activationRequest.username)
+        User user = userCredentialService.getIdentity(activationRequest.username) as User
         userCredentialService.activateUser(user, activationRequest.isAdmin)
     }
 
@@ -73,7 +74,7 @@ class UserController {
     @Secure(Roles.SYSTEM)
     @Path("deactivate")
     boolean deactivateUser(ActivationRequest activationRequest) {
-        User user = userCredentialService.getIdentity(activationRequest.username)
+        User user = userCredentialService.getIdentity(activationRequest.username) as User
         userCredentialService.deactivateUser(user)
     }
 
@@ -86,6 +87,22 @@ class UserController {
     boolean resetPassword(ActivationRequest activationRequest) {
         try {
             userCredentialService.forgotPassword(new User(username: activationRequest.username))
+        } catch (Exception ignored) {
+            return false
+        }
+        return true
+    }
+
+    @ApiOperation(value = "Change Password **Secure")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Secure(Roles.SYSTEM)
+    @Path("change")
+    boolean changePassword(ChangePasswordRequest changePasswordRequest) {
+        try {
+            User user = userCredentialService.getIdentity(changePasswordRequest.username) as User
+            userCredentialService.changePassword(user, changePasswordRequest.currentPassword, changePasswordRequest.desiredPassword)
         } catch (Exception ignored) {
             return false
         }

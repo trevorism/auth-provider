@@ -62,7 +62,7 @@ class AppController {
     @Path("{clientId}/secret")
     @Secure(Roles.ADMIN)
     String updateAppSecret(@PathParam("clientId") String clientId) {
-        App app = appRegistrationService.getIdentity(clientId)
+        App app = appRegistrationService.getIdentity(clientId) as App
         appRegistrationService.generateClientSecret(app)
     }
 }

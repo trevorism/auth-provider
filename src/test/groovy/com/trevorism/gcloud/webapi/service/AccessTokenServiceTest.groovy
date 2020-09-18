@@ -19,7 +19,6 @@ class AccessTokenServiceTest {
         TokenService accessTokenService = new AccessTokenService()
         String token = accessTokenService.issueToken(new User(username: "testUsername"), "testAudience")
 
-        println token
         assert token
         assertTokenDecodes(token)
     }
@@ -29,6 +28,13 @@ class AccessTokenServiceTest {
         TokenService accessTokenService = new AccessTokenService()
         String token = accessTokenService.issueToken(new User(), "")
 
+        assert token
+    }
+
+    @Test
+    void testIssueRefreshToken() {
+        TokenService accessTokenService = new AccessTokenService()
+        String token = accessTokenService.issueRefreshToken(new User())
         assert token
     }
 

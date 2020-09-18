@@ -2,7 +2,6 @@ package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.Repository
 import com.trevorism.gcloud.webapi.model.User
-import com.trevorism.secure.Roles
 import org.junit.Test
 
 class DefaultUserCredentialServiceTest {
@@ -19,8 +18,8 @@ class DefaultUserCredentialServiceTest {
     void testDeleteUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        assert service.getUser("5154038974775296")
-        assert !service.getUser("6")
+        assert service.deleteUser("5154038974775296")
+        assert !service.deleteUser("6")
     }
 
     @Test
@@ -81,6 +80,12 @@ class DefaultUserCredentialServiceTest {
         assert service.activateUser(new User(username: "test"), false)
     }
 
+    @Test
+    void testDeactivateUser() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert service.deactivateUser(new User(username: "test"))
+    }
 
     class TestUserRepository implements Repository<User>{
 
