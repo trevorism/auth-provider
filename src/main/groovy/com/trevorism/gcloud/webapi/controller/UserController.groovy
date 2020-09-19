@@ -97,7 +97,7 @@ class UserController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Secure(Roles.SYSTEM)
+    @Secure(Roles.USER)
     @Path("change")
     boolean changePassword(ChangePasswordRequest changePasswordRequest) {
         try {
