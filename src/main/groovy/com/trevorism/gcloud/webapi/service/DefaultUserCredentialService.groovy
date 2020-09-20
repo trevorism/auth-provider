@@ -92,7 +92,12 @@ class DefaultUserCredentialService implements UserCredentialService{
         toUpdate.active = true
         toUpdate.admin = admin
         toUpdate.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
-        return repository.update(toUpdate.id, toUpdate)
+        def result = repository.update(toUpdate.id, toUpdate)
+        if(result) {
+            emailer.sendActivationEmail(user.email)
+            return true
+        }
+        return false
     }
 
     @Override

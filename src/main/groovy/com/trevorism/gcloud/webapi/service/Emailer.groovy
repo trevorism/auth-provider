@@ -18,6 +18,11 @@ class Emailer {
         eventProducer.sendEvent("email", email)
     }
 
+    void sendActivationEmail(String emailAddress){
+        Email email = new Email(recipients: emailAddress, subject: "Trevorism: Activation", body: buildActivationBody())
+        eventProducer.sendEvent("email", email)
+    }
+
     private static String buildBody(String password) {
         StringBuilder sb = new StringBuilder()
         sb << "Your new password for trevorism.com is: ${password}\n"
@@ -25,4 +30,10 @@ class Emailer {
         return sb.toString()
     }
 
+    private static String buildActivationBody() {
+        StringBuilder sb = new StringBuilder()
+        sb << "Congratulations you account has been activated!\n"
+        sb << "Login to https://trevorism.com"
+        return sb.toString()
+    }
 }
