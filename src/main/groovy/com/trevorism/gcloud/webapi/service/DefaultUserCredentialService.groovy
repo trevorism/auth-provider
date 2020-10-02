@@ -43,6 +43,7 @@ class DefaultUserCredentialService implements UserCredentialService{
 
         user.active = false
         user.dateCreated = new Date()
+        user.username = user.username.toLowerCase()
 
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
@@ -137,7 +138,7 @@ class DefaultUserCredentialService implements UserCredentialService{
 
     private User getUserCredential(String username) {
         return repository.list().find{
-            it.username == username
+            it.username == username.toLowerCase()
         }
     }
 

@@ -70,7 +70,7 @@ appengine {
         projectId = "trevorism-auth"
         stopPreviousVersion = true
         promote = true
-        version = "0-5-1"
+        version = "0-6-0"
     }
 }
 
