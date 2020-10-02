@@ -49,7 +49,7 @@ class TokenController {
         throw new BadRequestException("Unable to issue token")
     }
 
-    @ApiOperation(value = "Create a new bearer token from an existing one.")
+    @ApiOperation(value = "Create a new bearer token from an existing one. **Secure")
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_JSON)

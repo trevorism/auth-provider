@@ -17,7 +17,7 @@ class AppController {
 
     private AppRegistrationService appRegistrationService = new DefaultAppRegistrationService()
 
-    @ApiOperation(value = "Register a new app which generates a client Id")
+    @ApiOperation(value = "Register a new app which generates a client Id **Secure")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
