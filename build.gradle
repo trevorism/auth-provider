@@ -47,15 +47,13 @@ dependencies {
     implementation 'org.slf4j:slf4j-nop:1.7.30'
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.6.2'
 
-    implementation 'com.trevorism:secure-utils:3.3.0'
+    implementation 'com.trevorism:secure-utils:3.3.1'
     implementation 'com.trevorism:datastore-client:2.0.0'
     implementation 'com.trevorism:eventhub-client:2.0.0'
-    implementation 'com.trevorism:http-utils:1.0.2'
+    implementation 'com.trevorism:http-utils:1.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
-    runtimeOnly 'io.jsonwebtoken:jjwt-gson:0.11.2'
 
     acceptanceImplementation 'io.cucumber:cucumber-groovy:4.7.1'
     acceptanceImplementation 'com.trevorism:http-utils:1.0.2'
