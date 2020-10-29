@@ -5,13 +5,14 @@ import com.trevorism.data.Repository
 import com.trevorism.gcloud.webapi.model.App
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.SaltedPassword
+import com.trevorism.https.DefaultInternalTokenSecureHttpClient
 
 import java.time.Instant
 import java.time.ZoneId
 
 class DefaultAppRegistrationService implements AppRegistrationService{
 
-    private Repository<App> repository = new PingingDatastoreRepository<>(App)
+    private Repository<App> repository = new PingingDatastoreRepository<>(App, new DefaultInternalTokenSecureHttpClient())
 
     @Override
     List<App> listRegisteredApps() {
