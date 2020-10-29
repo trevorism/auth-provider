@@ -7,7 +7,7 @@
 
 Trevorism authentication and authorization API
 
-Current version: 0.6.0
+Current version: 0.7.0
 
 [Trevorism Auth](https://auth.trevorism.com/)
 
