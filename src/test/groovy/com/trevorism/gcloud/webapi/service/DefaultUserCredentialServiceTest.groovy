@@ -33,6 +33,7 @@ class DefaultUserCredentialServiceTest {
     void testRegisterUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
+        service.emailer = [sendRegistrationEmail: {a,b -> }] as Emailer
         assert service.registerUser(new User(username: "testUsername", email: "test@trevorism.com", password: "testPass"))
     }
 
