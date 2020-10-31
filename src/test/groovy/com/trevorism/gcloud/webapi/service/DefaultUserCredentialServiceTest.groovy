@@ -78,6 +78,7 @@ class DefaultUserCredentialServiceTest {
     void testActivateUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
+        service.emailer = [sendActivationEmail: {a -> }] as Emailer
         assert service.activateUser(new User(username: "test"), false)
     }
 
