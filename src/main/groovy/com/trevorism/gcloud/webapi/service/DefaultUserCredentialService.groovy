@@ -54,6 +54,10 @@ class DefaultUserCredentialService implements UserCredentialService{
 
     @Override
     boolean validateCredentials(String username, String password) {
+        if(!username || !password){
+            return false
+        }
+
         User user = getUserCredential(username)
 
         if(!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)){

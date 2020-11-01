@@ -44,6 +44,12 @@ class TokenControllerTest {
         assert !tokenController.token(new TokenRequest())
     }
 
+    @Test(expected = BadRequestException)
+    void testBadTokenUserRequest() {
+        TokenController tokenController = new TokenController()
+        assert !tokenController.token(new TokenRequest(type: TokenRequest.USER_TYPE))
+    }
+
     @Test
     void testGetUserToken() {
         TokenController tokenController = new TokenController()

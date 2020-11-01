@@ -77,6 +77,10 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     @Override
     boolean validateCredentials(String identifier, String password) {
+        if(!identifier || !password){
+            return false
+        }
+
         App app = getIdentity(identifier)
 
         if(!app || !app.clientId || !app.clientSecret || !app.salt || !app.active || HashUtils.isExpired(app.dateExpired)){
