@@ -34,7 +34,7 @@ repositories {
     }
 }
 
-def jerseyVersion = "2.31"
+def jerseyVersion = "2.32"
 
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:2.5.8'

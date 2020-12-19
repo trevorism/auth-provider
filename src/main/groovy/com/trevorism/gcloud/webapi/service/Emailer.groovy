@@ -37,7 +37,7 @@ class Emailer {
 
     private static String buildActivationBody() {
         StringBuilder sb = new StringBuilder()
-        sb << "Congratulations you account has been activated!\n"
+        sb << "Congratulations your account has been activated!\n"
         sb << "Login to https://trevorism.com"
         return sb.toString()
     }
