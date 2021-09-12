@@ -11,7 +11,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.logging.Logger
 
-class DefaultUserCredentialService implements UserCredentialService{
+class DefaultUserCredentialService implements UserCredentialService {
 
     private Repository<User> repository = new PingingDatastoreRepository<>(User, new DefaultInternalTokenSecureHttpClient())
     private Emailer emailer = new Emailer()
@@ -31,14 +31,14 @@ class DefaultUserCredentialService implements UserCredentialService{
 
     @Override
     List<User> listUsers() {
-        repository.list().collect{
+        repository.list().collect {
             cleanUser(it)
         }
     }
 
     @Override
     User registerUser(User user) {
-        if(!validateRegistration(user)) {
+        if (!validateRegistration(user)) {
             throw new RuntimeException("Unable to register user without credentials")
         }
 
@@ -54,13 +54,13 @@ class DefaultUserCredentialService implements UserCredentialService{
 
     @Override
     boolean validateCredentials(String username, String password) {
-        if(!username || !password){
+        if (!username || !password) {
             return false
         }
 
         User user = getUserCredential(username)
 
-        if(!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)){
+        if (!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)) {
             return false
         }
 
@@ -74,19 +74,19 @@ class DefaultUserCredentialService implements UserCredentialService{
 
     @Override
     boolean validateRegistration(User user) {
-        if(!user || !user.username || !user.password || !user.email){
+        if (!user || !user.username || !user.password || !user.email) {
             log.warning("Registration missing a required field")
             return false
         }
-        if(user.username.length() < 3 || user.password.length() < 6) {
+        if (user.username.length() < 3 || user.password.length() < 6) {
             log.warning("Registration username/password length not acceptable")
             return false
         }
-        if(!user.email.contains("@")) {
+        if (!user.email.contains("@")) {
             log.warning("Email is not formatted correctly")
             return false
         }
-        if(getUserCredential(user.username)){
+        if (getUserCredential(user.username)) {
             log.warning("Registration detected duplicate username")
             return false
         }
@@ -100,7 +100,7 @@ class DefaultUserCredentialService implements UserCredentialService{
         toUpdate.admin = admin
         toUpdate.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
         def result = repository.update(toUpdate.id, toUpdate)
-        if(result) {
+        if (result) {
             emailer.sendActivationEmail(user.email)
             return true
         }
@@ -117,7 +117,7 @@ class DefaultUserCredentialService implements UserCredentialService{
     @Override
     boolean changePassword(Identity identity, String currentPassword, String newPassword) {
         User user = getUserCredential(identity.getIdentifer())
-        if(!validatePasswordsMatch(user, currentPassword)){
+        if (!validatePasswordsMatch(user, currentPassword)) {
             return false
         }
         user.password = newPassword
@@ -130,7 +130,7 @@ class DefaultUserCredentialService implements UserCredentialService{
     @Override
     void forgotPassword(Identity identity) {
         User user = getUserCredential(identity.getIdentifer())
-        if(!user){
+        if (!user) {
             throw new RuntimeException("Unable to locate user: ${identity.identifer}")
         }
         String newPassword = HashUtils.generateRawSecret()
@@ -143,8 +143,13 @@ class DefaultUserCredentialService implements UserCredentialService{
     }
 
     private User getUserCredential(String username) {
-        return repository.list().find{
-            it.username == username.toLowerCase()
+        try{
+            return repository.list().find {
+                it.username == username.toLowerCase()
+            }
+        }catch(Exception e){
+            log.severe("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
+            return null
         }
     }
 
