@@ -34,17 +34,17 @@ repositories {
     }
 }
 
-def jerseyVersion = "2.32"
+def jerseyVersion = "2.35"
 
 dependencies {
-    implementation 'org.codehaus.groovy:groovy-all:2.5.8'
+    implementation 'org.codehaus.groovy:groovy-all:2.5.15'
 
     implementation "org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion"
     implementation "org.glassfish.jersey.media:jersey-media-json-jackson:$jerseyVersion"
     implementation "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
-    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.11.3'
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.12.5'
 
-    implementation 'org.slf4j:slf4j-nop:1.7.30'
+    implementation 'org.slf4j:slf4j-nop:1.7.32'
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.6.2'
 
     implementation 'com.trevorism:secure-http-utils:0.7.0'
@@ -57,7 +57,7 @@ dependencies {
     acceptanceImplementation 'io.cucumber:cucumber-groovy:4.7.1'
     acceptanceImplementation 'com.trevorism:http-utils:1.1.0'
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 

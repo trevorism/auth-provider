@@ -49,6 +49,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
         app = validateApp(app)
         String rawSecret = HashUtils.generateRawSecret()
         app = setPasswordAndSalt(app, rawSecret)
+        app.dateExpired = Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate()
         repository.update(app.id, app)
         return rawSecret
     }
