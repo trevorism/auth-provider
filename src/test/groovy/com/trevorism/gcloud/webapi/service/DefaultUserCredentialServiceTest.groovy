@@ -1,6 +1,9 @@
 package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.Repository
+import com.trevorism.data.model.filtering.ComplexFilter
+import com.trevorism.data.model.paging.PageRequest
+import com.trevorism.data.model.sorting.ComplexSort
 import com.trevorism.gcloud.webapi.model.User
 import org.junit.Test
 
@@ -148,6 +151,23 @@ class DefaultUserCredentialServiceTest {
         @Override
         void ping() {
 
+        }
+
+        @Override
+        List<User> filter(ComplexFilter complexFilter) {
+            if(complexFilter?.simpleFilters?.get(0).value == "test")
+                return list()
+            return []
+        }
+
+        @Override
+        List<User> page(PageRequest pageRequest) {
+            return list()
+        }
+
+        @Override
+        List<User> sort(ComplexSort complexSort) {
+            return list()
         }
     }
 }

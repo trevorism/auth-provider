@@ -2,6 +2,8 @@ package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
+import com.trevorism.data.model.filtering.FilterBuilder
+import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.SaltedPassword
 import com.trevorism.gcloud.webapi.model.User
@@ -144,9 +146,7 @@ class DefaultUserCredentialService implements UserCredentialService {
 
     private User getUserCredential(String username) {
         try{
-            return repository.list().find {
-                it.username == username.toLowerCase()
-            }
+            return repository.filter(new FilterBuilder().addFilter(new SimpleFilter("username", "=", username.toLowerCase())).build())[0]
         }catch(Exception e){
             log.severe("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
             return null

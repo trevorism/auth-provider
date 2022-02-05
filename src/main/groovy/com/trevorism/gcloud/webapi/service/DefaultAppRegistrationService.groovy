@@ -1,7 +1,10 @@
 package com.trevorism.gcloud.webapi.service
 
+import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
+import com.trevorism.data.model.filtering.FilterBuilder
+import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.gcloud.webapi.model.App
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.SaltedPassword
@@ -12,7 +15,7 @@ import java.time.ZoneId
 
 class DefaultAppRegistrationService implements AppRegistrationService{
 
-    private Repository<App> repository = new PingingDatastoreRepository<>(App, new DefaultInternalTokenSecureHttpClient())
+    private Repository<App> repository = new FastDatastoreRepository<>(App, new DefaultInternalTokenSecureHttpClient())
 
     @Override
     List<App> listRegisteredApps() {
@@ -69,7 +72,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
         return retrievedApp
     }
 
-    private App setPasswordAndSalt(App app, String rawSecret) {
+    private static App setPasswordAndSalt(App app, String rawSecret) {
         SaltedPassword sp = HashUtils.createPasswordAndSalt(rawSecret)
         app.salt = sp.salt
         app.clientSecret = sp.password
@@ -94,9 +97,11 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     @Override
     Identity getIdentity(String identifier) {
-        repository.list().find {
-            it.clientId == identifier
+        def list = repository.filter(new FilterBuilder().addFilter(new SimpleFilter("clientId", "=", identifier)).build())
+        if(!list) {
+            return null
         }
+        return list[0]
     }
 
     private static boolean validatePasswordsMatch(App app, String password) {

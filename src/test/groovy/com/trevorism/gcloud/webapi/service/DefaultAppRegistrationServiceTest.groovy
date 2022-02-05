@@ -2,6 +2,9 @@ package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.Repository
 import com.trevorism.data.exception.IdMissingException
+import com.trevorism.data.model.filtering.ComplexFilter
+import com.trevorism.data.model.paging.PageRequest
+import com.trevorism.data.model.sorting.ComplexSort
 import com.trevorism.gcloud.webapi.model.App
 import com.trevorism.gcloud.webapi.model.SaltedPassword
 import org.junit.Test
@@ -60,22 +63,22 @@ class DefaultAppRegistrationServiceTest {
     void testGenerateClientSecretAndValidateIt() {
         DefaultAppRegistrationService service = new DefaultAppRegistrationService()
         service.repository = new TestAppRepository()
-        String secret = service.generateClientSecret(new App(id: "5721612393381888", clientId: "e4e7254b-763e-4ec0-9506-c72c8a710f06"))
-        assert service.validateCredentials("e4e7254b-763e-4ec0-9506-c72c8a710f06", secret)
+        String secret = service.generateClientSecret(new App(id: "5721612393381888", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a"))
+        assert service.validateCredentials("fc64fb13-216d-4592-8bc9-79f087e14f9a", secret)
     }
 
     @Test
     void testValidateApp() {
         DefaultAppRegistrationService service = new DefaultAppRegistrationService()
         service.repository = new TestAppRepository()
-        assert service.validateApp(new App(id: "5721612393381888", clientId: "e4e7254b-763e-4ec0-9506-c72c8a710f06"))
+        assert service.validateApp(new App(id: "5721612393381888", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a"))
     }
 
     @Test(expected = Exception)
     void testValidateAppWithBadId() {
         DefaultAppRegistrationService service = new DefaultAppRegistrationService()
         service.repository = new TestAppRepository()
-        assert service.validateApp(new App(id: "2", clientId: "e4e7254b-763e-4ec0-9506-c72c8a710f06"))
+        assert service.validateApp(new App(id: "2", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a"))
     }
 
     @Test(expected = Exception)
@@ -89,7 +92,7 @@ class DefaultAppRegistrationServiceTest {
     void testGetIdentity() {
         DefaultAppRegistrationService service = new DefaultAppRegistrationService()
         service.repository = new TestAppRepository()
-        assert service.getIdentity("e4e7254b-763e-4ec0-9506-c72c8a710f06")
+        assert service.getIdentity("fc64fb13-216d-4592-8bc9-79f087e14f9a")
         assert !service.getIdentity("123")
     }
 
@@ -104,7 +107,7 @@ class DefaultAppRegistrationServiceTest {
 
         @Override
         List<App> list(String s) {
-            return [new App(id:1, appName: "test", clientId: "e4e7254b-763e-4ec0-9506-c72c8a710f06", active: true,
+            return [new App(id:1, appName: "test", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a", active: true,
                     dateCreated: new Date(),
                     dateExpired: Instant.now().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(1).toDate(),
                     salt: sp.salt, clientSecret: sp.password)]
@@ -118,7 +121,7 @@ class DefaultAppRegistrationServiceTest {
         @Override
         App get(String s, String s1) {
             if(s == "5721612393381888"){
-                return new App(id: "5721612393381888", clientId: "e4e7254b-763e-4ec0-9506-c72c8a710f06")
+                return new App(id: "5721612393381888", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a")
             }
             return null
         }
@@ -152,7 +155,7 @@ class DefaultAppRegistrationServiceTest {
         @Override
         App delete(String s, String s1) {
             if(s == "5721612393381888"){
-                return new App(id: "5721612393381888", clientId: "e4e7254b-763e-4ec0-9506-c72c8a710f06")
+                return new App(id: "5721612393381888", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a")
             }
             return null
         }
@@ -160,6 +163,23 @@ class DefaultAppRegistrationServiceTest {
         @Override
         void ping() {
 
+        }
+
+        @Override
+        List<App> filter(ComplexFilter complexFilter) {
+            if(complexFilter?.simpleFilters?.get(0).value == "fc64fb13-216d-4592-8bc9-79f087e14f9a")
+                return list()
+            return []
+        }
+
+        @Override
+        List<App> page(PageRequest pageRequest) {
+            return list()
+        }
+
+        @Override
+        List<App> sort(ComplexSort complexSort) {
+            return list()
         }
     }
 }
