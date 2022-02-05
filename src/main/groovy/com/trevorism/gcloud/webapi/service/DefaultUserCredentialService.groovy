@@ -1,5 +1,6 @@
 package com.trevorism.gcloud.webapi.service
 
+import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -15,7 +16,7 @@ import java.util.logging.Logger
 
 class DefaultUserCredentialService implements UserCredentialService {
 
-    private Repository<User> repository = new PingingDatastoreRepository<>(User, new DefaultInternalTokenSecureHttpClient())
+    private Repository<User> repository = new FastDatastoreRepository<>(User, new DefaultInternalTokenSecureHttpClient())
     private Emailer emailer = new Emailer()
     private static final Logger log = Logger.getLogger(DefaultUserCredentialService.class.name)
 
