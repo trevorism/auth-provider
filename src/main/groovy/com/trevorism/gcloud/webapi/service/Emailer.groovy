@@ -1,31 +1,35 @@
 package com.trevorism.gcloud.webapi.service
 
-import com.trevorism.event.EventProducer
-import com.trevorism.event.PingingEventProducer
+import com.trevorism.EmailClient
+import com.trevorism.https.DefaultInternalTokenSecureHttpClient
+import com.trevorism.https.SecureHttpClient
+import com.trevorism.model.Email
 
 class Emailer {
 
-    private EventProducer<Email> eventProducer = new PingingEventProducer<>()
+    private EmailClient emailClient
 
-    class Email {
-        String recipients
-        String subject
-        String body
+    Emailer() {
+        this(new DefaultInternalTokenSecureHttpClient())
     }
 
-    void sendForgotPasswordEmail(String emailAddress, String newPassword) {
-        Email email = new Email(recipients: emailAddress, subject: "Trevorism: Forgot Password", body: buildBody(newPassword))
-        eventProducer.sendEvent("email", email)
+    Emailer(SecureHttpClient secureHttpClient) {
+        emailClient = new EmailClient(secureHttpClient)
     }
 
-    void sendActivationEmail(String emailAddress) {
-        Email email = new Email(recipients: emailAddress, subject: "Trevorism: Activation", body: buildActivationBody())
-        eventProducer.sendEvent("email", email)
+    boolean sendForgotPasswordEmail(String emailAddress, String newPassword) {
+        Email email = new Email(recipients: [emailAddress], subject: "Trevorism: Forgot Password", body: buildBody(newPassword))
+        emailClient.sendEmail(email)
     }
 
-    void sendRegistrationEmail(String username, String emailAddress) {
-        Email email = new Email(recipients: "feedback@trevorism.com", subject: "Trevorism: Registration", body: buildRegistrationBody(username, emailAddress))
-        eventProducer.sendEvent("email", email)
+    boolean sendActivationEmail(String emailAddress) {
+        Email email = new Email(recipients: [emailAddress], subject: "Trevorism: Activation", body: buildActivationBody())
+        emailClient.sendEmail(email)
+    }
+
+    boolean sendRegistrationEmail(String username, String emailAddress) {
+        Email email = new Email(recipients: ["feedback@trevorism.com"], subject: "Trevorism: Registration", body: buildRegistrationBody(username, emailAddress))
+        emailClient.sendEmail(email)
     }
 
     private static String buildBody(String password) {

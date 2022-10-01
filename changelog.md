@@ -1,11 +1,15 @@
-# 0.7.0
+# 0.9.0
 
-Provides utilities for users and tokens on Trevorism
+Move to github actions
+
+# 0.8.1
+
+Updated dependencies
 
 # 0.8.0
 
 Optimized the getIdentity methods by using a filter instead of retrieving all
 
-# 0.8.1
+# 0.7.0
 
-Updated dependencies
+Provides utilities for users and tokens on Trevorism

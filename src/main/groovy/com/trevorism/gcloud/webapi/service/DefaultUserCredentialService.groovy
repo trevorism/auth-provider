@@ -1,7 +1,6 @@
 package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.FastDatastoreRepository
-import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
 import com.trevorism.data.model.filtering.SimpleFilter
@@ -9,6 +8,7 @@ import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.SaltedPassword
 import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.https.DefaultInternalTokenSecureHttpClient
+import com.trevorism.https.SecureHttpClient
 
 import java.time.Instant
 import java.time.ZoneId
@@ -16,8 +16,9 @@ import java.util.logging.Logger
 
 class DefaultUserCredentialService implements UserCredentialService {
 
-    private Repository<User> repository = new FastDatastoreRepository<>(User, new DefaultInternalTokenSecureHttpClient())
-    private Emailer emailer = new Emailer()
+    private SecureHttpClient secureHttpClient = new DefaultInternalTokenSecureHttpClient()
+    private Repository<User> repository = new FastDatastoreRepository<>(User, secureHttpClient)
+    private Emailer emailer = new Emailer(secureHttpClient)
     private static final Logger log = Logger.getLogger(DefaultUserCredentialService.class.name)
 
     @Override

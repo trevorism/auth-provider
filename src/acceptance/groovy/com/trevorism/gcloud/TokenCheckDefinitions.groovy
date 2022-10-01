@@ -3,12 +3,13 @@ package com.trevorism.gcloud
 import com.trevorism.http.headers.HeadersHttpClient
 import com.trevorism.http.headers.HeadersJsonHttpClient
 import com.trevorism.http.util.ResponseUtils
+import com.trevorism.secure.ClasspathBasedPropertiesProvider
 import com.trevorism.secure.PropertiesProvider
 
 this.metaClass.mixin(cucumber.api.groovy.Hooks)
 this.metaClass.mixin(cucumber.api.groovy.EN)
 
-PropertiesProvider propertiesProvider = new PropertiesProvider()
+PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
 HeadersHttpClient jsonHttpClient = new HeadersJsonHttpClient()
 def response = ""
 

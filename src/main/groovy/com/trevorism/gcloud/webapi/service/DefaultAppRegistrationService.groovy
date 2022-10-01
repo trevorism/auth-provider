@@ -1,7 +1,6 @@
 package com.trevorism.gcloud.webapi.service
 
 import com.trevorism.data.FastDatastoreRepository
-import com.trevorism.data.PingingDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
 import com.trevorism.data.model.filtering.SimpleFilter
