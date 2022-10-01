@@ -1,6 +1,6 @@
 # 0.9.0
 
-Move to github actions
+Move to github actions. Lazy load properties. Remove eventhub-client in favor of a reactions-client.
 
 # 0.8.1
 
