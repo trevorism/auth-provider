@@ -15,7 +15,7 @@ jobs:
     with:
       gcp_project: 'trevorism-auth'
       gcp_project_id: '20040999009'
-      version: '0-9-0'
+      version: '0-9-1'
     secrets:
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}

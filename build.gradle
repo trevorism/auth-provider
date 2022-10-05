@@ -52,7 +52,7 @@ dependencies {
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.6.6'
 
     implementation 'com.trevorism:secure-http-utils:1.0.0'
-    implementation 'com.trevorism:datastore-client:2.5.0'
+    implementation 'com.trevorism:datastore-client:2.7.0'
     implementation 'com.trevorism:reactions-client:0.2.0'
     implementation 'com.google.code.gson:gson:2.9.1'
 
@@ -70,7 +70,7 @@ appengine {
         projectId = "trevorism-auth"
         stopPreviousVersion = true
         promote = true
-        version = "0-9-0"
+        version = "0-9-1"
     }
 }
 

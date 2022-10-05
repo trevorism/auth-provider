@@ -1,3 +1,7 @@
+# 0.9.1
+
+Use improved datastore client
+
 # 0.9.0
 
 Move to github actions. Lazy load properties. Remove eventhub-client in favor of a reactions-client.
