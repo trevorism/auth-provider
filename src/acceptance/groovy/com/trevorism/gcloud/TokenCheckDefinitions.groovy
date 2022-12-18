@@ -15,7 +15,8 @@ def response = ""
 
 When(/the endpoint tester internal endpoint is invoked/) { ->
     def token = propertiesProvider.getProperty("token")
-    response = ResponseUtils.getEntity(jsonHttpClient.get("https://endpoint-tester.testing.trevorism.com/secure/internal", ["Authorization": "bearer $token".toString()]))
+    def entity = jsonHttpClient.get("https://endpoint-tester.testing.trevorism.com/secure/internal", ["Authorization": "bearer $token".toString()])
+    response = ResponseUtils.getEntity(entity)
 }
 
 Then(/a response is returned successfully/) { ->
