@@ -4,7 +4,6 @@ import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.TokenRequest
 import com.trevorism.gcloud.webapi.model.User
 import com.trevorism.gcloud.webapi.service.AppRegistrationService
-import com.trevorism.gcloud.webapi.service.CredentialValidator
 import com.trevorism.gcloud.webapi.service.TokenService
 import com.trevorism.gcloud.webapi.service.UserCredentialService
 import com.trevorism.secure.ClaimProperties

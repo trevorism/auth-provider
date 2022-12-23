@@ -3,6 +3,8 @@ package com.trevorism.gcloud.webapi.service
 import com.trevorism.gcloud.webapi.model.Identity
 import com.trevorism.gcloud.webapi.model.TokenRequest
 import com.trevorism.gcloud.webapi.model.User
+import com.trevorism.secure.ClaimProperties
+import com.trevorism.secure.ClaimsProvider
 import com.trevorism.secure.ClasspathBasedPropertiesProvider
 import com.trevorism.secure.PropertiesProvider
 import com.trevorism.secure.Roles
@@ -20,14 +22,16 @@ class AccessTokenService implements TokenService {
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
     private PropertiesProvider propertiesProvider
+    private final String signingKey
 
     AccessTokenService(){
         propertiesProvider = new ClasspathBasedPropertiesProvider()
+        this.signingKey = propertiesProvider.getProperty("signingKey")
     }
 
     @Override
     String issueToken(Identity identity, String audience) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signingKey))
 
         String aud = audience ?: "trevorism.com"
         String role = getRoleForIdentity(identity)
@@ -60,7 +64,7 @@ class AccessTokenService implements TokenService {
 
     @Override
     String issueRefreshToken(Identity identity) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signingKey))
 
         String aud = "auth.trevorism.com"
         String type = getTypeForIdentity(identity)
@@ -76,6 +80,11 @@ class AccessTokenService implements TokenService {
                 .signWith(key)
                 .compressWith(CompressionCodecs.GZIP)
                 .compact()
+    }
+
+    @Override
+    ClaimProperties getClaimProperties(String bearerToken) {
+        ClaimsProvider.getClaims(bearerToken, signingKey)
     }
 
     private static String getTypeForIdentity(Identity identity) {

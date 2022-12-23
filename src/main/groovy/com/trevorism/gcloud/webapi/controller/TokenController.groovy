@@ -56,7 +56,7 @@ class TokenController {
     @Secure(Roles.USER)
     @Path("refresh")
     String regenerateToken(@Context HttpHeaders httpheaders) {
-        ClaimProperties properties = ClaimsProvider.getClaims(getBearerToken(httpheaders))
+        ClaimProperties properties = tokenService.getClaimProperties(getBearerToken(httpheaders))
         Identity identity = userCredentialService.getIdentity(properties.getSubject())
         tokenService.issueToken(identity, properties.getAudience())
     }

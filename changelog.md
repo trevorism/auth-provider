@@ -1,3 +1,7 @@
+# 0.9.2
+
+Fixed bug with refresh tokens
+
 # 0.9.1
 
 Use improved datastore client
