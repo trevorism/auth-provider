@@ -8,6 +8,5 @@ Feature: Valid internal token
 
   Scenario: Obtain a refresh token
     Given the auth application is alive
-    When a refresh token is requested
     When the endpoint tester internal endpoint is invoked
     Then a response is returned successfully
