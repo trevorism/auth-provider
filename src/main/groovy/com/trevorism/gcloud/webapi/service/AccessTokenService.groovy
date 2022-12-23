@@ -21,20 +21,11 @@ class AccessTokenService implements TokenService {
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-    private final String signingKey
-
-    AccessTokenService(){
-        PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
-        this.signingKey = propertiesProvider.getProperty("signingKey")
-    }
-
-    AccessTokenService(String signingKey){
-        this.signingKey = signingKey
-    }
+    private PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
 
     @Override
     String issueToken(Identity identity, String audience) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signingKey))
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
         String aud = audience ?: "trevorism.com"
         String role = getRoleForIdentity(identity)
@@ -67,7 +58,7 @@ class AccessTokenService implements TokenService {
 
     @Override
     String issueRefreshToken(Identity identity) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(signingKey))
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
         String aud = "auth.trevorism.com"
         String type = getTypeForIdentity(identity)
@@ -87,7 +78,7 @@ class AccessTokenService implements TokenService {
 
     @Override
     ClaimProperties getClaimProperties(String bearerToken) {
-        ClaimsProvider.getClaims(bearerToken, signingKey)
+        ClaimsProvider.getClaims(bearerToken, propertiesProvider.getProperty("signingKey"))
     }
 
     private static String getTypeForIdentity(Identity identity) {

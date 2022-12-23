@@ -18,7 +18,8 @@ class AccessTokenServiceTest {
 
     @Test
     void testIssueToken() {
-        TokenService accessTokenService = new AccessTokenService(TEST_SIGNING_KEY)
+        TokenService accessTokenService = new AccessTokenService()
+        accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
         String token = accessTokenService.issueToken(new User(username: "testUsername"), "testAudience")
 
         assert token
@@ -27,7 +28,8 @@ class AccessTokenServiceTest {
 
     @Test
     void testIssueTokenNullUserAudienceStillWorks() {
-        TokenService accessTokenService = new AccessTokenService(TEST_SIGNING_KEY)
+        TokenService accessTokenService = new AccessTokenService()
+        accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
         String token = accessTokenService.issueToken(new User(), "")
 
         assert token
@@ -35,7 +37,9 @@ class AccessTokenServiceTest {
 
     @Test
     void testIssueRefreshToken() {
-        TokenService accessTokenService = new AccessTokenService(TEST_SIGNING_KEY)
+        TokenService accessTokenService = new AccessTokenService()
+        accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
+
         String token = accessTokenService.issueRefreshToken(new User())
         assert token
     }
