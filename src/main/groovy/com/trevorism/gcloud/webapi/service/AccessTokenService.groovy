@@ -21,12 +21,15 @@ class AccessTokenService implements TokenService {
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-    private PropertiesProvider propertiesProvider
     private final String signingKey
 
     AccessTokenService(){
-        propertiesProvider = new ClasspathBasedPropertiesProvider()
+        PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
         this.signingKey = propertiesProvider.getProperty("signingKey")
+    }
+
+    AccessTokenService(String signingKey){
+        this.signingKey = signingKey
     }
 
     @Override

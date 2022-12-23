@@ -25,14 +25,13 @@ class TokenControllerTest {
 
     @Test
     void testRegenerateToken() {
-        ClaimsProvider.metaClass.'static'.getClaims = {String str -> new ClaimProperties()}
         TokenController tokenController = new TokenController()
         Identity identity = new User()
         tokenController.userCredentialService = [getIdentity:{ sub ->
             identity.username = sub
             return identity
         }] as UserCredentialService
-        tokenController.tokenService = [issueToken: {id, aud -> FAKE_TOKEN}] as TokenService
+        tokenController.tokenService = [issueToken: {id, aud -> FAKE_TOKEN}, getClaimProperties: {str -> new ClaimProperties()}] as TokenService
 
         assert FAKE_TOKEN == tokenController.regenerateToken(createHeaders())
     }
