@@ -41,12 +41,12 @@ repositories {
 def jerseyVersion = "2.38"
 
 dependencies {
-    implementation 'org.codehaus.groovy:groovy-all:2.5.19'
+    implementation 'org.codehaus.groovy:groovy-all:2.5.21'
 
     implementation "org.glassfish.jersey.containers:jersey-container-servlet:$jerseyVersion"
     implementation "org.glassfish.jersey.media:jersey-media-json-jackson:$jerseyVersion"
     implementation "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
-    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.14.0'
+    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.14.2'
 
     implementation 'org.slf4j:slf4j-nop:1.7.36'
     implementation 'io.swagger:swagger-jersey2-jaxrs:1.6.8'
@@ -54,7 +54,7 @@ dependencies {
     implementation 'com.trevorism:secure-http-utils:1.0.0'
     implementation 'com.trevorism:datastore-client:2.7.0'
     implementation 'com.trevorism:reactions-client:0.3.0'
-    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 
