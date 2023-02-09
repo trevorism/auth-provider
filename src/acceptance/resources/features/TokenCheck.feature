@@ -5,8 +5,3 @@ Feature: Valid internal token
     Given the auth application is alive
     When the endpoint tester internal endpoint is invoked
     Then a response is returned successfully
-
-  Scenario: Obtain a refresh token
-    Given the auth application is alive
-    When the endpoint tester internal endpoint is invoked
-    Then a response is returned successfully
