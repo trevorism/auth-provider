@@ -13,10 +13,14 @@ jobs:
   call-build:
     if: ${{inputs.TEST_TYPE == 'unit'}}
     uses: trevorism/actions-workflows/.github/workflows/build.yml@master
+    with:
+      JDK_VERSION: 17
 
   call-accept:
     if: ${{inputs.TEST_TYPE == 'acceptance'}}
     uses: trevorism/actions-workflows/.github/workflows/accept.yml@master
+    with:
+      JDK_VERSION: 17
     secrets:
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}

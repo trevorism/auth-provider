@@ -1,3 +1,7 @@
+# 1.0.0
+
+Update to Micronaut and Java 17
+
 # 0.9.2
 
 Fixed bug with refresh tokens
