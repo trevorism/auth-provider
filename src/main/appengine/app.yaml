@@ -1,3 +1,2 @@
 runtime: java17
-service: auth-provider
 entrypoint: java -jar auth-provider-all.jar
