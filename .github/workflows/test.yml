@@ -7,7 +7,7 @@ on:
         required: false
         type: string
         default: acceptance
-        description: Either 'unit' or 'acceptance'
+        description: Either 'unit' or 'cucumber' or 'cypress'
 
 jobs:
   call-build:
@@ -17,7 +17,7 @@ jobs:
       JDK_VERSION: 17
 
   call-accept:
-    if: ${{inputs.TEST_TYPE == 'acceptance'}}
+    if: ${{inputs.TEST_TYPE == 'cucumber'}}
     uses: trevorism/actions-workflows/.github/workflows/accept.yml@master
     with:
       JDK_VERSION: 17
@@ -25,3 +25,7 @@ jobs:
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
       CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
       TOKEN: ${{ secrets.TOKEN }}
+
+  call-cypress:
+    if: ${{inputs.TEST_TYPE == 'cypress'}}
+    uses: trevorism/actions-workflows/.github/workflows/cypress.yml@master
