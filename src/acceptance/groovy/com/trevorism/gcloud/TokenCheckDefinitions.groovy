@@ -4,7 +4,8 @@ import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.http.HttpClient
 import com.trevorism.http.JsonHttpClient
-
+import com.trevorism.https.DefaultSecureHttpClient
+import com.trevorism.https.SecureHttpClient
 
 
 this.metaClass.mixin(io.cucumber.groovy.Hooks)
@@ -20,6 +21,11 @@ When(/the endpoint tester internal endpoint is invoked/) { ->
     response = entity.value
 }
 
-Then(/a response is returned successfully/) { ->
-    assert response == "secure internal"
+When(/the endpoint tester secure endpoint is invoked/) {  ->
+    SecureHttpClient secureHttpClient = new DefaultSecureHttpClient()
+    response = secureHttpClient.get("https://endpoint-tester.testing.trevorism.com/secure/json")
+}
+
+Then(/a response of {string} is returned successfully/) { String string ->
+    assert response == string
 }

@@ -1,11 +1,13 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.model.User
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.ComplexFilter
 import com.trevorism.data.model.paging.PageRequest
 import com.trevorism.data.model.sorting.ComplexSort
-import com.trevorism.auth.model.User
 import org.junit.jupiter.api.Test
+
+import java.time.Instant
 
 class DefaultUserCredentialServiceTest {
 
@@ -36,7 +38,7 @@ class DefaultUserCredentialServiceTest {
     void testRegisterUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        service.emailer = [sendRegistrationEmail: {a,b -> }] as Emailer
+        service.emailer = [sendRegistrationEmail: { a, b -> }] as Emailer
         assert service.registerUser(new User(username: "testUsername", email: "test@trevorism.com", password: "testPass"))
     }
 
@@ -44,7 +46,21 @@ class DefaultUserCredentialServiceTest {
     void testValidateCredentials() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
+        assert service.validateCredentials("test", "testPassword")
+    }
+
+    @Test
+    void testValidateCredentials_InvalidPassword() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
         assert !service.validateCredentials("test", "failPass")
+    }
+
+    @Test
+    void testValidateCredentials_MissingValues() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert !service.validateCredentials(null, null)
     }
 
     @Test
@@ -73,7 +89,7 @@ class DefaultUserCredentialServiceTest {
     void testForgotPassword() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        service.emailer = [sendForgotPasswordEmail: {a,b -> }] as Emailer
+        service.emailer = [sendForgotPasswordEmail: { a, b -> }] as Emailer
         service.forgotPassword(new User(username: "test"))
     }
 
@@ -81,7 +97,7 @@ class DefaultUserCredentialServiceTest {
     void testActivateUser() {
         UserCredentialService service = new DefaultUserCredentialService()
         service.repository = new TestUserRepository()
-        service.emailer = [sendActivationEmail: {a -> }] as Emailer
+        service.emailer = [sendActivationEmail: { a -> }] as Emailer
         assert service.activateUser(new User(username: "test"), false)
     }
 
@@ -92,7 +108,35 @@ class DefaultUserCredentialServiceTest {
         assert service.deactivateUser(new User(username: "test"))
     }
 
-    class TestUserRepository implements Repository<User>{
+    @Test
+    void testInvalidUserRegistration_missingEmail() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert !service.validateRegistration(new User(username: "test", password: "test"))
+    }
+
+    @Test
+    void testValidateRegistration_passwordTooShort() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert !service.validateRegistration(new User(username: "test123", password: "test", email: "test@trevorism.com"))
+    }
+
+    @Test
+    void testValidateRegistration_missingUsername() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert !service.validateRegistration(new User(password: "testPassword", email: "test@trevorism.com"))
+    }
+
+    @Test
+    void testValidateRegistration_duplicateUsername() {
+        UserCredentialService service = new DefaultUserCredentialService()
+        service.repository = new TestUserRepository()
+        assert !service.validateRegistration(new User(username: "test", password: "testPassword", email: "test@trevorism.com"))
+    }
+
+    class TestUserRepository implements Repository<User> {
 
         @Override
         List<User> list() {
@@ -101,7 +145,11 @@ class DefaultUserCredentialServiceTest {
 
         @Override
         List<User> list(String s) {
-            [new User(username: "test", salt: "123", password: "123")]
+            [new User(username: "test", salt: "5CeJI8KtC6TyTEsHAQCj4g==",
+                    password: "tqrJyIlVuOhW79QFzBPgZcOjbR18osSOSUh9pYyzEl+6NqBnqwU8Mal70kKP4TH+qgcwedC9xNkb0gO8HjIYQA==",
+                    dateExpired: Date.from(Instant.now().plusSeconds(100)),
+                    active: true
+            )]
         }
 
         @Override
@@ -111,7 +159,7 @@ class DefaultUserCredentialServiceTest {
 
         @Override
         User get(String s, String s1) {
-            if(s == "5154038974775296")
+            if (s == "5154038974775296")
                 return new User()
             return null
         }
@@ -143,7 +191,7 @@ class DefaultUserCredentialServiceTest {
 
         @Override
         User delete(String s, String s1) {
-            if(s == "5154038974775296")
+            if (s == "5154038974775296")
                 return new User()
             return null
         }
@@ -155,7 +203,7 @@ class DefaultUserCredentialServiceTest {
 
         @Override
         List<User> filter(ComplexFilter complexFilter) {
-            if(complexFilter?.simpleFilters?.get(0).value == "test")
+            if (complexFilter?.simpleFilters?.get(0).value == "test")
                 return list()
             return []
         }

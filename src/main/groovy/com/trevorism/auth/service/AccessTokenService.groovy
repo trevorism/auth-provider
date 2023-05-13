@@ -4,6 +4,9 @@ import com.trevorism.ClaimProperties
 import com.trevorism.ClaimsProvider
 import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
+import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.TokenRequest
+import com.trevorism.auth.model.User
 import com.trevorism.secure.Roles
 import io.jsonwebtoken.CompressionCodecs
 import io.jsonwebtoken.Jwts
@@ -21,7 +24,7 @@ class AccessTokenService implements TokenService {
     private PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
 
     @Override
-    String issueToken(com.trevorism.auth.model.Identity identity, String audience) {
+    String issueToken(Identity identity, String audience) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
         String aud = audience ?: "trevorism.com"
@@ -42,9 +45,9 @@ class AccessTokenService implements TokenService {
 
     }
 
-    private static String getRoleForIdentity(com.trevorism.auth.model.Identity identity) {
+    private static String getRoleForIdentity(Identity identity) {
         String role = Roles.SYSTEM
-        if (identity instanceof com.trevorism.auth.model.User) {
+        if (identity instanceof User) {
             role = Roles.USER
             if (identity.admin) {
                 role = Roles.ADMIN
@@ -54,7 +57,7 @@ class AccessTokenService implements TokenService {
     }
 
     @Override
-    String issueRefreshToken(com.trevorism.auth.model.Identity identity) {
+    String issueRefreshToken(Identity identity) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
         String aud = "auth.trevorism.com"
@@ -78,7 +81,7 @@ class AccessTokenService implements TokenService {
         ClaimsProvider.getClaims(bearerToken, propertiesProvider.getProperty("signingKey"))
     }
 
-    private static String getTypeForIdentity(com.trevorism.auth.model.Identity identity) {
-        return identity instanceof com.trevorism.auth.model.User ? com.trevorism.auth.model.TokenRequest.USER_TYPE : com.trevorism.auth.model.TokenRequest.APP_TYPE
+    private static String getTypeForIdentity(Identity identity) {
+        return identity instanceof User ? TokenRequest.USER_TYPE : TokenRequest.APP_TYPE
     }
 }

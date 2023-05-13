@@ -1,6 +1,6 @@
 package com.trevorism.auth.service
 
-
+import com.trevorism.auth.model.SaltedPassword
 import org.junit.jupiter.api.Test
 
 import java.time.Instant
@@ -9,7 +9,7 @@ class HashUtilsTest {
 
     @Test
     void testGenerateAndValidatePassword() {
-        com.trevorism.auth.model.SaltedPassword saltedPassword = HashUtils.createPasswordAndSalt("test")
+        SaltedPassword saltedPassword = HashUtils.createPasswordAndSalt("test")
         assert saltedPassword
         assert saltedPassword.password
         assert saltedPassword.salt
@@ -17,6 +17,7 @@ class HashUtilsTest {
         assert HashUtils.validatePasswordsMatch(saltedPassword, "test")
         assert !HashUtils.validatePasswordsMatch(saltedPassword, "test1")
     }
+
 
     @Test
     void testGenerateRawSecret() {

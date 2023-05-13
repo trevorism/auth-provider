@@ -1,3 +1,7 @@
+# 1.1.0
+
+Enforce HTTPS only and improve test coverage
+
 # 1.0.0
 
 Update to Micronaut and Java 17
