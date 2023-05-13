@@ -42,7 +42,9 @@ repositories {
 dependencies {
     implementation("io.micronaut.groovy:micronaut-runtime-groovy")
     implementation("io.micronaut:micronaut-jackson-databind")
-    implementation("io.micronaut.security:micronaut-security")
+    implementation("io.micronaut.security:micronaut-security"){
+        exclude module:"slf4j-nop"
+    }
     implementation("io.micronaut:micronaut-validation")
 
     implementation("jakarta.annotation:jakarta.annotation-api")
@@ -59,7 +61,9 @@ dependencies {
     implementation 'com.trevorism:datastore-client:2.8.0'
     implementation 'com.trevorism:reactions-client:0.4.1'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'com.trevorism:micronaut-security-utils:0.7.1'
+    implementation ('com.trevorism:micronaut-security-utils:0.7.1'){
+        exclude module:"slf4j-nop"
+    }
 
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 

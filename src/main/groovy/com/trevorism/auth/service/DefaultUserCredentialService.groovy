@@ -10,17 +10,19 @@ import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.auth.model.User
 import com.trevorism.https.DefaultInternalTokenSecureHttpClient
 import com.trevorism.https.SecureHttpClient
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.logging.Logger
+
 
 class DefaultUserCredentialService implements UserCredentialService {
 
     private SecureHttpClient secureHttpClient = new DefaultInternalTokenSecureHttpClient()
     private Repository<User> repository = new FastDatastoreRepository<>(User, secureHttpClient)
     private Emailer emailer = new Emailer(secureHttpClient)
-    private static final Logger log = Logger.getLogger(DefaultUserCredentialService.class.name)
+    private static final Logger log = LoggerFactory.getLogger(DefaultUserCredentialService)
 
     @Override
     User getUser(String id) {
@@ -80,19 +82,19 @@ class DefaultUserCredentialService implements UserCredentialService {
     @Override
     boolean validateRegistration(User user) {
         if (!user || !user.username || !user.password || !user.email) {
-            log.warning("Registration missing a required field")
+            log.warn("Registration missing a required field")
             return false
         }
         if (user.username.length() < 3 || user.password.length() < 6) {
-            log.warning("Registration username/password length not acceptable")
+            log.warn("Registration username/password length not acceptable")
             return false
         }
         if (!user.email.contains("@")) {
-            log.warning("Email is not formatted correctly")
+            log.warn("Email is not formatted correctly")
             return false
         }
         if (getUserCredential(user.username)) {
-            log.warning("Registration detected duplicate username")
+            log.warn("Registration detected duplicate username")
             return false
         }
         return true
@@ -151,7 +153,7 @@ class DefaultUserCredentialService implements UserCredentialService {
         try{
             return repository.filter(new FilterBuilder().addFilter(new SimpleFilter("username", "=", username.toLowerCase())).build())[0]
         }catch(Exception e){
-            log.severe("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
+            log.error("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
             return null
         }
     }
