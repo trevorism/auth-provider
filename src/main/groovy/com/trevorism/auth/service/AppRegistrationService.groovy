@@ -1,11 +1,13 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.model.App
+
 interface AppRegistrationService extends CredentialValidator {
 
-    List<com.trevorism.auth.model.App> listRegisteredApps()
-    com.trevorism.auth.model.App getRegisteredApp(String id)
-    com.trevorism.auth.model.App removeRegisteredApp(String id)
+    List<App> listRegisteredApps()
+    App getRegisteredApp(String id)
+    App removeRegisteredApp(String id)
 
-    com.trevorism.auth.model.App registerApp(com.trevorism.auth.model.App app)
-    String generateClientSecret(com.trevorism.auth.model.App app)
+    App registerApp(App app)
+    String generateClientSecret(App app)
 }

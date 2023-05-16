@@ -14,8 +14,10 @@ class User implements Identity{
     String salt
 
     boolean admin
-
     boolean active
+
+    String tenantGuid
+
     Date dateCreated
     Date dateExpired
 

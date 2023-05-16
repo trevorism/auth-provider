@@ -22,4 +22,9 @@ class App implements Identity{
     String getIdentifer() {
         return clientId
     }
+
+    @Override
+    String getTenantGuid() {
+        return null
+    }
 }

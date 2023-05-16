@@ -3,6 +3,7 @@ package com.trevorism.auth.controller
 import com.trevorism.auth.model.ActivationRequest
 import com.trevorism.auth.model.ChangePasswordRequest
 import com.trevorism.auth.model.User
+import com.trevorism.auth.service.DefaultUserCredentialService
 import com.trevorism.auth.service.UserCredentialService
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
@@ -14,12 +15,13 @@ import io.swagger.v3.oas.annotations.tags.Tag
 @Controller("/user")
 class UserController {
 
-    UserCredentialService userCredentialService = new com.trevorism.auth.service.DefaultUserCredentialService()
+    UserCredentialService userCredentialService = new DefaultUserCredentialService()
 
     @Tag(name = "User Operations")
     @Operation(summary = "Register a user with username, password, and email")
     @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    User registerUser(User user) {
+    User registerUser(@Body User user) {
+        user.tenantGuid = null
         userCredentialService.registerUser(user)
     }
 
@@ -72,7 +74,7 @@ class UserController {
     @Secure(Roles.SYSTEM)
     boolean resetPassword(@Body ActivationRequest activationRequest) {
         try {
-            userCredentialService.forgotPassword(new com.trevorism.auth.model.User(username: activationRequest.username))
+            userCredentialService.forgotPassword(new User(username: activationRequest.username))
         } catch (Exception ignored) {
             return false
         }

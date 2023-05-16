@@ -1,3 +1,7 @@
+# 1.2.0
+
+Enable multi-tenancy by adding a tenant to users. The tenant is encoded within the JWT. 
+
 # 1.1.0
 
 Enforce HTTPS only and improve test coverage

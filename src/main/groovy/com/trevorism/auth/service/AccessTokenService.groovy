@@ -31,6 +31,9 @@ class AccessTokenService implements TokenService {
         String role = getRoleForIdentity(identity)
         String type = getTypeForIdentity(identity)
         Map claims = ["role": role, "dbId": identity.id, "entityType": type]
+        if (identity.tenantGuid) {
+            claims.put("tenant", identity.tenantGuid)
+        }
 
         return Jwts.builder()
                 .setSubject(identity.getIdentifer())
