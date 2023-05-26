@@ -1,7 +1,7 @@
 package com.trevorism.auth.service
 
 import com.trevorism.EmailClient
-import com.trevorism.https.DefaultInternalTokenSecureHttpClient
+import com.trevorism.https.InternalTokenSecureHttpClient
 import com.trevorism.https.SecureHttpClient
 import com.trevorism.model.Email
 
@@ -9,8 +9,8 @@ class Emailer {
 
     private EmailClient emailClient
 
-    Emailer() {
-        this(new DefaultInternalTokenSecureHttpClient())
+    Emailer(){
+        emailClient = new EmailClient(new InternalTokenSecureHttpClient())
     }
 
     Emailer(SecureHttpClient secureHttpClient) {

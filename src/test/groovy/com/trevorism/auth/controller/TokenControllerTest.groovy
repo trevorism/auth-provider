@@ -38,12 +38,16 @@ class TokenControllerTest {
     @Test
     void testBadTokenRequest() {
         TokenController tokenController = new TokenController()
+        tokenController.appRegistrationService = [validateCredentials: {u,p -> false}, getIdentity: {new User(username: "test")}] as AppRegistrationService
+        tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assertThrows(HttpResponseException, () -> tokenController.token(new TokenRequest()))
     }
 
     @Test
     void testBadTokenUserRequest() {
         TokenController tokenController = new TokenController()
+        tokenController.userCredentialService = [validateCredentials: {u,p -> false}, getIdentity: {new User(username: "test")}] as UserCredentialService
+        tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assertThrows(HttpResponseException, () -> tokenController.token(new TokenRequest(type: TokenRequest.USER_TYPE)))
     }
 

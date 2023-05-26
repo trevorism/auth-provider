@@ -11,17 +11,18 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.inject.Inject
 
 @Controller("/user")
 class UserController {
 
-    UserCredentialService userCredentialService = new DefaultUserCredentialService()
+    @Inject
+    private UserCredentialService userCredentialService
 
     @Tag(name = "User Operations")
     @Operation(summary = "Register a user with username, password, and email")
     @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     User registerUser(@Body User user) {
-        user.tenantGuid = null
         userCredentialService.registerUser(user)
     }
 

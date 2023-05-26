@@ -53,8 +53,14 @@ class AccessTokenService implements TokenService {
         if (identity instanceof User) {
             role = Roles.USER
             if (identity.admin) {
-                role = Roles.ADMIN
+                if(identity.getTenantGuid()){
+                    role = Roles.TENANT_ADMIN
+                }
+                else{
+                    role = Roles.ADMIN
+                }
             }
+
         }
         return role
     }
@@ -66,6 +72,9 @@ class AccessTokenService implements TokenService {
         String aud = "auth.trevorism.com"
         String type = getTypeForIdentity(identity)
         Map claims = ["dbId": identity.id, "entityType": type]
+        if (identity.tenantGuid) {
+            claims.put("tenant", identity.tenantGuid)
+        }
 
         return Jwts.builder()
                 .setSubject(identity.getIdentifer())

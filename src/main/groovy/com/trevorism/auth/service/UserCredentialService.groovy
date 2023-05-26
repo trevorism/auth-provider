@@ -1,17 +1,21 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.User
+
 interface UserCredentialService extends CredentialValidator {
 
-    com.trevorism.auth.model.User getUser(String username)
-    com.trevorism.auth.model.User deleteUser(String id)
-    List<com.trevorism.auth.model.User> listUsers()
+    User getUser(String username)
 
-    com.trevorism.auth.model.User registerUser(com.trevorism.auth.model.User user)
-    boolean validateRegistration(com.trevorism.auth.model.User user)
+    User deleteUser(String id)
+    List<User> listUsers()
 
-    boolean activateUser(com.trevorism.auth.model.User user, boolean isAdmin)
-    boolean deactivateUser(com.trevorism.auth.model.User user)
+    User registerUser(User user)
+    boolean validateRegistration(User user)
 
-    boolean changePassword(com.trevorism.auth.model.Identity identity, String currentPassword, String newPassword)
-    void forgotPassword(com.trevorism.auth.model.Identity identity)
+    boolean activateUser(User user, boolean isAdmin)
+    boolean deactivateUser(User user)
+
+    boolean changePassword(Identity identity, String currentPassword, String newPassword)
+    void forgotPassword(Identity identity)
 }

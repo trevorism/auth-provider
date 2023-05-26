@@ -1,13 +1,13 @@
 package com.trevorism.auth.service
 
-
+import com.trevorism.auth.bean.SecureHttpClientProvider
 import org.junit.jupiter.api.Test
 
 class UserValidationTest {
 
     @Test
     void testValidateUser() {
-        UserCredentialService service = new DefaultUserCredentialService()
+        UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClientProvider)
         service.repository = new DefaultUserCredentialServiceTest.TestUserRepository()
         assert !service.validateRegistration(null)
         assert !service.validateRegistration(new com.trevorism.auth.model.User())
@@ -19,7 +19,7 @@ class UserValidationTest {
 
     @Test
     void testValidateCredentials() {
-        UserCredentialService service = new DefaultUserCredentialService()
+        UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClientProvider)
         service.repository = new DefaultUserCredentialServiceTest.TestUserRepository()
 
         assert !service.validateCredentials("test", "123")

@@ -1,8 +1,10 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.model.Identity
+
 interface CredentialValidator {
 
     boolean validateCredentials(String identifier, String password)
 
-    com.trevorism.auth.model.Identity getIdentity(String identifier)
+    Identity getIdentity(String identifier)
 }

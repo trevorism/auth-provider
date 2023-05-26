@@ -20,13 +20,17 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Post
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.inject.Inject
 import org.apache.hc.client5.http.HttpResponseException
 
 @Controller("/token")
 class TokenController {
 
-    private UserCredentialService userCredentialService = new DefaultUserCredentialService()
-    private AppRegistrationService appRegistrationService = new DefaultAppRegistrationService()
+    @Inject
+    private UserCredentialService userCredentialService
+    @Inject
+    private AppRegistrationService appRegistrationService
+
     private TokenService tokenService = new AccessTokenService()
 
     @Tag(name = "Token Operations")

@@ -1,6 +1,6 @@
 package com.trevorism.auth.service
 
-
+import com.trevorism.auth.bean.SecureHttpClientProvider
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -8,21 +8,24 @@ import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.auth.model.User
-import com.trevorism.https.DefaultInternalTokenSecureHttpClient
-import com.trevorism.https.SecureHttpClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-
+@jakarta.inject.Singleton
 class DefaultUserCredentialService implements UserCredentialService {
 
-    private SecureHttpClient secureHttpClient = new DefaultInternalTokenSecureHttpClient()
-    private Repository<User> repository = new FastDatastoreRepository<>(User, secureHttpClient)
-    private Emailer emailer = new Emailer(secureHttpClient)
     private static final Logger log = LoggerFactory.getLogger(DefaultUserCredentialService)
+
+    private Repository<User> repository
+    private Emailer emailer
+
+    DefaultUserCredentialService(SecureHttpClientProvider provider){
+        repository = new FastDatastoreRepository<>(User, provider.getSecureHttpClient())
+        emailer = new Emailer(provider.getSecureHttpClient())
+    }
 
     @Override
     User getUser(String id) {

@@ -9,5 +9,4 @@ class TokenRequest {
     String password
     String type = APP_TYPE
     String audience
-    String tenantGuid
 }

@@ -1,3 +1,7 @@
+# 1.3.0
+
+Add `tenant_admin` role and update dependencies. Utilize micronaut beans for the datastore client.
+
 # 1.2.0
 
 Enable multi-tenancy by adding a tenant to users. The tenant is encoded within the JWT. 

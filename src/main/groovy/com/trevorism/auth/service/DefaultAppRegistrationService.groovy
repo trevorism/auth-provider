@@ -1,5 +1,6 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.bean.SecureHttpClientProvider
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -7,14 +8,19 @@ import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.auth.model.App
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
-import com.trevorism.https.DefaultInternalTokenSecureHttpClient
+
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+@jakarta.inject.Singleton
 class DefaultAppRegistrationService implements AppRegistrationService{
 
-    private Repository<App> repository = new FastDatastoreRepository<>(App, new DefaultInternalTokenSecureHttpClient())
+    private Repository<App> repository
+
+    DefaultAppRegistrationService(SecureHttpClientProvider provider){
+        this.repository = new FastDatastoreRepository<>(App, provider.getSecureHttpClient())
+    }
 
     @Override
     List<App> listRegisteredApps() {

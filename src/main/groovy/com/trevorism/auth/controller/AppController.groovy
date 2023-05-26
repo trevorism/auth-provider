@@ -10,11 +10,13 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.inject.Inject
 
 @Controller("/app")
 class AppController {
 
-    private AppRegistrationService appRegistrationService = new DefaultAppRegistrationService()
+    @Inject
+    private AppRegistrationService appRegistrationService
 
     @Tag(name = "App Operations")
     @Operation(summary = "Register a new app which generates a client Id **Secure")
