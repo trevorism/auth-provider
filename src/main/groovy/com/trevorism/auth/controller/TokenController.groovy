@@ -22,20 +22,24 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
 import org.apache.hc.client5.http.HttpResponseException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Controller("/token")
 class TokenController {
+
+    private static final Logger log = LoggerFactory.getLogger(TokenController)
 
     @Inject
     private UserCredentialService userCredentialService
     @Inject
     private AppRegistrationService appRegistrationService
-
-    private TokenService tokenService = new AccessTokenService()
+    @Inject
+    private TokenService tokenService
 
     @Tag(name = "Token Operations")
     @Operation(summary = "Create a bearer token from valid credentials")
-    @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Post(value = "/", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
     String token(@Body TokenRequest tokenRequest) {
         CredentialValidator service = appRegistrationService
         if (tokenRequest.type == TokenRequest.USER_TYPE) {
@@ -45,6 +49,7 @@ class TokenController {
 
         if (valid) {
             Identity identity = service.getIdentity(tokenRequest.getId())
+            log.info("Issuing token for ${identity.id}")
             return tokenService.issueToken(identity, tokenRequest.getAudience())
         }
 

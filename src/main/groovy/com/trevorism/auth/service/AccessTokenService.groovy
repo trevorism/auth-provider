@@ -16,6 +16,7 @@ import io.jsonwebtoken.security.Keys
 import java.security.Key
 import java.time.Instant
 
+@jakarta.inject.Singleton
 class AccessTokenService implements TokenService {
 
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15

@@ -61,7 +61,7 @@ dependencies {
     implementation 'com.trevorism:datastore-client:3.1.0'
     implementation 'com.trevorism:reactions-client:0.5.0'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'com.trevorism:micronaut-security-utils:0.9.3'
+    implementation 'com.trevorism:micronaut-security-utils:0.9.4'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 

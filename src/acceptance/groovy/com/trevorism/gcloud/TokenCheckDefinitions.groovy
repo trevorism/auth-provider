@@ -4,7 +4,7 @@ import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.http.HttpClient
 import com.trevorism.http.JsonHttpClient
-import com.trevorism.https.DefaultSecureHttpClient
+import com.trevorism.https.AppClientSecureHttpClient
 import com.trevorism.https.SecureHttpClient
 
 
@@ -22,7 +22,7 @@ When(/the endpoint tester internal endpoint is invoked/) { ->
 }
 
 When(/the endpoint tester secure endpoint is invoked/) {  ->
-    SecureHttpClient secureHttpClient = new DefaultSecureHttpClient()
+    SecureHttpClient secureHttpClient = new AppClientSecureHttpClient()
     response = secureHttpClient.get("https://endpoint-tester.testing.trevorism.com/secure/json")
 }
 
