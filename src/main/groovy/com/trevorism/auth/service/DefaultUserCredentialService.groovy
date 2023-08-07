@@ -58,7 +58,7 @@ class DefaultUserCredentialService implements UserCredentialService {
 
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
-        emailer.sendRegistrationEmail(user.username, user.email)
+        new Emailer().sendRegistrationEmail(user.username, user.email)
         return cleanUser(createdUser)
     }
 
