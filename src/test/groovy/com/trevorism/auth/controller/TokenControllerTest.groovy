@@ -1,8 +1,10 @@
 package com.trevorism.auth.controller
 
 import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
+import com.trevorism.auth.service.AccessTokenService
 import com.trevorism.auth.service.AppRegistrationService
 import com.trevorism.auth.service.TokenService
 import com.trevorism.auth.service.UserCredentialService
@@ -65,6 +67,14 @@ class TokenControllerTest {
         tokenController.appRegistrationService = [validateCredentials: {u,p -> true}, getIdentity: {new User(username: "test")}] as AppRegistrationService
         tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assert FAKE_TOKEN == tokenController.token(new TokenRequest(id:"username", password: "password", type: TokenRequest.APP_TYPE))
+    }
+
+    @Test
+    void testCreateInternalToken() {
+        TokenController tokenController = new TokenController()
+        tokenController.tokenService = [issueInternalToken: {u -> FAKE_TOKEN}] as TokenService
+        String token = tokenController.createInternalToken(new InternalTokenRequest(subject: "sub", audience: "aud", expiration: new Date(), tenantId: "tenant"))
+        assert FAKE_TOKEN == token
     }
 
     private HttpHeaders createHeaders() {

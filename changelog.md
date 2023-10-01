@@ -1,3 +1,7 @@
+# 1.4.0
+
+Allow creation of internal tokens
+
 # 1.3.0
 
 Add `tenant_admin` role and update dependencies. Utilize micronaut beans for the datastore client.

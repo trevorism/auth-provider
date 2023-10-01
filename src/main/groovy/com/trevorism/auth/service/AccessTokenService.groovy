@@ -5,6 +5,7 @@ import com.trevorism.ClaimsProvider
 import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
 import com.trevorism.secure.Roles
@@ -92,6 +93,29 @@ class AccessTokenService implements TokenService {
     @Override
     ClaimProperties getClaimProperties(String bearerToken) {
         ClaimsProvider.getClaims(bearerToken, propertiesProvider.getProperty("signingKey"))
+    }
+
+    @Override
+    String issueInternalToken(InternalTokenRequest internalTokenRequest) {
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
+
+        String aud = internalTokenRequest.audience
+        String type = TokenRequest.APP_TYPE
+        Map claims = ["role": Roles.INTERNAL, "entityType": type]
+        if (internalTokenRequest.tenantId) {
+            claims.put("tenant", internalTokenRequest.tenantId)
+        }
+
+        return Jwts.builder()
+                .setSubject(internalTokenRequest.subject)
+                .setIssuer("https://trevorism.com")
+                .setIssuedAt(new Date())
+                .setExpiration(Date.from(internalTokenRequest.expiration.toInstant().plusSeconds(ONE_DAY_IN_SECONDS)))
+                .setAudience(aud)
+                .addClaims(claims)
+                .signWith(key)
+                .compressWith(CompressionCodecs.GZIP)
+                .compact()
     }
 
     private static String getTypeForIdentity(Identity identity) {

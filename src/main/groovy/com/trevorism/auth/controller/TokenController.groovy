@@ -1,6 +1,7 @@
 package com.trevorism.auth.controller
 
 import com.trevorism.ClaimProperties
+import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.service.AccessTokenService
 import com.trevorism.auth.service.AppRegistrationService
 import com.trevorism.auth.service.CredentialValidator
@@ -65,6 +66,14 @@ class TokenController {
         ClaimProperties properties = tokenService.getClaimProperties(getBearerToken(httpheaders))
         Identity identity = userCredentialService.getIdentity(properties.getSubject())
         tokenService.issueToken(identity, properties.getAudience())
+    }
+
+    @Tag(name = "Token Operations")
+    @Operation(summary = "Create an internal token. **Secure")
+    @Post(value = "/internal", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Secure(Roles.SYSTEM)
+    String createInternalToken(@Body InternalTokenRequest tokenRequest) {
+        tokenService.issueInternalToken(tokenRequest)
     }
 
     private static String getBearerToken(HttpHeaders httpHeaders) {
