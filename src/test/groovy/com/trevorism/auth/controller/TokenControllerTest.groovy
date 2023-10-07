@@ -12,6 +12,9 @@ import com.trevorism.ClaimProperties
 import io.micronaut.http.HttpHeaders
 import org.apache.hc.client5.http.HttpResponseException
 import org.junit.jupiter.api.Test
+
+import java.time.Instant
+
 import static org.junit.jupiter.api.Assertions.assertThrows
 
 class TokenControllerTest {
@@ -73,7 +76,7 @@ class TokenControllerTest {
     void testCreateInternalToken() {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [issueInternalToken: {u -> FAKE_TOKEN}] as TokenService
-        String token = tokenController.createInternalToken(new InternalTokenRequest(subject: "sub", audience: "aud", expiration: new Date(), tenantId: "tenant"))
+        String token = tokenController.createInternalToken(new InternalTokenRequest(subject: "sub", audience: "aud", expiration: Date.from(Instant.now().plusMillis(5000)), tenantId: "tenant"))
         assert FAKE_TOKEN == token
     }
 
