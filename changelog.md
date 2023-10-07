@@ -1,3 +1,7 @@
+# 1.4.1
+
+Add additional validation checks on internal tokens
+
 # 1.4.0
 
 Allow creation of internal tokens

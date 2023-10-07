@@ -73,6 +73,10 @@ class TokenController {
     @Post(value = "/internal", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     @Secure(Roles.SYSTEM)
     String createInternalToken(@Body InternalTokenRequest tokenRequest) {
+        if(!tokenRequest.subject || !tokenRequest.expiration || tokenRequest.expiration.before(new Date())) {
+            throw new HttpResponseException(HttpStatus.BAD_REQUEST.getCode(), "Unable to issue token")
+        }
+
         tokenService.issueInternalToken(tokenRequest)
     }
 
