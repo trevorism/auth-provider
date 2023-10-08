@@ -22,6 +22,7 @@ class AccessTokenService implements TokenService {
 
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
+    public static final int TWO_HOURS_IN_SECONDS = 60 * 60 * 2
 
     private PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
 
@@ -110,7 +111,7 @@ class AccessTokenService implements TokenService {
                 .setSubject(internalTokenRequest.subject)
                 .setIssuer("https://trevorism.com")
                 .setIssuedAt(new Date())
-                .setExpiration(Date.from(internalTokenRequest.expiration.toInstant().plusSeconds(ONE_DAY_IN_SECONDS)))
+                .setExpiration(Date.from(Instant.now().plusSeconds(TWO_HOURS_IN_SECONDS)))
                 .setAudience(aud)
                 .addClaims(claims)
                 .signWith(key)
