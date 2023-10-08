@@ -8,8 +8,7 @@ interface TokenService {
 
     String issueToken(Identity identity, String audience)
     String issueRefreshToken(Identity identity)
+    String issueInternalToken(Identity identity, String audience, String tenantId)
 
     ClaimProperties getClaimProperties(String bearerToken)
-
-    String issueInternalToken(InternalTokenRequest internalTokenRequest)
 }

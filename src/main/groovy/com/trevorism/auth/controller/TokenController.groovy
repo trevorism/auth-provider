@@ -77,7 +77,8 @@ class TokenController {
             throw new HttpResponseException(HttpStatus.BAD_REQUEST.getCode(), "Unable to issue token")
         }
 
-        tokenService.issueInternalToken(tokenRequest)
+        Identity identity = appRegistrationService.getIdentity(tokenRequest.getSubject())
+        tokenService.issueInternalToken(identity, tokenRequest.getAudience(), tokenRequest.tenantId)
     }
 
     private static String getBearerToken(HttpHeaders httpHeaders) {

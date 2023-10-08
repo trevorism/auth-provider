@@ -97,18 +97,18 @@ class AccessTokenService implements TokenService {
     }
 
     @Override
-    String issueInternalToken(InternalTokenRequest internalTokenRequest) {
+    String issueInternalToken(Identity identity, String audience, String tenantId) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
-        String aud = internalTokenRequest.audience
-        String type = TokenRequest.APP_TYPE
-        Map claims = ["role": Roles.INTERNAL, "entityType": type]
-        if (internalTokenRequest.tenantId) {
-            claims.put("tenant", internalTokenRequest.tenantId)
+        String aud = audience ?: "trevorism.com"
+        String type = getTypeForIdentity(identity)
+        Map claims = ["role": Roles.INTERNAL, "dbId": identity.id, "entityType": type]
+        if (tenantId) {
+            claims.put("tenant", tenantId)
         }
 
         return Jwts.builder()
-                .setSubject(internalTokenRequest.subject)
+                .setSubject(identity.getIdentifer())
                 .setIssuer("https://trevorism.com")
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plusSeconds(TWO_HOURS_IN_SECONDS)))
