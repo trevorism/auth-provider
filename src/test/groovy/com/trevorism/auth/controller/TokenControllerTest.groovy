@@ -76,7 +76,7 @@ class TokenControllerTest {
     void testCreateInternalToken() {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [issueInternalToken: {u -> FAKE_TOKEN}] as TokenService
-        String token = tokenController.createInternalToken(new InternalTokenRequest(subject: "sub", audience: "aud", expiration: Date.from(Instant.now().plusMillis(5000)), tenantId: "tenant"))
+        String token = tokenController.createInternalToken(new InternalTokenRequest(subject: "sub", audience: "aud", tenantId: "tenant"))
         assert FAKE_TOKEN == token
     }
 
