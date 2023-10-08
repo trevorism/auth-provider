@@ -60,7 +60,7 @@ class TokenController {
 
     @Tag(name = "Token Operations")
     @Operation(summary = "Create a new bearer token from an existing one. **Secure")
-    @Post(value = "/refresh", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Post(value = "/refresh", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
     @Secure(Roles.USER)
     String regenerateToken(HttpHeaders httpheaders) {
         ClaimProperties properties = tokenService.getClaimProperties(getBearerToken(httpheaders))
@@ -70,7 +70,7 @@ class TokenController {
 
     @Tag(name = "Token Operations")
     @Operation(summary = "Create an internal token. **Secure")
-    @Post(value = "/internal", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Post(value = "/internal", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
     @Secure(Roles.SYSTEM)
     String createInternalToken(@Body InternalTokenRequest tokenRequest) {
         if(!tokenRequest.subject || !tokenRequest.expiration || tokenRequest.expiration.before(new Date())) {
