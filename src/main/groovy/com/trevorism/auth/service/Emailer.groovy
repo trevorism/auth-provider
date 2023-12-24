@@ -2,19 +2,14 @@ package com.trevorism.auth.service
 
 import com.trevorism.EmailClient
 import com.trevorism.https.InternalTokenSecureHttpClient
-import com.trevorism.https.SecureHttpClient
 import com.trevorism.model.Email
 
 class Emailer {
 
     private EmailClient emailClient
 
-    Emailer(){
+    Emailer() {
         emailClient = new EmailClient(new InternalTokenSecureHttpClient())
-    }
-
-    Emailer(SecureHttpClient secureHttpClient) {
-        emailClient = new EmailClient(secureHttpClient)
     }
 
     boolean sendForgotPasswordEmail(String emailAddress, String newPassword) {

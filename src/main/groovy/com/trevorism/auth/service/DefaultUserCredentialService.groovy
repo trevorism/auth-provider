@@ -1,6 +1,7 @@
 package com.trevorism.auth.service
 
 import com.trevorism.auth.bean.SecureHttpClientProvider
+import com.trevorism.auth.errors.AuthException
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -8,6 +9,7 @@ import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.auth.model.User
+import io.micronaut.security.authentication.Authentication
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -24,7 +26,7 @@ class DefaultUserCredentialService implements UserCredentialService {
 
     DefaultUserCredentialService(SecureHttpClientProvider provider){
         repository = new FastDatastoreRepository<>(User, provider.getSecureHttpClient())
-        emailer = new Emailer(provider.getSecureHttpClient())
+        emailer = new Emailer()
     }
 
     @Override
@@ -49,7 +51,7 @@ class DefaultUserCredentialService implements UserCredentialService {
     @Override
     User registerUser(User user) {
         if (!validateRegistration(user)) {
-            throw new RuntimeException("Unable to register user without credentials")
+            throw new AuthException("Unable to register user")
         }
 
         user.active = false
@@ -58,7 +60,7 @@ class DefaultUserCredentialService implements UserCredentialService {
 
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
-        new Emailer().sendRegistrationEmail(user.username, user.email)
+        emailer.sendRegistrationEmail(user.username, user.email)
         return cleanUser(createdUser)
     }
 
@@ -96,8 +98,8 @@ class DefaultUserCredentialService implements UserCredentialService {
             log.warn("Email is not formatted correctly")
             return false
         }
-        if (getUserCredential(user.username)) {
-            log.warn("Registration detected duplicate username")
+        if (userMatchesCurrentUsers(user)) {
+            log.warn("Registration detected duplicate username or email")
             return false
         }
         return true
@@ -141,7 +143,7 @@ class DefaultUserCredentialService implements UserCredentialService {
     void forgotPassword(Identity identity) {
         User user = getUserCredential(identity.getIdentifer())
         if (!user) {
-            throw new RuntimeException("Unable to locate user: ${identity.identifer}")
+            throw new AuthException("Unable to locate user: ${identity.identifer}")
         }
         String newPassword = HashUtils.generateRawSecret()
         user.password = newPassword
@@ -152,6 +154,12 @@ class DefaultUserCredentialService implements UserCredentialService {
         emailer.sendForgotPasswordEmail(user.email, newPassword)
     }
 
+    @Override
+    User getCurrentUser(Authentication authentication) {
+        String id = authentication.getAttributes().get("id")
+        return getUser(id)
+    }
+
     private User getUserCredential(String username) {
         try{
             return repository.filter(new FilterBuilder().addFilter(new SimpleFilter("username", "=", username.toLowerCase())).build())[0]
@@ -159,6 +167,11 @@ class DefaultUserCredentialService implements UserCredentialService {
             log.error("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
             return null
         }
+    }
+
+    private boolean userMatchesCurrentUsers(User user) {
+        List<User> allUsers = repository.list()
+        return allUsers.any { it.username.toLowerCase() == user.username.toLowerCase() || it.email.toLowerCase() == user.email.toLowerCase() }
     }
 
     private static User cleanUser(User user) {
@@ -178,4 +191,5 @@ class DefaultUserCredentialService implements UserCredentialService {
         SaltedPassword sp = new SaltedPassword(user.salt, user.password)
         return HashUtils.validatePasswordsMatch(sp, password)
     }
+
 }

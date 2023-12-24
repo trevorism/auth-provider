@@ -103,6 +103,11 @@ class DefaultAppRegistrationServiceTest {
         SaltedPassword sp = new SaltedPassword()
 
         @Override
+        List<App> all() {
+            return list()
+        }
+
+        @Override
         List<App> list() {
             return [new App(id:1, appName: "test", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a", active: true,
                     dateCreated: new Date(),

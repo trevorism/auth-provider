@@ -1,6 +1,7 @@
 package com.trevorism.auth.service
 
 import com.trevorism.auth.bean.SecureHttpClientProvider
+import com.trevorism.auth.errors.AuthException
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -71,9 +72,9 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     App validateApp(App app) {
         App retrievedApp = repository.get(app.id)
         if(!retrievedApp)
-            throw new RuntimeException("Unable to generate secret: cannot find app by id")
+            throw new AuthException("Unable to generate secret: cannot find app by id")
         if(app.clientId != retrievedApp.clientId)
-            throw new RuntimeException("Unable to generate secret: cannot find clientId")
+            throw new AuthException("Unable to generate secret: cannot find clientId")
         return retrievedApp
     }
 

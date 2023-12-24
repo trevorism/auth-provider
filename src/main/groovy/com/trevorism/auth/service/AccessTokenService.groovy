@@ -5,7 +5,6 @@ import com.trevorism.ClaimsProvider
 import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.auth.model.Identity
-import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
 import com.trevorism.secure.Roles

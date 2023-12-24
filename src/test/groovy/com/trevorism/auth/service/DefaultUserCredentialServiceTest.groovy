@@ -40,9 +40,7 @@ class DefaultUserCredentialServiceTest {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClientProvider)
         service.repository = new TestUserRepository()
         service.emailer = [sendRegistrationEmail: { a, b -> }] as Emailer
-        //TODO: Breaks due to non injected emailer
-        assert true
-        //assert service.registerUser(new User(username: "testUsername", email: "test@trevorism.com", password: "testPass"))
+        assert service.registerUser(new User(username: "testUsername", email: "testy@trevorism.com", password: "testPass"))
     }
 
     @Test
@@ -78,7 +76,7 @@ class DefaultUserCredentialServiceTest {
     void testValidateRegistration() {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClientProvider)
         service.repository = new TestUserRepository()
-        assert service.validateRegistration(new User(username: "test123", password: "testPassword", email: "test@trevorism.com"))
+        assert service.validateRegistration(new User(username: "test123", password: "testPassword", email: "testx@trevorism.com"))
     }
 
     @Test
@@ -142,8 +140,13 @@ class DefaultUserCredentialServiceTest {
     class TestUserRepository implements Repository<User> {
 
         @Override
+        List<User> all() {
+            list()
+        }
+
+        @Override
         List<User> list() {
-            [new User(username: "test", salt: "5CeJI8KtC6TyTEsHAQCj4g==",
+            [new User(username: "test", salt: "5CeJI8KtC6TyTEsHAQCj4g==", email: "test@trevorism.com",
                     password: "tqrJyIlVuOhW79QFzBPgZcOjbR18osSOSUh9pYyzEl+6NqBnqwU8Mal70kKP4TH+qgcwedC9xNkb0gO8HjIYQA==",
                     dateExpired: Date.from(Instant.now().plusSeconds(100)),
                     active: true

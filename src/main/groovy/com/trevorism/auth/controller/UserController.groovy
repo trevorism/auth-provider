@@ -3,12 +3,12 @@ package com.trevorism.auth.controller
 import com.trevorism.auth.model.ActivationRequest
 import com.trevorism.auth.model.ChangePasswordRequest
 import com.trevorism.auth.model.User
-import com.trevorism.auth.service.DefaultUserCredentialService
 import com.trevorism.auth.service.UserCredentialService
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
+import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.inject.Inject
@@ -32,6 +32,14 @@ class UserController {
     @Secure(Roles.SYSTEM)
     List<User> listUsers() {
         userCredentialService.listUsers()
+    }
+
+    @Tag(name = "User Operations")
+    @Operation(summary = "Get the current user **Secure")
+    @Get(value = "/me", produces = MediaType.APPLICATION_JSON)
+    @Secure(Roles.USER)
+    User getCurrentUser(Authentication authentication) {
+        userCredentialService.getCurrentUser(authentication)
     }
 
     @Tag(name = "User Operations")
@@ -72,7 +80,6 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Reset Password **Secure")
     @Post(value = "/reset", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @Secure(Roles.SYSTEM)
     boolean resetPassword(@Body ActivationRequest activationRequest) {
         try {
             userCredentialService.forgotPassword(new User(username: activationRequest.username))

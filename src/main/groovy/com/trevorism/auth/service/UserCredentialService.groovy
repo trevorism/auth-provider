@@ -2,6 +2,7 @@ package com.trevorism.auth.service
 
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.User
+import io.micronaut.security.authentication.Authentication
 
 interface UserCredentialService extends CredentialValidator {
 
@@ -18,4 +19,6 @@ interface UserCredentialService extends CredentialValidator {
 
     boolean changePassword(Identity identity, String currentPassword, String newPassword)
     void forgotPassword(Identity identity)
+
+    User getCurrentUser(Authentication authentication)
 }

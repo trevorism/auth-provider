@@ -1,3 +1,7 @@
+# 1.5.0
+
+Added better error handling and added a /user/me endpoint. Upgraded to micronaut 4.
+
 # 1.4.1
 
 Add additional validation checks on internal tokens

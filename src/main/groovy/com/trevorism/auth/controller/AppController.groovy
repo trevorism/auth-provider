@@ -2,7 +2,6 @@ package com.trevorism.auth.controller
 
 import com.trevorism.auth.model.App
 import com.trevorism.auth.service.AppRegistrationService
-import com.trevorism.auth.service.DefaultAppRegistrationService
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
 

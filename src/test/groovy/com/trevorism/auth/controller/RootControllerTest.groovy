@@ -10,8 +10,8 @@ class RootControllerTest {
     @Test
     void testRootControllerEndpoints(){
         RootController rootController = new RootController()
-        assert rootController.index().getBody().get()[0].contains("ping")
-        assert rootController.index().getBody().get()[1].contains("help")
+        assert rootController.index().getBody().get().contains("ping")
+        assert rootController.index().getBody().get().contains("help")
     }
 
     @Test

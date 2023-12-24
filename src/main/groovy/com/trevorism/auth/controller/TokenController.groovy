@@ -2,11 +2,8 @@ package com.trevorism.auth.controller
 
 import com.trevorism.ClaimProperties
 import com.trevorism.auth.model.InternalTokenRequest
-import com.trevorism.auth.service.AccessTokenService
 import com.trevorism.auth.service.AppRegistrationService
 import com.trevorism.auth.service.CredentialValidator
-import com.trevorism.auth.service.DefaultAppRegistrationService
-import com.trevorism.auth.service.DefaultUserCredentialService
 import com.trevorism.auth.service.TokenService
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.TokenRequest
