@@ -22,8 +22,8 @@ class AppController {
     @Operation(summary = "Register a new app which generates a client Id **Secure")
     @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     @Secure(Roles.TENANT_ADMIN)
-    App registerApp(@Body App app) {
-        appRegistrationService.registerApp(app)
+    App registerApp(@Body App app, Authentication authentication) {
+        appRegistrationService.registerApp(app, authentication)
     }
 
     @Tag(name = "App Operations")

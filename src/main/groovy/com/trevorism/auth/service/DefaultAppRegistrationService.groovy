@@ -3,6 +3,7 @@ package com.trevorism.auth.service
 import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.auth.bean.SecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
+import com.trevorism.auth.model.ActivationRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
@@ -12,6 +13,8 @@ import com.trevorism.auth.model.App
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.https.SecureHttpClient
+import com.trevorism.secure.Roles
+import io.micronaut.security.authentication.Authentication
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -45,7 +48,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     }
 
     @Override
-    App registerApp(App app) {
+    App registerApp(App app, Authentication authentication) {
+        validateAppRegistration(authentication, app)
         app.clientSecret = null
         app.clientId = UUID.randomUUID().toString()
         app.dateCreated = new Date()
@@ -119,6 +123,18 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     private static boolean validatePasswordsMatch(App app, String password) {
         SaltedPassword sp = new SaltedPassword(app.salt, app.clientSecret)
         return HashUtils.validatePasswordsMatch(sp, password)
+
+    }
+
+    static void validateAppRegistration(Authentication authentication, App app) {
+        String role = authentication.getRoles().first().toString()
+        if (role != Roles.ADMIN && role != Roles.TENANT_ADMIN) {
+            throw new AuthException("User is not authorized create apps")
+        }
+        String tenant = authentication.getAttributes().get("tenant")
+        if (tenant && tenant != app.tenantGuid) {
+            throw new AuthException("Tenant Admins may only create apps for their tenant")
+        }
 
     }
 }

@@ -1,10 +1,6 @@
 package com.trevorism.auth.controller
 
-import com.trevorism.auth.model.ActivationRequest
-import com.trevorism.auth.model.ChangePasswordRequest
-import com.trevorism.auth.model.ForgotPasswordRequest
-import com.trevorism.auth.model.RegistrationRequest
-import com.trevorism.auth.model.User
+import com.trevorism.auth.model.*
 import com.trevorism.auth.service.UserCredentialService
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
@@ -25,7 +21,7 @@ class UserController {
     @Operation(summary = "Register a user with username, password, and email")
     @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     User registerUser(@Body RegistrationRequest user) {
-$j        userCredentialService.registerUser(user)
+        userCredentialService.registerUser(user)
     }
 
     @Tag(name = "User Operations")
