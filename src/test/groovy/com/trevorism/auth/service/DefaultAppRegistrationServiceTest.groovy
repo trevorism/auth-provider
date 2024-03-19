@@ -9,6 +9,8 @@ import com.trevorism.data.model.sorting.ComplexSort
 import com.trevorism.auth.model.App
 import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.https.SecureHttpClient
+import com.trevorism.secure.Roles
+import io.micronaut.security.authentication.Authentication
 import org.junit.jupiter.api.Test
 
 import java.time.Instant
@@ -55,7 +57,7 @@ class DefaultAppRegistrationServiceTest {
         service.repository = new TestAppRepository()
         App app = new App(appName: "firstAppTest")
 
-        App registered = service.registerApp(app)
+        App registered = service.registerApp(app, [getRoles: { -> [Roles.ADMIN]}, getAttributes: { -> [:]}] as Authentication)
 
         assert registered.active
         assert registered.dateCreated
