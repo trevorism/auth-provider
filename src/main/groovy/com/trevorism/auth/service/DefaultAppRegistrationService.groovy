@@ -97,7 +97,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
         }
 
         this.repository = new FastDatastoreRepository<>(App, new GenerateTokenSecureHttpClientProvider(tokenRequest.tenantGuid, tokenRequest.audience).secureHttpClient)
-        App app = getIdentity(identifier)
+        App app = getIdentity(identifier) as App
 
         if(!app || !app.clientId || !app.clientSecret || !app.salt || !app.active || HashUtils.isExpired(app.dateExpired)){
             return false

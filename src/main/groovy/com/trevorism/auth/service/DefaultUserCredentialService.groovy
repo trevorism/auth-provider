@@ -20,7 +20,6 @@ import java.time.temporal.ChronoUnit
 class DefaultUserCredentialService implements UserCredentialService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultUserCredentialService)
-
     private Repository<User> repository
     private Emailer emailer
 
@@ -81,7 +80,6 @@ class DefaultUserCredentialService implements UserCredentialService {
         }
 
         this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(tokenRequest.tenantGuid, tokenRequest.audience).secureHttpClient)
-
         User user = getUserByUsername(username)
 
         if (!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)) {
@@ -181,7 +179,7 @@ class DefaultUserCredentialService implements UserCredentialService {
         user.dateExpired = Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
         repository.update(user.id, user)
 
-        emailer.sendForgotPasswordEmail(user.email, newPassword)
+        emailer.sendForgotPasswordEmail(user.email, newPassword, forgotPasswordRequest.audience)
     }
 
     @Override
