@@ -1,7 +1,6 @@
 package com.trevorism.auth.service
 
 import com.trevorism.EmailClient
-import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.https.InternalTokenSecureHttpClient
 import com.trevorism.model.Email
 
@@ -14,7 +13,7 @@ class Emailer {
     }
 
     boolean sendForgotPasswordEmail(String emailAddress, String newPassword, String audience) {
-        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Forgot Password", body: buildBody(newPassword, audience))
+        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Forgot Password", body: buildForgotPasswordBody(newPassword, audience))
         emailClient.sendEmail(email)
     }
 
@@ -28,7 +27,7 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    private static String buildBody(String password, String audience) {
+    private static String buildForgotPasswordBody(String password, String audience) {
         StringBuilder sb = new StringBuilder()
         sb << "Your new password for ${audience} is: ${password}\n"
         sb << "It will expire in 1 day. Change your password here: https://${audience}/change"

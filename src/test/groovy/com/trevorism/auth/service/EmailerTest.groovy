@@ -10,6 +10,6 @@ class EmailerTest {
     void testSendForgotPasswordEmail() {
         Emailer emailer = new Emailer()
         emailer.emailClient = new EmailClient([post: { x, y -> "{}" }] as SecureHttpClient)
-        assert emailer.sendForgotPasswordEmail("trevorism@gmail.com", "12345678")
+        assert emailer.sendForgotPasswordEmail("trevorism@gmail.com", "12345678", "trevorism.com")
     }
 }
