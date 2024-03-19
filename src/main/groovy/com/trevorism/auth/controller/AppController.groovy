@@ -55,8 +55,8 @@ class AppController {
     @Operation(summary = "Update the app secret from an apps clientId **Secure")
     @Put(value = "{clientId}/secret", produces = MediaType.APPLICATION_JSON)
     @Secure(Roles.TENANT_ADMIN)
-    String updateAppSecret(String clientId) {
+    String updateAppSecret(String clientId, Authentication authentication) {
         App app = appRegistrationService.getIdentity(clientId) as App
-        appRegistrationService.generateClientSecret(app)
+        appRegistrationService.generateClientSecret(app, authentication)
     }
 }

@@ -60,7 +60,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     }
 
     @Override
-    String generateClientSecret(App app) {
+    String generateClientSecret(App app, Authentication authentication) {
+        validateAppRegistration(authentication, app)
         app = validateApp(app)
         String rawSecret = HashUtils.generateRawSecret()
         app = setPasswordAndSalt(app, rawSecret)
@@ -129,11 +130,11 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     static void validateAppRegistration(Authentication authentication, App app) {
         String role = authentication.getRoles().first().toString()
         if (role != Roles.ADMIN && role != Roles.TENANT_ADMIN) {
-            throw new AuthException("User is not authorized create apps")
+            throw new AuthException("User is not authorized to work with apps")
         }
         String tenant = authentication.getAttributes().get("tenant")
         if (tenant && tenant != app.tenantGuid) {
-            throw new AuthException("Tenant Admins may only create apps for their tenant")
+            throw new AuthException("Tenant Admins may only work with apps for their tenant")
         }
 
     }

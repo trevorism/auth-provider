@@ -9,5 +9,5 @@ interface AppRegistrationService extends CredentialValidator {
     List<App> listRegisteredApps()
     App getRegisteredApp(String id)
     App removeRegisteredApp(String id)
-    String generateClientSecret(App app)
+    String generateClientSecret(App app, Authentication authentication)
 }
