@@ -5,6 +5,8 @@ import groovy.transform.ToString
 @ToString
 class App implements Identity{
 
+    static App NULL_APP = new App()
+
     String id
     String appName
     String clientId
@@ -13,6 +15,8 @@ class App implements Identity{
 
     List<String> replyUrls
     List<String> logoutUrls
+
+    String tenantGuid
 
     boolean active
     Date dateCreated
@@ -23,8 +27,4 @@ class App implements Identity{
         return clientId
     }
 
-    @Override
-    String getTenantGuid() {
-        return null
-    }
 }

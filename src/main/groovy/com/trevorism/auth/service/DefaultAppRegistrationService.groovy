@@ -1,7 +1,10 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.auth.bean.SecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
+import com.trevorism.auth.model.ActivationRequest
+import com.trevorism.auth.model.TokenRequest
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -9,7 +12,9 @@ import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.auth.model.App
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
-
+import com.trevorism.https.SecureHttpClient
+import com.trevorism.secure.Roles
+import io.micronaut.security.authentication.Authentication
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -19,8 +24,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     private Repository<App> repository
 
-    DefaultAppRegistrationService(SecureHttpClientProvider provider){
-        this.repository = new FastDatastoreRepository<>(App, provider.getSecureHttpClient())
+    DefaultAppRegistrationService(SecureHttpClient httpClient){
+        this.repository = new FastDatastoreRepository<>(App, httpClient)
     }
 
     @Override
@@ -43,7 +48,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     }
 
     @Override
-    App registerApp(App app) {
+    App registerApp(App app, Authentication authentication) {
+        validateAppRegistration(authentication, app)
         app.clientSecret = null
         app.clientId = UUID.randomUUID().toString()
         app.dateCreated = new Date()
@@ -54,7 +60,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     }
 
     @Override
-    String generateClientSecret(App app) {
+    String generateClientSecret(App app, Authentication authentication) {
+        validateAppRegistration(authentication, app)
         app = validateApp(app)
         String rawSecret = HashUtils.generateRawSecret()
         app = setPasswordAndSalt(app, rawSecret)
@@ -86,12 +93,16 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     }
 
     @Override
-    boolean validateCredentials(String identifier, String password) {
+    boolean validateCredentials(TokenRequest tokenRequest) {
+        String identifier = tokenRequest.id
+        String password = tokenRequest.password
+
         if(!identifier || !password){
             return false
         }
 
-        App app = getIdentity(identifier)
+        this.repository = new FastDatastoreRepository<>(App, new GenerateTokenSecureHttpClientProvider(tokenRequest.tenantGuid, tokenRequest.audience).secureHttpClient)
+        App app = getIdentity(identifier) as App
 
         if(!app || !app.clientId || !app.clientSecret || !app.salt || !app.active || HashUtils.isExpired(app.dateExpired)){
             return false
@@ -113,6 +124,18 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     private static boolean validatePasswordsMatch(App app, String password) {
         SaltedPassword sp = new SaltedPassword(app.salt, app.clientSecret)
         return HashUtils.validatePasswordsMatch(sp, password)
+
+    }
+
+    static void validateAppRegistration(Authentication authentication, App app) {
+        String role = authentication.getRoles().first().toString()
+        if (role != Roles.ADMIN && role != Roles.TENANT_ADMIN) {
+            throw new AuthException("User is not authorized to work with apps")
+        }
+        String tenant = authentication.getAttributes().get("tenant")
+        if (tenant && tenant != app.tenantGuid) {
+            throw new AuthException("Tenant Admins may only work with apps for their tenant")
+        }
 
     }
 }

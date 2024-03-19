@@ -43,7 +43,7 @@ class TokenController {
         if (tokenRequest.type == TokenRequest.USER_TYPE) {
             service = userCredentialService
         }
-        boolean valid = service.validateCredentials(tokenRequest.getId(), tokenRequest.password)
+        boolean valid = service.validateCredentials(tokenRequest)
 
         if (valid) {
             Identity identity = service.getIdentity(tokenRequest.getId())
