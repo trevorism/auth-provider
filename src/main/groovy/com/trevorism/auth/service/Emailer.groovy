@@ -22,8 +22,8 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    boolean sendRegistrationEmail(String username, String emailAddress) {
-        Email email = new Email(recipients: ["feedback@trevorism.com"], subject: "Trevorism: Registration", body: buildRegistrationBody(username, emailAddress))
+    boolean sendRegistrationEmailToNotifySiteAdmin(String username, String emailAddress, String tenantGuid) {
+        Email email = new Email(recipients: ["feedback@trevorism.com"], subject: "Trevorism: Registration", body: buildRegistrationBody(username, emailAddress, tenantGuid))
         emailClient.sendEmail(email)
     }
 
@@ -41,8 +41,12 @@ class Emailer {
         return sb.toString()
     }
 
-    private static String buildRegistrationBody(String username, String email) {
-        return "User: ${username} with email: ${email} is requesting activation"
+    private static String buildRegistrationBody(String username, String email, String tenantGuid) {
+        String base = "User: ${username} with email: ${email} is requesting activation"
+        if (tenantGuid) {
+            base << " for tenant: ${tenantGuid}"
+        }
+        return base
     }
 
 }

@@ -2,6 +2,8 @@ package com.trevorism.auth.controller
 
 import com.trevorism.auth.model.ActivationRequest
 import com.trevorism.auth.model.ChangePasswordRequest
+import com.trevorism.auth.model.ForgotPasswordRequest
+import com.trevorism.auth.model.RegistrationRequest
 import com.trevorism.auth.model.User
 import com.trevorism.auth.service.UserCredentialService
 import com.trevorism.secure.Roles
@@ -22,14 +24,14 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Register a user with username, password, and email")
     @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    User registerUser(@Body User user) {
-        userCredentialService.registerUser(user)
+    User registerUser(@Body RegistrationRequest user) {
+$j        userCredentialService.registerUser(user)
     }
 
     @Tag(name = "User Operations")
     @Operation(summary = "Returns the list of all users **Secure")
     @Get(value = "/", produces = MediaType.APPLICATION_JSON)
-    @Secure(Roles.SYSTEM)
+    @Secure(Roles.TENANT_ADMIN)
     List<User> listUsers() {
         userCredentialService.listUsers()
     }
@@ -53,7 +55,7 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Delete a user by id **Secure")
     @Delete(value = "/{username}", produces = MediaType.APPLICATION_JSON)
-    @Secure(Roles.SYSTEM)
+    @Secure(Roles.TENANT_ADMIN)
     User removeUser(String username) {
         User user = userCredentialService.getIdentity(username) as User
         userCredentialService.deleteUser(user.id)
@@ -62,16 +64,15 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Activate a user by username **Secure")
     @Post(value = "/activate", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @Secure(Roles.ADMIN)
-    boolean activateUser(@Body ActivationRequest activationRequest) {
-        User user = userCredentialService.getIdentity(activationRequest.username) as User
-        userCredentialService.activateUser(user, activationRequest.isAdmin)
+    @Secure(Roles.TENANT_ADMIN)
+    boolean activateUser(@Body ActivationRequest activationRequest, Authentication authentication) {
+        userCredentialService.activateUser(activationRequest, authentication)
     }
 
     @Tag(name = "User Operations")
     @Operation(summary = "Deactivate a user by username **Secure")
     @Post(value = "/deactivate", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @Secure(Roles.SYSTEM)
+    @Secure(Roles.TENANT_ADMIN)
     boolean deactivateUser(@Body ActivationRequest activationRequest) {
         User user = userCredentialService.getIdentity(activationRequest.username) as User
         userCredentialService.deactivateUser(user)
@@ -80,9 +81,9 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Reset Password **Secure")
     @Post(value = "/reset", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    boolean resetPassword(@Body ActivationRequest activationRequest) {
+    boolean resetPassword(@Body ForgotPasswordRequest forgotPasswordRequest) {
         try {
-            userCredentialService.forgotPassword(new User(username: activationRequest.username))
+            userCredentialService.forgotPassword(forgotPasswordRequest)
         } catch (Exception ignored) {
             return false
         }

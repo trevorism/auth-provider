@@ -1,7 +1,9 @@
 package com.trevorism.auth.service
 
+import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.auth.bean.SecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
+import com.trevorism.auth.model.TokenRequest
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
@@ -9,7 +11,7 @@ import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.auth.model.App
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
-
+import com.trevorism.https.SecureHttpClient
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -19,8 +21,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     private Repository<App> repository
 
-    DefaultAppRegistrationService(SecureHttpClientProvider provider){
-        this.repository = new FastDatastoreRepository<>(App, provider.getSecureHttpClient())
+    DefaultAppRegistrationService(SecureHttpClient httpClient){
+        this.repository = new FastDatastoreRepository<>(App, httpClient)
     }
 
     @Override
@@ -86,11 +88,15 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     }
 
     @Override
-    boolean validateCredentials(String identifier, String password) {
+    boolean validateCredentials(TokenRequest tokenRequest) {
+        String identifier = tokenRequest.id
+        String password = tokenRequest.password
+
         if(!identifier || !password){
             return false
         }
 
+        this.repository = new FastDatastoreRepository<>(App, new GenerateTokenSecureHttpClientProvider(tokenRequest.tenantGuid, tokenRequest.audience).secureHttpClient)
         App app = getIdentity(identifier)
 
         if(!app || !app.clientId || !app.clientSecret || !app.salt || !app.active || HashUtils.isExpired(app.dateExpired)){

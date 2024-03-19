@@ -24,7 +24,7 @@ buildscript {
 plugins {
     id "groovy"
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.micronaut.application") version "4.2.1"
+    id("io.micronaut.application") version "4.3.4"
     id "jacoco"
 }
 
@@ -58,8 +58,7 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation 'org.slf4j:slf4j-simple:2.0.9'
 
-    implementation 'com.trevorism:micronaut-security-utils:1.1.0'
-    implementation 'com.trevorism:secure-http-utils:3.1.0'
+    implementation 'com.trevorism:micronaut-utility-beans:1.2.0'
     implementation 'com.trevorism:datastore-client:3.2.0'
     implementation 'com.trevorism:reactions-client:0.6.0'
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -93,7 +92,7 @@ appengine {
     stage.artifact = layout.buildDirectory.file("libs/${project.name}-all.jar")
     deploy {
         projectId = "trevorism-auth"
-        version = "1-5-0"
+        version = "1-6-0"
         stopPreviousVersion = true
         promote = true
     }

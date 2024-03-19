@@ -1,3 +1,7 @@
+# 2.0.0
+
+Support multi tenancy for users and apps. Allow for auto-registration of users in other tenants. Upgrade micronaut version.
+
 # 1.5.0
 
 Added better error handling and added a /user/me endpoint. Upgraded to micronaut 4.

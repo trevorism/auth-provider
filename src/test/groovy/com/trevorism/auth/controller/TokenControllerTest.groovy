@@ -43,7 +43,7 @@ class TokenControllerTest {
     @Test
     void testBadTokenRequest() {
         TokenController tokenController = new TokenController()
-        tokenController.appRegistrationService = [validateCredentials: {u,p -> false}, getIdentity: {new User(username: "test")}] as AppRegistrationService
+        tokenController.appRegistrationService = [validateCredentials: {u -> false}, getIdentity: {new User(username: "test")}] as AppRegistrationService
         tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assertThrows(HttpResponseException, () -> tokenController.token(new TokenRequest()))
     }
@@ -51,7 +51,7 @@ class TokenControllerTest {
     @Test
     void testBadTokenUserRequest() {
         TokenController tokenController = new TokenController()
-        tokenController.userCredentialService = [validateCredentials: {u,p -> false}, getIdentity: {new User(username: "test")}] as UserCredentialService
+        tokenController.userCredentialService = [validateCredentials: {u -> false}, getIdentity: {new User(username: "test")}] as UserCredentialService
         tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assertThrows(HttpResponseException, () -> tokenController.token(new TokenRequest(type: TokenRequest.USER_TYPE)))
     }
@@ -59,7 +59,7 @@ class TokenControllerTest {
     @Test
     void testGetUserToken() {
         TokenController tokenController = new TokenController()
-        tokenController.userCredentialService = [validateCredentials: {u,p -> true}, getIdentity: {new User(username: "test")}] as UserCredentialService
+        tokenController.userCredentialService = [validateCredentials: {u -> true}, getIdentity: {new User(username: "test")}] as UserCredentialService
         tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assert FAKE_TOKEN == tokenController.token(new TokenRequest(id:"username", password: "password", type: TokenRequest.USER_TYPE))
     }
@@ -67,7 +67,7 @@ class TokenControllerTest {
     @Test
     void testGetAppToken() {
         TokenController tokenController = new TokenController()
-        tokenController.appRegistrationService = [validateCredentials: {u,p -> true}, getIdentity: {new User(username: "test")}] as AppRegistrationService
+        tokenController.appRegistrationService = [validateCredentials: {u -> true}, getIdentity: {new User(username: "test")}] as AppRegistrationService
         tokenController.tokenService = [issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assert FAKE_TOKEN == tokenController.token(new TokenRequest(id:"username", password: "password", type: TokenRequest.APP_TYPE))
     }

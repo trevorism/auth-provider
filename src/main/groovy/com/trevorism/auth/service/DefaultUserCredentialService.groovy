@@ -1,14 +1,14 @@
 package com.trevorism.auth.service
 
-import com.trevorism.auth.bean.SecureHttpClientProvider
+import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
+import com.trevorism.auth.model.*
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
 import com.trevorism.data.model.filtering.SimpleFilter
-import com.trevorism.auth.model.Identity
-import com.trevorism.auth.model.SaltedPassword
-import com.trevorism.auth.model.User
+import com.trevorism.https.SecureHttpClient
+import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,8 +24,8 @@ class DefaultUserCredentialService implements UserCredentialService {
     private Repository<User> repository
     private Emailer emailer
 
-    DefaultUserCredentialService(SecureHttpClientProvider provider){
-        repository = new FastDatastoreRepository<>(User, provider.getSecureHttpClient())
+    DefaultUserCredentialService(SecureHttpClient httpClient) {
+        repository = new FastDatastoreRepository<>(User, httpClient)
         emailer = new Emailer()
     }
 
@@ -49,28 +49,40 @@ class DefaultUserCredentialService implements UserCredentialService {
     }
 
     @Override
-    User registerUser(User user) {
-        if (!validateRegistration(user)) {
+    User registerUser(RegistrationRequest request) {
+        this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(request.tenantGuid, request.audience).secureHttpClient)
+
+        if (!validateRegistration(request)) {
             throw new AuthException("Unable to register user")
         }
 
-        user.active = false
+        User user = request.toUser()
+
+        //Disallow auto registration for non-tenant users
+        if (!request.tenantGuid) {
+            user.active = false
+        }
+
         user.dateCreated = new Date()
         user.username = user.username.toLowerCase()
-
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
-        emailer.sendRegistrationEmail(user.username, user.email)
+        emailer.sendRegistrationEmailToNotifySiteAdmin(user.username, user.email, user.tenantGuid)
         return cleanUser(createdUser)
     }
 
     @Override
-    boolean validateCredentials(String username, String password) {
+    boolean validateCredentials(TokenRequest tokenRequest) {
+        String username = tokenRequest?.id
+        String password = tokenRequest?.password
+
         if (!username || !password) {
             return false
         }
 
-        User user = getUserCredential(username)
+        this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(tokenRequest.tenantGuid, tokenRequest.audience).secureHttpClient)
+
+        User user = getUserByUsername(username)
 
         if (!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)) {
             return false
@@ -81,24 +93,24 @@ class DefaultUserCredentialService implements UserCredentialService {
 
     @Override
     Identity getIdentity(String identifier) {
-        getUserCredential(identifier)
+        getUserByUsername(identifier)
     }
 
     @Override
-    boolean validateRegistration(User user) {
-        if (!user || !user.username || !user.password || !user.email) {
+    boolean validateRegistration(RegistrationRequest request) {
+        if (!request || !request.username || !request.password || !request.email) {
             log.warn("Registration missing a required field")
             return false
         }
-        if (user.username.length() < 3 || user.password.length() < 6) {
+        if (request.username.length() < 3 || request.password.length() < 6) {
             log.warn("Registration username/password length not acceptable")
             return false
         }
-        if (!user.email.contains("@")) {
+        if (!request.email.contains("@")) {
             log.warn("Email is not formatted correctly")
             return false
         }
-        if (userMatchesCurrentUsers(user)) {
+        if (userMatchesCurrentUsers(request)) {
             log.warn("Registration detected duplicate username or email")
             return false
         }
@@ -106,17 +118,33 @@ class DefaultUserCredentialService implements UserCredentialService {
     }
 
     @Override
-    boolean activateUser(User user, boolean admin) {
-        User toUpdate = getIdentity(user.identifer) as User
+    boolean activateUser(ActivationRequest activationRequest, Authentication authentication) {
+        validateActivationRequest(authentication, activationRequest)
+        this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(activationRequest.tenantGuid, null).secureHttpClient)
+
+        User toUpdate = getUserByUsername(activationRequest.getUsername())
         toUpdate.active = true
-        toUpdate.admin = admin
+        toUpdate.admin = activationRequest.isAdmin
         toUpdate.dateExpired = Date.from(Instant.now().plus(365, ChronoUnit.DAYS))
         def result = repository.update(toUpdate.id, toUpdate)
         if (result) {
-            emailer.sendActivationEmail(user.email)
+            if (!activationRequest.doNotSendWelcomeEmail) {
+                emailer.sendActivationEmail(toUpdate.email)
+            }
             return true
         }
         return false
+    }
+
+    private static void validateActivationRequest(Authentication authentication, ActivationRequest activationRequest) {
+        String role = authentication.getRoles().first().toString()
+        if (role != Roles.ADMIN && activationRequest.isAdmin) {
+            throw new AuthException("User is not authorized to activate an admin user")
+        }
+        String tenant = authentication.getAttributes().get("tenant")
+        if (tenant && tenant != activationRequest.tenantGuid) {
+            throw new AuthException("Tenant Admins may only activate users for their tenant")
+        }
     }
 
     @Override
@@ -128,7 +156,7 @@ class DefaultUserCredentialService implements UserCredentialService {
 
     @Override
     boolean changePassword(Identity identity, String currentPassword, String newPassword) {
-        User user = getUserCredential(identity.getIdentifer())
+        User user = getUserByUsername(identity.getIdentifer())
         if (!validatePasswordsMatch(user, currentPassword)) {
             return false
         }
@@ -140,10 +168,12 @@ class DefaultUserCredentialService implements UserCredentialService {
     }
 
     @Override
-    void forgotPassword(Identity identity) {
-        User user = getUserCredential(identity.getIdentifer())
+    void forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(forgotPasswordRequest.tenantGuid, forgotPasswordRequest.audience).secureHttpClient)
+
+        User user = getUserByUsername(forgotPasswordRequest.username)
         if (!user) {
-            throw new AuthException("Unable to locate user: ${identity.identifer}")
+            throw new AuthException("Unable to locate user: ${forgotPasswordRequest.username}")
         }
         String newPassword = HashUtils.generateRawSecret()
         user.password = newPassword
@@ -160,18 +190,18 @@ class DefaultUserCredentialService implements UserCredentialService {
         return getUser(id)
     }
 
-    private User getUserCredential(String username) {
-        try{
+    private User getUserByUsername(String username) {
+        try {
             return repository.filter(new FilterBuilder().addFilter(new SimpleFilter("username", "=", username.toLowerCase())).build())[0]
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
             return null
         }
     }
 
-    private boolean userMatchesCurrentUsers(User user) {
+    private boolean userMatchesCurrentUsers(RegistrationRequest request) {
         List<User> allUsers = repository.list()
-        return allUsers.any { it.username.toLowerCase() == user.username.toLowerCase() || it.email.toLowerCase() == user.email.toLowerCase() }
+        return allUsers.any { it.username.toLowerCase() == request.username.toLowerCase() || it.email.toLowerCase() == request.email.toLowerCase() }
     }
 
     private static User cleanUser(User user) {
