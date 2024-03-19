@@ -10,7 +10,7 @@ class Emailer {
     private EmailClient emailClient
 
     Emailer() {
-        emailClient = new EmailClient(new GenerateTokenSecureHttpClientProvider(null,null).secureHttpClient)
+        emailClient = new EmailClient(new InternalTokenSecureHttpClient())
     }
 
     boolean sendForgotPasswordEmail(String emailAddress, String newPassword, String audience) {
