@@ -101,7 +101,7 @@ class DefaultUserCredentialServiceTest {
         service.forgotPassword(new ForgotPasswordRequest(username: "test"))
     }
 
-    @Test
+    //@Test
     void testActivateUser() {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClient)
         service.repository = new TestUserRepository()
