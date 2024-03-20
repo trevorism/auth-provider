@@ -27,7 +27,6 @@ class GenerateTokenSecureHttpClientProvider implements SecureHttpClientProvider 
         return new GenerateTokenSecureHttpClient(new GenerateTokenStrategy())
     }
 
-
     class GenerateTokenSecureHttpClient extends SecureHttpClientBase {
         GenerateTokenSecureHttpClient(ObtainTokenStrategy strategy) {
             super(strategy)

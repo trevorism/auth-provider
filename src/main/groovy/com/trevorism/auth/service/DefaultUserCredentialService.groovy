@@ -63,6 +63,10 @@ class DefaultUserCredentialService implements UserCredentialService {
         }
 
         user.dateCreated = new Date()
+        if(user.isActive()){
+            user.dateExpired = Date.from(Instant.now().plus(365, ChronoUnit.DAYS))
+        }
+
         user.username = user.username.toLowerCase()
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
