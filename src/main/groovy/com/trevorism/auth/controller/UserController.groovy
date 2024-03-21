@@ -90,10 +90,9 @@ class UserController {
     @Operation(summary = "Change Password **Secure")
     @Post(value = "/change", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     @Secure(value = Roles.USER, allowInternal = true)
-    boolean changePassword(@Body ChangePasswordRequest changePasswordRequest) {
+    boolean changePassword(@Body ChangePasswordRequest changePasswordRequest, Authentication authentication) {
         try {
-            User user = userCredentialService.getIdentity(changePasswordRequest.username) as User
-            userCredentialService.changePassword(user, changePasswordRequest.currentPassword, changePasswordRequest.desiredPassword)
+            userCredentialService.changePassword(changePasswordRequest, authentication)
         } catch (Exception ignored) {
             return false
         }

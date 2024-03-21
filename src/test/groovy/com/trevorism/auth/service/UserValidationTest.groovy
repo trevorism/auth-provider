@@ -2,7 +2,6 @@ package com.trevorism.auth.service
 
 import com.trevorism.auth.model.RegistrationRequest
 import com.trevorism.auth.model.TokenRequest
-import com.trevorism.auth.model.User
 import com.trevorism.https.SecureHttpClient
 import org.junit.jupiter.api.Test
 

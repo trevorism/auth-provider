@@ -63,7 +63,7 @@ class DefaultUserCredentialService implements UserCredentialService {
         }
 
         user.dateCreated = new Date()
-        if(user.isActive()){
+        if (user.isActive()) {
             user.dateExpired = Date.from(Instant.now().plus(365, ChronoUnit.DAYS))
         }
 
@@ -157,12 +157,12 @@ class DefaultUserCredentialService implements UserCredentialService {
     }
 
     @Override
-    boolean changePassword(Identity identity, String currentPassword, String newPassword) {
-        User user = getUserByUsername(identity.getIdentifer())
-        if (!validatePasswordsMatch(user, currentPassword)) {
+    boolean changePassword(ChangePasswordRequest changePasswordRequest, Authentication authentication) {
+        User user = getUserForPasswordChange(changePasswordRequest, authentication)
+        if (!validatePasswordsMatch(user, changePasswordRequest.currentPassword)) {
             return false
         }
-        user.password = newPassword
+        user.password = changePasswordRequest.desiredPassword
         user = setPasswordAndSalt(user)
         user.dateExpired = Date.from(Instant.now().plus(365, ChronoUnit.DAYS))
 
@@ -224,4 +224,15 @@ class DefaultUserCredentialService implements UserCredentialService {
         return HashUtils.validatePasswordsMatch(sp, password)
     }
 
+    User getUserForPasswordChange(ChangePasswordRequest changePasswordRequest, Authentication authentication) {
+        if(changePasswordRequest.tenantGuid){
+            this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(changePasswordRequest.tenantGuid, changePasswordRequest.audience).secureHttpClient)
+        }
+
+        if(authentication.getAttributes().get("id")){
+            return getCurrentUser(authentication)
+        }
+
+        return getUserByUsername(changePasswordRequest.username)
+    }
 }
