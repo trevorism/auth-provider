@@ -89,7 +89,7 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Change Password **Secure")
     @Post(value = "/change", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @Secure(Roles.USER)
+    @Secure(value = Roles.USER, allowInternal = true)
     boolean changePassword(@Body ChangePasswordRequest changePasswordRequest) {
         try {
             User user = userCredentialService.getIdentity(changePasswordRequest.username) as User
