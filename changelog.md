@@ -1,3 +1,7 @@
+# 2.1.0
+
+Several bug fixes to support multi tenancy.
+
 # 2.0.0
 
 Support multi tenancy for users and apps. Allow for auto-registration of users in other tenants. Upgrade micronaut version.
