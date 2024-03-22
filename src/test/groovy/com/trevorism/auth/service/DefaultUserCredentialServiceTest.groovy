@@ -1,7 +1,7 @@
 package com.trevorism.auth.service
 
-import com.trevorism.auth.bean.SecureHttpClientProvider
 import com.trevorism.auth.model.ActivationRequest
+import com.trevorism.auth.model.ChangePasswordRequest
 import com.trevorism.auth.model.ForgotPasswordRequest
 import com.trevorism.auth.model.RegistrationRequest
 import com.trevorism.auth.model.TokenRequest
@@ -90,7 +90,9 @@ class DefaultUserCredentialServiceTest {
     void testChangePassword() {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClient)
         service.repository = new TestUserRepository()
-        assert !service.changePassword(new User(username: "test"), "b4831cd6bd41ff8", "b4831cd6bd41ff9")
+        assert !service.changePassword(
+                new ChangePasswordRequest(username: "test", currentPassword: "b4831cd6bd41ff8", desiredPassword: "b4831cd6bd41ff9" ),
+                [getRoles: { -> [Roles.ADMIN]}, getAttributes: { -> [:]}] as Authentication)
     }
 
     //@Test
