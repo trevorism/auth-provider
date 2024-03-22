@@ -89,10 +89,9 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Change Password **Secure")
     @Post(value = "/change", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
-    @Secure(value = Roles.USER, allowInternal = true)
-    boolean changePassword(@Body ChangePasswordRequest changePasswordRequest, Authentication authentication) {
+    boolean changePassword(@Body ChangePasswordRequest changePasswordRequest) {
         try {
-            userCredentialService.changePassword(changePasswordRequest, authentication)
+            userCredentialService.changePassword(changePasswordRequest)
         } catch (Exception ignored) {
             return false
         }

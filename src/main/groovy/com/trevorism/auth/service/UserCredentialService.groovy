@@ -18,12 +18,13 @@ interface UserCredentialService extends CredentialValidator {
     boolean deactivateUser(User user)
     User getCurrentUser(Authentication authentication)
 
-    //Quasi authenticated -- add additional logic to validate the request
+
     boolean activateUser(ActivationRequest activationRequest, Authentication authentication)
-    boolean changePassword(ChangePasswordRequest changePasswordRequest, Authentication authentication)
+
 
     //Unauthenticated
     User registerUser(RegistrationRequest request)
     boolean validateRegistration(RegistrationRequest request)
     void forgotPassword(ForgotPasswordRequest forgotPasswordRequest)
+    boolean changePassword(ChangePasswordRequest changePasswordRequest)
 }

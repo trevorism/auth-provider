@@ -1,11 +1,6 @@
 package com.trevorism.auth.service
 
-import com.trevorism.auth.model.ActivationRequest
-import com.trevorism.auth.model.ChangePasswordRequest
-import com.trevorism.auth.model.ForgotPasswordRequest
-import com.trevorism.auth.model.RegistrationRequest
-import com.trevorism.auth.model.TokenRequest
-import com.trevorism.auth.model.User
+import com.trevorism.auth.model.*
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.ComplexFilter
 import com.trevorism.data.model.paging.PageRequest
@@ -91,8 +86,7 @@ class DefaultUserCredentialServiceTest {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClient)
         service.repository = new TestUserRepository()
         assert !service.changePassword(
-                new ChangePasswordRequest(username: "test", currentPassword: "b4831cd6bd41ff8", desiredPassword: "b4831cd6bd41ff9" ),
-                [getRoles: { -> [Roles.ADMIN]}, getAttributes: { -> [:]}] as Authentication)
+                new ChangePasswordRequest(username: "test", currentPassword: "b4831cd6bd41ff8", desiredPassword: "b4831cd6bd41ff9"))
     }
 
     //@Test
@@ -108,7 +102,8 @@ class DefaultUserCredentialServiceTest {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClient)
         service.repository = new TestUserRepository()
         service.emailer = [sendActivationEmail: { a -> }] as Emailer
-        assert service.activateUser(new ActivationRequest(username: "test"), [getRoles: { -> [Roles.ADMIN]}, getAttributes: { -> [:]}] as Authentication)
+        assert service.activateUser(new ActivationRequest(username: "test"), [getRoles: { ->
+            [Roles.ADMIN] }, getAttributes                                            : { -> [:] }] as Authentication)
     }
 
     @Test

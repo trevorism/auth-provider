@@ -157,8 +157,8 @@ class DefaultUserCredentialService implements UserCredentialService {
     }
 
     @Override
-    boolean changePassword(ChangePasswordRequest changePasswordRequest, Authentication authentication) {
-        User user = getUserForPasswordChange(changePasswordRequest, authentication)
+    boolean changePassword(ChangePasswordRequest changePasswordRequest) {
+        User user = getUserForPasswordChange(changePasswordRequest)
         if (!validatePasswordsMatch(user, changePasswordRequest.currentPassword)) {
             return false
         }
@@ -224,15 +224,8 @@ class DefaultUserCredentialService implements UserCredentialService {
         return HashUtils.validatePasswordsMatch(sp, password)
     }
 
-    User getUserForPasswordChange(ChangePasswordRequest changePasswordRequest, Authentication authentication) {
-        if(changePasswordRequest.tenantGuid){
-            this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(changePasswordRequest.tenantGuid, changePasswordRequest.audience).secureHttpClient)
-        }
-
-        if(authentication.getAttributes().get("id")){
-            return getCurrentUser(authentication)
-        }
-
+    private User getUserForPasswordChange(ChangePasswordRequest changePasswordRequest) {
+        this.repository = new FastDatastoreRepository<>(User, new GenerateTokenSecureHttpClientProvider(changePasswordRequest.tenantGuid, changePasswordRequest.audience).secureHttpClient)
         return getUserByUsername(changePasswordRequest.username)
     }
 }
