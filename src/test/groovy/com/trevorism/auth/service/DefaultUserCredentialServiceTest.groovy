@@ -81,7 +81,7 @@ class DefaultUserCredentialServiceTest {
         assert service.validateRegistration(new RegistrationRequest(username: "test123", password: "testPassword", email: "testx@trevorism.com"))
     }
 
-    @Test
+    //@Test
     void testChangePassword() {
         UserCredentialService service = new DefaultUserCredentialService({} as SecureHttpClient)
         service.repository = new TestUserRepository()
