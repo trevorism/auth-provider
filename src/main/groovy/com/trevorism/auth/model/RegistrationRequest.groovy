@@ -7,6 +7,7 @@ class RegistrationRequest {
     String email
     String tenantGuid
     boolean autoRegister = false
+    boolean doNotNotifySiteAdminOfRegistration = false
     String audience
 
     User toUser(){

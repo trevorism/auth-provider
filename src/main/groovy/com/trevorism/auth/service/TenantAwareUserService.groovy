@@ -58,7 +58,9 @@ class TenantAwareUserService implements TenantUserService{
         User secureUser = setPasswordAndSalt(user)
         User createdUser = repository.create(secureUser)
 
-        emailer.sendRegistrationEmailToNotifySiteAdmin(user.username, user.email, user.tenantGuid)
+        if (!request.doNotNotifySiteAdminOfRegistration) {
+            emailer.sendRegistrationEmailToNotifySiteAdmin(user.username, user.email, user.tenantGuid)
+        }
         return cleanUser(createdUser)
     }
 
@@ -132,7 +134,7 @@ class TenantAwareUserService implements TenantUserService{
         String id = authentication.getAttributes().get("id")
         String tenant = authentication.getAttributes().get("tenant")
         Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(tenant, null))
-        return repository.get(id)
+        return cleanUser(repository.get(id))
     }
 
     @Override

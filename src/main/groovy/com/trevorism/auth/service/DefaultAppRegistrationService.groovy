@@ -138,6 +138,8 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     static void validateAppRegistration(Authentication authentication, App app) {
         String role = authentication.getRoles().first().toString()
         if (role != Roles.ADMIN && role != Roles.TENANT_ADMIN) {
+            if (role == Roles.SYSTEM)
+                throw new AuthException("Apps cannot register other apps, only administrator users may do this.")
             throw new AuthException("User is not authorized to work with apps")
         }
         String tenant = authentication.getAttributes().get("tenant")
