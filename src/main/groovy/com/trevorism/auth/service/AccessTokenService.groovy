@@ -12,6 +12,7 @@ import io.jsonwebtoken.CompressionCodecs
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import jakarta.inject.Inject
 
 import java.security.Key
 import java.time.Instant
@@ -23,7 +24,28 @@ class AccessTokenService implements TokenService {
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
     public static final int TWO_HOURS_IN_SECONDS = 60 * 60 * 2
 
+    @Inject
+    private TenantUserService tenantUserService
+    @Inject
+    private AppRegistrationService appRegistrationService
+
     private PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
+
+    @Override
+    Identity getValidatedIdentity(TokenRequest tokenRequest) {
+        Identity identity = null
+        if (tokenRequest.type == TokenRequest.USER_TYPE) {
+            if(tenantUserService.validateCredentials(tokenRequest)) {
+                identity = tenantUserService.getIdentity(tokenRequest)
+            }
+        }
+        else{
+            if(appRegistrationService.validateCredentials(tokenRequest)) {
+                identity = appRegistrationService.getIdentity(tokenRequest.getId())
+            }
+        }
+        return identity
+    }
 
     @Override
     String issueToken(Identity identity, String audience) {

@@ -5,26 +5,18 @@ import com.trevorism.auth.model.ChangePasswordRequest
 import com.trevorism.auth.model.ForgotPasswordRequest
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.RegistrationRequest
+import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
 import io.micronaut.security.authentication.Authentication
 
-interface UserCredentialService extends CredentialValidator {
+interface TenantUserService {
 
-    User getUser(String username)
-
-    User deleteUser(String id)
-    List<User> listUsers()
-
-    boolean deactivateUser(User user)
-    User getCurrentUser(Authentication authentication)
-
-
-    boolean activateUser(ActivationRequest activationRequest, Authentication authentication)
-
-
-    //Unauthenticated
     User registerUser(RegistrationRequest request)
-    boolean validateRegistration(RegistrationRequest request)
-    void forgotPassword(ForgotPasswordRequest forgotPasswordRequest)
+    User forgotPassword(ForgotPasswordRequest forgotPasswordRequest)
+    boolean activateUser(ActivationRequest activationRequest, Authentication authentication)
+    boolean deactivateUser(ActivationRequest activationRequest, Authentication authentication)
+    boolean validateCredentials(TokenRequest tokenRequest)
+    User getCurrentUser(Authentication authentication)
     boolean changePassword(ChangePasswordRequest changePasswordRequest)
+    Identity getIdentity(TokenRequest tokenRequest)
 }

@@ -1,6 +1,6 @@
 package com.trevorism.auth.service
 
-import com.trevorism.auth.bean.SecureHttpClientProvider
+import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.ComplexFilter
@@ -65,11 +65,16 @@ class DefaultAppRegistrationServiceTest {
         assert registered.clientId
     }
 
-    //@Test
+    @Test
     void testGenerateClientSecretAndValidateIt() {
+        def testRepo = new TestAppRepository()
         DefaultAppRegistrationService service = new DefaultAppRegistrationService({} as SecureHttpClient)
-        service.repository = new TestAppRepository()
-        String secret = service.generateClientSecret(new App(id: "5721612393381888", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a"))
+        service.repository = testRepo
+        service.metaClass.getIdentity = { String identifier ->
+            return testRepo.list()[0] as App
+        }
+        service.generateTokenSecureHttpClientProvider = [getSecureHttpClient: { x,y -> [post: {}] as SecureHttpClient}] as TenantTokenSecureHttpClientProvider
+        String secret = service.generateClientSecret(new App(id: "5721612393381888", clientId: "fc64fb13-216d-4592-8bc9-79f087e14f9a"), [getRoles: { -> [Roles.ADMIN]}, getAttributes: { -> [:]}] as Authentication)
         assert service.validateCredentials(new TokenRequest([id:"fc64fb13-216d-4592-8bc9-79f087e14f9a", password:secret]))
     }
 

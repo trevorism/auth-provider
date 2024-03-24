@@ -1,9 +1,8 @@
 package com.trevorism.auth.service
 
 import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
-import com.trevorism.auth.bean.SecureHttpClientProvider
+import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
-import com.trevorism.auth.model.ActivationRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
@@ -15,6 +14,7 @@ import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.https.SecureHttpClient
 import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
+import jakarta.inject.Inject
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -23,6 +23,9 @@ import java.time.temporal.ChronoUnit
 class DefaultAppRegistrationService implements AppRegistrationService{
 
     private Repository<App> repository
+
+    @Inject
+    TenantTokenSecureHttpClientProvider generateTokenSecureHttpClientProvider
 
     DefaultAppRegistrationService(SecureHttpClient httpClient){
         this.repository = new FastDatastoreRepository<>(App, httpClient)
@@ -101,8 +104,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
             return false
         }
 
-        this.repository = new FastDatastoreRepository<>(App, new GenerateTokenSecureHttpClientProvider(tokenRequest.tenantGuid, tokenRequest.audience).secureHttpClient)
-        App app = getIdentity(identifier) as App
+        App app = getAppFromRequest(tokenRequest, identifier)
 
         if(!app || !app.clientId || !app.clientSecret || !app.salt || !app.active || HashUtils.isExpired(app.dateExpired)){
             return false
@@ -110,6 +112,12 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
         return validatePasswordsMatch(app, password)
 
+    }
+
+    private App getAppFromRequest(TokenRequest tokenRequest, String identifier) {
+        this.repository = new FastDatastoreRepository<>(App, generateTokenSecureHttpClientProvider.getSecureHttpClient(tokenRequest.tenantGuid, tokenRequest.audience))
+        App app = getIdentity(identifier) as App
+        return app
     }
 
     @Override

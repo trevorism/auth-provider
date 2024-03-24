@@ -92,7 +92,7 @@ appengine {
     stage.artifact = layout.buildDirectory.file("libs/${project.name}-all.jar")
     deploy {
         projectId = "trevorism-auth"
-        version = "2-1-0"
+        version = "2-2-0"
         stopPreviousVersion = true
         promote = true
     }

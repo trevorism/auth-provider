@@ -1,19 +1,23 @@
 package com.trevorism.auth.service
 
 import com.trevorism.EmailClient
+import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
+import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.https.InternalTokenSecureHttpClient
 import com.trevorism.model.Email
+import jakarta.inject.Inject
 
+@jakarta.inject.Singleton
 class Emailer {
 
     private EmailClient emailClient
 
-    Emailer() {
-        emailClient = new EmailClient(new InternalTokenSecureHttpClient())
+    Emailer(TenantTokenSecureHttpClientProvider generateTokenSecureHttpClientProvider) {
+        emailClient = new EmailClient(generateTokenSecureHttpClientProvider.getSecureHttpClient(null,null))
     }
 
-    boolean sendForgotPasswordEmail(String emailAddress, String newPassword, String audience) {
-        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Forgot Password", body: buildForgotPasswordBody(newPassword, audience))
+    boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience) {
+        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Forgot Password", body: buildForgotPasswordBody(username, newPassword, audience))
         emailClient.sendEmail(email)
     }
 
@@ -27,9 +31,10 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    private static String buildForgotPasswordBody(String password, String audience) {
+    private static String buildForgotPasswordBody(String username, String password, String audience) {
         StringBuilder sb = new StringBuilder()
-        sb << "Your new password for ${audience} is: ${password}\n"
+        sb << "A reset password request has been made for your ${username} account on ${audience}\n\n"
+        sb << "Your new password for is: ${password}\n\n"
         sb << "It will expire in 1 day. Change your password here: https://${audience}/change"
         return sb.toString()
     }
