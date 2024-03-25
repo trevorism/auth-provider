@@ -37,6 +37,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     @Override
     List<App> listRegisteredApps() {
+        log.info("Listing registered apps " + repository.client.toString())
         repository.list().collect{
             cleanApp(it)
         }

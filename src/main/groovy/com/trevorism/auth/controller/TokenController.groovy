@@ -1,18 +1,13 @@
 package com.trevorism.auth.controller
 
-import com.trevorism.ClaimProperties
-import com.trevorism.auth.errors.AuthException
-import com.trevorism.auth.model.InternalTokenRequest
-import com.trevorism.auth.service.AppRegistrationService
 
-import com.trevorism.auth.service.TenantUserService
-import com.trevorism.auth.service.TokenService
+import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.model.TokenRequest
+import com.trevorism.auth.service.TokenService
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
-import io.micronaut.http.HttpHeaders
-import io.micronaut.http.HttpStatus
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -54,7 +49,7 @@ class TokenController {
     @Post(value = "/internal", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
     @Secure(Roles.SYSTEM)
     String createInternalToken(@Body InternalTokenRequest internalTokenRequest, Authentication authentication) {
-        if(!internalTokenRequest.subject) {
+        if (!internalTokenRequest.subject) {
             throw new AuthException("Unable to issue token, missing subject")
         }
         Identity identity = createIdentityFromInternalTokenRequest(authentication, internalTokenRequest)
