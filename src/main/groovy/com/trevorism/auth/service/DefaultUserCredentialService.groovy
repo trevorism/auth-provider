@@ -1,16 +1,16 @@
 package com.trevorism.auth.service
 
-
 import com.trevorism.auth.model.*
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
 import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.https.SecureHttpClient
+import io.micronaut.runtime.http.scope.RequestScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@jakarta.inject.Singleton
+@RequestScope
 class DefaultUserCredentialService implements UserService {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultUserCredentialService)

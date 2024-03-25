@@ -12,6 +12,7 @@ import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SaltedPassword
 import com.trevorism.https.SecureHttpClient
 import com.trevorism.secure.Roles
+import io.micronaut.runtime.http.scope.RequestScope
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Inject
 import jakarta.inject.Named
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-@jakarta.inject.Singleton
+@RequestScope
 class DefaultAppRegistrationService implements AppRegistrationService{
 
     private static final Logger log = LoggerFactory.getLogger(DefaultAppRegistrationService)
@@ -37,7 +38,6 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     @Override
     List<App> listRegisteredApps() {
-        log.info("Listing registered apps " + repository.client.toString())
         repository.list().collect{
             cleanApp(it)
         }
