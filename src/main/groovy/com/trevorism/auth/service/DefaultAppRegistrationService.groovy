@@ -1,6 +1,5 @@
 package com.trevorism.auth.service
 
-import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.TokenRequest
@@ -15,6 +14,7 @@ import com.trevorism.https.SecureHttpClient
 import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Inject
+import jakarta.inject.Named
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -30,7 +30,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     @Inject
     TenantTokenSecureHttpClientProvider generateTokenSecureHttpClientProvider
 
-    DefaultAppRegistrationService(SecureHttpClient httpClient){
+    DefaultAppRegistrationService(@Named("passThruSecureHttpClient") SecureHttpClient httpClient){
         this.repository = new FastDatastoreRepository<>(App, httpClient)
         log.info("Instantiated DefaultAppRegistrationService with httpClient: " + httpClient)
     }
