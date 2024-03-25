@@ -1,3 +1,7 @@
+# 2.3.0
+
+Updated dependencies
+
 # 2.2.0
 
 Major refactor. Multi tenancy now works for all user and app functions. The app no longer needs a rotating/expiring internal token for emailing.
