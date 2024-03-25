@@ -33,7 +33,6 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     DefaultAppRegistrationService(@Named("passThruSecureHttpClient") SecureHttpClient httpClient){
         this.repository = new FastDatastoreRepository<>(App, httpClient)
-        log.info("Instantiated DefaultAppRegistrationService with httpClient: " + httpClient)
     }
 
     @Override
