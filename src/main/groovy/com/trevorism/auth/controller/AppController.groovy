@@ -15,6 +15,8 @@ import jakarta.inject.Inject
 @Controller("/app")
 class AppController {
 
+
+
     @Inject
     private AppRegistrationService appRegistrationService
 

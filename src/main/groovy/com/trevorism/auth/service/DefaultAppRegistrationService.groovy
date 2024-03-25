@@ -15,6 +15,8 @@ import com.trevorism.https.SecureHttpClient
 import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Inject
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -22,6 +24,7 @@ import java.time.temporal.ChronoUnit
 @jakarta.inject.Singleton
 class DefaultAppRegistrationService implements AppRegistrationService{
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultAppRegistrationService)
     private Repository<App> repository
 
     @Inject
@@ -29,6 +32,7 @@ class DefaultAppRegistrationService implements AppRegistrationService{
 
     DefaultAppRegistrationService(SecureHttpClient httpClient){
         this.repository = new FastDatastoreRepository<>(App, httpClient)
+        log.info("Instantiated DefaultAppRegistrationService with httpClient: " + httpClient)
     }
 
     @Override
