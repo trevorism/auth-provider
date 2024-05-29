@@ -1,5 +1,9 @@
 # 2.3.0
 
+Updated dependencies to use deploy and unit test events.
+
+# 2.3.0
+
 Updated dependencies
 
 # 2.2.0
