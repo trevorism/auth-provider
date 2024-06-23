@@ -9,6 +9,7 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.junit.jupiter.api.Test
 
+import javax.crypto.SecretKey
 import java.security.Key
 
 class AccessTokenServiceTest {
@@ -44,16 +45,16 @@ class AccessTokenServiceTest {
     }
 
     private static void assertTokenDecodes(String token) {
-        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(TEST_SIGNING_KEY))
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(TEST_SIGNING_KEY))
 
-        Jws<Claims> decoded = Jwts.parserBuilder()
-                .setAllowedClockSkewSeconds(10)
-                .setSigningKey(key)
+        Jws<Claims> decoded = Jwts.parser()
+                .clockSkewSeconds(10)
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
+                .parseSignedClaims(token)
 
-        assert decoded.body.get("iss") == "https://trevorism.com"
-        assert decoded.body.get("aud") == "testAudience"
-        assert decoded.body.get("sub") == "testUsername"
+        assert decoded.payload.get("iss") == "https://trevorism.com"
+        assert (decoded.payload.get("aud") as HashSet).contains("testAudience")
+        assert decoded.payload.get("sub") == "testUsername"
     }
 }
