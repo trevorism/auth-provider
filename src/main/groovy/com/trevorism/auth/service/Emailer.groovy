@@ -1,11 +1,9 @@
 package com.trevorism.auth.service
 
 import com.trevorism.EmailClient
-import com.trevorism.auth.bean.GenerateTokenSecureHttpClientProvider
 import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
-import com.trevorism.https.InternalTokenSecureHttpClient
 import com.trevorism.model.Email
-import jakarta.inject.Inject
+
 
 @jakarta.inject.Singleton
 class Emailer {

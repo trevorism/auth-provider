@@ -2,7 +2,6 @@ package com.trevorism.auth.service
 
 import com.trevorism.ClaimProperties
 import com.trevorism.ClaimsProvider
-import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.TokenRequest
@@ -28,8 +27,8 @@ class AccessTokenService implements TokenService {
     private TenantUserService tenantUserService
     @Inject
     private AppRegistrationService appRegistrationService
-
-    private PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
+    @Inject
+    private PropertiesProvider propertiesProvider
 
     @Override
     Identity getValidatedIdentity(TokenRequest tokenRequest) {

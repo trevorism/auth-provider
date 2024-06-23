@@ -22,7 +22,6 @@ class GenerateTokenSecureHttpClientProvider implements TenantTokenSecureHttpClie
     SecureHttpClient getSecureHttpClient(String tenantId, String audience) {
         return new GenerateTokenSecureHttpClient(singletonClient, tenantId, audience)
     }
-
 }
 
 class GenerateTokenSecureHttpClient extends SecureHttpClientBase {

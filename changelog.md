@@ -1,3 +1,7 @@
+# 2.5.0
+
+Now using the most up to date micronaut and jjwt library
+
 # 2.4.0
 
 Updated dependencies to use deploy and unit test events.
