@@ -26,28 +26,28 @@ class TokenControllerTest {
     void testBadTokenRequest() {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [getValidatedIdentity: {tr -> null as Identity}, issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
-        assertThrows(AuthException, () -> tokenController.getToken(new TokenRequest()))
+        assertThrows(AuthException, () -> tokenController.createToken(new TokenRequest()))
     }
 
     @Test
     void testBadTokenUserRequest() {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [getValidatedIdentity: {tr -> null as Identity}, issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
-        assertThrows(AuthException, () -> tokenController.getToken(new TokenRequest(type: TokenRequest.USER_TYPE)))
+        assertThrows(AuthException, () -> tokenController.createToken(new TokenRequest(type: TokenRequest.USER_TYPE)))
     }
 
     @Test
     void testGetUserToken() {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [getValidatedIdentity: {tr -> { } as Identity}, issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
-        assert FAKE_TOKEN == tokenController.getToken(new TokenRequest(id:"username", password: "password", type: TokenRequest.USER_TYPE))
+        assert FAKE_TOKEN == tokenController.createToken(new TokenRequest(id:"username", password: "password", type: TokenRequest.USER_TYPE))
     }
 
     @Test
     void testGetAppToken() {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [getValidatedIdentity: {tr -> { } as Identity}, issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
-        assert FAKE_TOKEN == tokenController.getToken(new TokenRequest(id:"username", password: "password", type: TokenRequest.APP_TYPE))
+        assert FAKE_TOKEN == tokenController.createToken(new TokenRequest(id:"username", password: "password", type: TokenRequest.APP_TYPE))
     }
 
     @Test

@@ -33,7 +33,7 @@ class TokenController {
     @Tag(name = "Token Operations")
     @Operation(summary = "Create a bearer token from valid credentials")
     @Post(value = "/", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
-    String getToken(@Body TokenRequest tokenRequest) {
+    String createToken(@Body TokenRequest tokenRequest) {
         Identity identity = tokenService.getValidatedIdentity(tokenRequest)
 
         if (identity) {
@@ -54,6 +54,20 @@ class TokenController {
         }
         Identity identity = createIdentityFromInternalTokenRequest(authentication, internalTokenRequest)
         tokenService.issueInternalToken(identity, internalTokenRequest.getAudience(), internalTokenRequest.tenantId)
+    }
+
+    @Tag(name = "Token Operations")
+    @Operation(summary = "Create a refresh token from valid credentials")
+    @Post(value = "/refresh", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
+    String createRefreshToken(@Body TokenRequest tokenRequest) {
+        Identity identity = tokenService.getValidatedIdentity(tokenRequest)
+
+        if (identity) {
+            log.info("Issuing token for ${identity.id}")
+            return tokenService.issueRefreshToken(identity)
+        }
+
+        throw new AuthException("Unable to issue token, unable to authenticate ${tokenRequest.id}")
     }
 
     private static Identity createIdentityFromInternalTokenRequest(authentication, internalTokenRequest) {

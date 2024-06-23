@@ -8,7 +8,6 @@ import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
 import com.trevorism.secure.Roles
-import io.jsonwebtoken.CompressionCodecs
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -60,14 +59,14 @@ class AccessTokenService implements TokenService {
         }
 
         return Jwts.builder()
-                .setSubject(identity.getIdentifer())
-                .setIssuer("https://trevorism.com")
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plusSeconds(FIFTEEN_MINUTES_IN_SECONDS)))
-                .setAudience(aud)
-                .addClaims(claims)
+                .subject(identity.getIdentifer())
+                .issuer("https://trevorism.com")
+                .issuedAt(new Date())
+                .expiration(Date.from(Instant.now().plusSeconds(FIFTEEN_MINUTES_IN_SECONDS)))
+                .audience().add(aud).and()
+                .claims(claims)
                 .signWith(key)
-                .compressWith(CompressionCodecs.GZIP)
+                .compressWith(Jwts.ZIP.GZIP)
                 .compact()
 
     }
@@ -95,20 +94,20 @@ class AccessTokenService implements TokenService {
 
         String aud = "auth.trevorism.com"
         String type = getTypeForIdentity(identity)
-        Map claims = ["dbId": identity.id, "entityType": type]
+        Map<String,?> claims = ["dbId": identity.id, "entityType": type]
         if (identity.tenantGuid) {
             claims.put("tenant", identity.tenantGuid)
         }
 
         return Jwts.builder()
-                .setSubject(identity.getIdentifer())
-                .setIssuer("https://trevorism.com")
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plusSeconds(ONE_DAY_IN_SECONDS)))
-                .setAudience(aud)
-                .addClaims(claims)
+                .subject(identity.getIdentifer())
+                .issuer("https://trevorism.com")
+                .issuedAt(new Date())
+                .expiration(Date.from(Instant.now().plusSeconds(ONE_DAY_IN_SECONDS)))
+                .audience().add(aud).and()
+                .claims(claims)
                 .signWith(key)
-                .compressWith(CompressionCodecs.GZIP)
+                .compressWith(Jwts.ZIP.GZIP)
                 .compact()
     }
 
@@ -129,14 +128,14 @@ class AccessTokenService implements TokenService {
         }
 
         return Jwts.builder()
-                .setSubject(identity.getIdentifer())
-                .setIssuer("https://trevorism.com")
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plusSeconds(TWO_HOURS_IN_SECONDS)))
-                .setAudience(aud)
-                .addClaims(claims)
+                .subject(identity.getIdentifer())
+                .issuer("https://trevorism.com")
+                .issuedAt(new Date())
+                .expiration(Date.from(Instant.now().plusSeconds(TWO_HOURS_IN_SECONDS)))
+                .audience().add(aud).and()
+                .claims(claims)
                 .signWith(key)
-                .compressWith(CompressionCodecs.GZIP)
+                .compressWith(Jwts.ZIP.GZIP)
                 .compact()
     }
 

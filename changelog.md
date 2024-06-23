@@ -1,3 +1,7 @@
+# 2.5.1
+
+Remove deprecated jjwt functions.
+
 # 2.5.0
 
 Now using the most up to date micronaut and jjwt library
