@@ -4,7 +4,7 @@ import com.trevorism.EmailClient
 import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.model.Email
 
-git @jakarta.inject.Singleton
+@jakarta.inject.Singleton
 class Emailer {
 
     private EmailClient emailClient
