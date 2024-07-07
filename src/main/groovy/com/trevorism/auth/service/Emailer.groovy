@@ -4,8 +4,7 @@ import com.trevorism.EmailClient
 import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.model.Email
 
-
-@jakarta.inject.Singleton
+git @jakarta.inject.Singleton
 class Emailer {
 
     private EmailClient emailClient
@@ -15,7 +14,7 @@ class Emailer {
     }
 
     boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience) {
-        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Forgot Password", body: buildForgotPasswordBody(username, newPassword, audience))
+        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Reset Password", body: buildResetPasswordBody(username, newPassword, audience))
         emailClient.sendEmail(email)
     }
 
@@ -29,7 +28,7 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    private static String buildForgotPasswordBody(String username, String password, String audience) {
+    private static String buildResetPasswordBody(String username, String password, String audience) {
         StringBuilder sb = new StringBuilder()
         sb << "A reset password request has been made for your ${username} account on ${audience}\n\n"
         sb << "Your new password for is: ${password}\n\n"
