@@ -22,8 +22,6 @@ class RootController {
     @ApiResponse(
             responseCode = "200", content = @Content(mediaType = "text/html", schema = @Schema(type = "string"))
     )
-
-    @Tag(name = "Root Operations")
     @Get(produces = MediaType.TEXT_HTML)
     HttpResponse<String> index() {
         log.info("Hit context root")

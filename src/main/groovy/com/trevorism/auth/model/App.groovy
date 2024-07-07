@@ -17,6 +17,7 @@ class App implements Identity{
     List<String> logoutUrls
 
     String tenantGuid
+    String permissions
 
     boolean active
     Date dateCreated

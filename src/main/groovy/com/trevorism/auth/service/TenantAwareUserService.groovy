@@ -14,6 +14,7 @@ import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
 import com.trevorism.data.model.filtering.SimpleFilter
+import com.trevorism.secure.Permissions
 import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
 import jakarta.inject.Inject
@@ -37,26 +38,10 @@ class TenantAwareUserService implements TenantUserService{
     @Override
     User registerUser(RegistrationRequest request){
         Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(request.tenantGuid, request.audience))
+        validateRegistration(repository, request)
 
-        if (!validateRegistration(repository, request)) {
-            throw new AuthException("Unable to register user")
-        }
-
-        User user = request.toUser()
-
-        //Disallow auto registration for non-tenant users
-        if (!request.tenantGuid) {
-            user.active = false
-        }
-
-        user.dateCreated = new Date()
-        if (user.isActive()) {
-            user.dateExpired = Date.from(Instant.now().plus(365, ChronoUnit.DAYS))
-        }
-
-        user.username = user.username.toLowerCase()
-        User secureUser = setPasswordAndSalt(user)
-        User createdUser = repository.create(secureUser)
+        User user = createDefaultUserFromRegistrationRequest(request)
+        User createdUser = repository.create(user)
 
         if (!request.doNotNotifySiteAdminOfRegistration) {
             emailer.sendRegistrationEmailToNotifySiteAdmin(user.username, user.email, user.tenantGuid)
@@ -175,6 +160,27 @@ class TenantAwareUserService implements TenantUserService{
         return HashUtils.validatePasswordsMatch(sp, password)
     }
 
+    private static User createDefaultUserFromRegistrationRequest(RegistrationRequest request) {
+        User user = request.toUser()
+
+        if (!request.tenantGuid) {
+            setUserRegistrationDefaultsForDefaultTenant(user)
+        }
+
+        user.dateCreated = new Date()
+        if (user.isActive()) {
+            user.dateExpired = Date.from(Instant.now().plus(365, ChronoUnit.DAYS))
+        }
+
+        user.username = user.username.toLowerCase()
+        return setPasswordAndSalt(user)
+    }
+
+    private static void setUserRegistrationDefaultsForDefaultTenant(User user) {
+        user.active = false
+        user.permissions = "${Permissions.CREATE}${Permissions.READ}${Permissions.EXECUTE}"
+    }
+
     private static User setPasswordAndSalt(User user) {
         SaltedPassword sp = HashUtils.createPasswordAndSalt(user.password)
         user.salt = sp.salt
@@ -205,19 +211,19 @@ class TenantAwareUserService implements TenantUserService{
     private static boolean validateRegistration(Repository<User> repository, RegistrationRequest request){
         if (!request || !request.username || !request.password || !request.email) {
             log.warn("Registration missing a required field")
-            return false
+            throw new AuthException("Unable to register user")
         }
         if (request.username.length() < 3 || request.password.length() < 6) {
             log.warn("Registration username/password length not acceptable")
-            return false
+            throw new AuthException("Unable to register user")
         }
         if (!request.email.contains("@")) {
             log.warn("Email is not formatted correctly")
-            return false
+            throw new AuthException("Unable to register user")
         }
         if (userMatchesCurrentUsers(repository, request)) {
             log.warn("Registration detected duplicate username or email")
-            return false
+            throw new AuthException("Unable to register user. Duplicate detected.")
         }
         return true
     }

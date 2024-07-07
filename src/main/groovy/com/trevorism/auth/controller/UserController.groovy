@@ -3,6 +3,7 @@ package com.trevorism.auth.controller
 import com.trevorism.auth.model.*
 import com.trevorism.auth.service.TenantAwareUserService
 import com.trevorism.auth.service.UserService
+import com.trevorism.secure.Permissions
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
 import io.micronaut.http.MediaType
@@ -32,7 +33,7 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Get a user by id **Secure")
     @Get(value = "/{id}", produces = MediaType.APPLICATION_JSON)
-    @Secure(Roles.USER)
+    @Secure(value = Roles.USER, permissions = Permissions.READ)
     User getUser(String id) {
         passThruUserService.getUser(id)
     }
@@ -80,7 +81,7 @@ class UserController {
     @Tag(name = "User Operations")
     @Operation(summary = "Get the current user **Secure")
     @Get(value = "/me", produces = MediaType.APPLICATION_JSON)
-    @Secure(Roles.USER)
+    @Secure(value = Roles.USER, permissions = Permissions.READ)
     User getCurrentUser(Authentication authentication) {
         tenantAwareUserService.getCurrentUser(authentication)
     }

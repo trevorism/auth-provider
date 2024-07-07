@@ -17,6 +17,7 @@ class User implements Identity{
     boolean active
 
     String tenantGuid
+    String permissions
 
     Date dateCreated
     Date dateExpired

@@ -49,26 +49,30 @@ class AccessTokenService implements TokenService {
     @Override
     String issueToken(Identity identity, String audience) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
-
-        String aud = audience ?: "trevorism.com"
-        String role = getRoleForIdentity(identity)
-        String type = getTypeForIdentity(identity)
-        Map claims = ["role": role, "dbId": identity.id, "entityType": type]
-        if (identity.tenantGuid) {
-            claims.put("tenant", identity.tenantGuid)
-        }
-
+        Map<String, String> claims = createClaimsMap(identity)
+        String audienceClaim = audience ?: "trevorism.com"
         return Jwts.builder()
                 .subject(identity.getIdentifer())
                 .issuer("https://trevorism.com")
                 .issuedAt(new Date())
                 .expiration(Date.from(Instant.now().plusSeconds(FIFTEEN_MINUTES_IN_SECONDS)))
-                .audience().add(aud).and()
+                .audience().add(audienceClaim).and()
                 .claims(claims)
                 .signWith(key)
                 .compressWith(Jwts.ZIP.GZIP)
                 .compact()
 
+    }
+
+    private static LinkedHashMap<String, String> createClaimsMap(Identity identity) {
+        Map claims = ["role": getRoleForIdentity(identity), "dbId": identity.id, "entityType": getTypeForIdentity(identity)]
+        if (identity.tenantGuid) {
+            claims.put("tenant", identity.tenantGuid)
+        }
+        if (identity.permissions) {
+            claims.put("permissions", identity.permissions)
+        }
+        return claims
     }
 
     private static String getRoleForIdentity(Identity identity) {
@@ -83,7 +87,6 @@ class AccessTokenService implements TokenService {
                     role = Roles.ADMIN
                 }
             }
-
         }
         return role
     }
@@ -109,11 +112,6 @@ class AccessTokenService implements TokenService {
                 .signWith(key)
                 .compressWith(Jwts.ZIP.GZIP)
                 .compact()
-    }
-
-    @Override
-    ClaimProperties getClaimProperties(String bearerToken) {
-        ClaimsProvider.getClaims(bearerToken, propertiesProvider.getProperty("signingKey"))
     }
 
     @Override

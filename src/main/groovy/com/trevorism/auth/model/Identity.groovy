@@ -6,6 +6,7 @@ interface Identity {
     String getIdentifer()
     boolean isActive()
     String getTenantGuid()
+    String getPermissions()
     Date getDateCreated()
     Date getDateExpired()
 }

@@ -6,8 +6,6 @@
 
 Trevorism authentication and authorization API
 
-Current version: 2.5.0
-
 [Trevorism Auth](https://auth.trevorism.com/)
 
 # How to build

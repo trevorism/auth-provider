@@ -17,7 +17,7 @@ When(/the endpoint tester internal endpoint is invoked/) { ->
     PropertiesProvider propertiesProvider = new ClasspathBasedPropertiesProvider()
     HttpClient jsonHttpClient = new JsonHttpClient()
     def token = propertiesProvider.getProperty("token")
-    def entity = jsonHttpClient.get("https://endpoint-tester.testing.trevorism.com/secure/internal", ["Authorization": "bearer $token".toString()])
+    def entity = jsonHttpClient.get("https://endpoint-tester.testing.trevorism.com/permission/internal", ["Authorization": "bearer $token".toString()])
     response = entity.value
 }
 

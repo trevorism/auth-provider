@@ -1,6 +1,5 @@
 package com.trevorism.auth.controller
 
-
 import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.InternalTokenRequest
@@ -90,6 +89,11 @@ class TokenController {
             @Override
             String getTenantGuid() {
                 return authentication.getAttributes().get("tenant")
+            }
+
+            @Override
+            String getPermissions() {
+                return null
             }
 
             @Override

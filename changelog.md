@@ -1,3 +1,7 @@
+# 2.6.0
+
+Add permissions to user object and pass that into the tokens.
+
 # 2.5.1
 
 Remove deprecated jjwt functions.

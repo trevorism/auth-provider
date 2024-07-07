@@ -3,6 +3,8 @@ micronaut:
     name: auth-provider
   server:
     http-to-https-redirect: true
+    cors:
+      enabled: true
   security:
     enabled: true
     redirect:
