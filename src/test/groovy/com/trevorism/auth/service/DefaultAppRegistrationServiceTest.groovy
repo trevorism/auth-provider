@@ -4,10 +4,12 @@ import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.ComplexFilter
+import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.data.model.paging.PageRequest
 import com.trevorism.data.model.sorting.ComplexSort
 import com.trevorism.auth.model.App
 import com.trevorism.auth.model.SaltedPassword
+import com.trevorism.data.model.sorting.Sort
 import com.trevorism.https.SecureHttpClient
 import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
@@ -165,12 +167,24 @@ class DefaultAppRegistrationServiceTest {
         }
 
         @Override
+        List<App> filter(SimpleFilter simpleFilter) {
+            if(simpleFilter.value == "fc64fb13-216d-4592-8bc9-79f087e14f9a")
+                return list()
+            return []
+        }
+
+        @Override
         List<App> page(PageRequest pageRequest) {
             return list()
         }
 
         @Override
         List<App> sort(ComplexSort complexSort) {
+            return list()
+        }
+
+        @Override
+        List<App> sort(Sort sort) {
             return list()
         }
     }

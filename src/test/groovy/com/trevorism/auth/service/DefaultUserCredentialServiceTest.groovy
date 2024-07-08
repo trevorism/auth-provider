@@ -3,8 +3,10 @@ package com.trevorism.auth.service
 import com.trevorism.auth.model.*
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.ComplexFilter
+import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.data.model.paging.PageRequest
 import com.trevorism.data.model.sorting.ComplexSort
+import com.trevorism.data.model.sorting.Sort
 import com.trevorism.https.SecureHttpClient
 import com.trevorism.secure.Roles
 import io.micronaut.security.authentication.Authentication
@@ -102,12 +104,24 @@ class DefaultUserCredentialServiceTest {
         }
 
         @Override
+        List<User> filter(SimpleFilter simpleFilter) {
+            if(simpleFilter.value == "test")
+                return list()
+            return []
+        }
+
+        @Override
         List<User> page(PageRequest pageRequest) {
             return list()
         }
 
         @Override
         List<User> sort(ComplexSort complexSort) {
+            return list()
+        }
+
+        @Override
+        List<User> sort(Sort sort) {
             return list()
         }
     }
