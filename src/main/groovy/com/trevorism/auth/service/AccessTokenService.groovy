@@ -1,7 +1,5 @@
 package com.trevorism.auth.service
 
-import com.trevorism.ClaimProperties
-import com.trevorism.ClaimsProvider
 import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.auth.model.Identity

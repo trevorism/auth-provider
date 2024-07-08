@@ -115,7 +115,6 @@ class DefaultAppRegistrationService implements AppRegistrationService{
         }
 
         return validatePasswordsMatch(app, password)
-
     }
 
     private App getAppFromRequest(TokenRequest tokenRequest, String identifier) {
@@ -136,7 +135,6 @@ class DefaultAppRegistrationService implements AppRegistrationService{
     private static boolean validatePasswordsMatch(App app, String password) {
         SaltedPassword sp = new SaltedPassword(app.salt, app.clientSecret)
         return HashUtils.validatePasswordsMatch(sp, password)
-
     }
 
     static void validateAppRegistration(Authentication authentication, App app) {
@@ -150,6 +148,5 @@ class DefaultAppRegistrationService implements AppRegistrationService{
         if (tenant && tenant != app.tenantGuid) {
             throw new AuthException("Tenant Admins may only work with apps for their tenant")
         }
-
     }
 }

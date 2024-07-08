@@ -1,3 +1,7 @@
+# 2.6.1
+
+Update dependencies
+
 # 2.6.0
 
 Add permissions to user object and pass that into the tokens.

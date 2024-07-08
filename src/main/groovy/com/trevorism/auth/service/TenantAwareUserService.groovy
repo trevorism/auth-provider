@@ -2,17 +2,11 @@ package com.trevorism.auth.service
 
 import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
 import com.trevorism.auth.errors.AuthException
-import com.trevorism.auth.model.ActivationRequest
-import com.trevorism.auth.model.ChangePasswordRequest
-import com.trevorism.auth.model.ForgotPasswordRequest
-import com.trevorism.auth.model.Identity
-import com.trevorism.auth.model.RegistrationRequest
-import com.trevorism.auth.model.SaltedPassword
-import com.trevorism.auth.model.TokenRequest
-import com.trevorism.auth.model.User
+import com.trevorism.auth.model.*
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterBuilder
+import com.trevorism.data.model.filtering.FilterConstants
 import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.secure.Permissions
 import com.trevorism.secure.Roles
@@ -25,7 +19,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @jakarta.inject.Singleton
-class TenantAwareUserService implements TenantUserService{
+class TenantAwareUserService implements TenantUserService {
 
     private static final Logger log = LoggerFactory.getLogger(TenantAwareUserService)
 
@@ -36,7 +30,7 @@ class TenantAwareUserService implements TenantUserService{
     TenantTokenSecureHttpClientProvider generateTokenSecureHttpClientProvider
 
     @Override
-    User registerUser(RegistrationRequest request){
+    User registerUser(RegistrationRequest request) {
         Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(request.tenantGuid, request.audience))
         validateRegistration(repository, request)
 
@@ -50,7 +44,7 @@ class TenantAwareUserService implements TenantUserService{
     }
 
     @Override
-    User forgotPassword(ForgotPasswordRequest forgotPasswordRequest){
+    User forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
         Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(forgotPasswordRequest.tenantGuid, forgotPasswordRequest.audience))
 
         User user = getUserByUsername(repository, forgotPasswordRequest.username)
@@ -173,6 +167,7 @@ class TenantAwareUserService implements TenantUserService{
         }
 
         user.username = user.username.toLowerCase()
+        user.email = user.email.toLowerCase()
         return setPasswordAndSalt(user)
     }
 
@@ -189,8 +184,11 @@ class TenantAwareUserService implements TenantUserService{
     }
 
     private static boolean userMatchesCurrentUsers(Repository<User> repository, RegistrationRequest request) {
-        List<User> allUsers = repository.list()
-        return allUsers.any { it.username.toLowerCase() == request.username.toLowerCase() || it.email.toLowerCase() == request.email.toLowerCase() }
+        return repository.filter(new FilterBuilder()
+                .addFilter(
+                        new SimpleFilter("username", FilterConstants.OPERATOR_EQUAL, request.username.toLowerCase()),
+                        new SimpleFilter("email", FilterConstants.OPERATOR_EQUAL, request.email.toLowerCase())
+                ).build())
     }
 
     private static User cleanUser(User user) {
@@ -201,14 +199,14 @@ class TenantAwareUserService implements TenantUserService{
 
     private static User getUserByUsername(Repository<User> repository, String username) {
         try {
-            return repository.filter(new FilterBuilder().addFilter(new SimpleFilter("username", "=", username.toLowerCase())).build())[0]
+            return repository.filter(new SimpleFilter("username", FilterConstants.OPERATOR_EQUAL, username.toLowerCase()))[0]
         } catch (Exception e) {
             log.error("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
             return null
         }
     }
 
-    private static boolean validateRegistration(Repository<User> repository, RegistrationRequest request){
+    private static boolean validateRegistration(Repository<User> repository, RegistrationRequest request) {
         if (!request || !request.username || !request.password || !request.email) {
             log.warn("Registration missing a required field")
             throw new AuthException("Unable to register user")
