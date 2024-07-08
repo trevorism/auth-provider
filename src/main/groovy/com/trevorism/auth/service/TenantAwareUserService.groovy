@@ -184,11 +184,8 @@ class TenantAwareUserService implements TenantUserService {
     }
 
     private static boolean userMatchesCurrentUsers(Repository<User> repository, RegistrationRequest request) {
-        return repository.filter(new FilterBuilder()
-                .addFilter(
-                        new SimpleFilter("username", FilterConstants.OPERATOR_EQUAL, request.username.toLowerCase()),
-                        new SimpleFilter("email", FilterConstants.OPERATOR_EQUAL, request.email.toLowerCase())
-                ).build())
+        List<User> allUsers = repository.list()
+        return allUsers.any { it.username.toLowerCase() == request.username.toLowerCase() || it.email.toLowerCase() == request.email.toLowerCase() }
     }
 
     private static User cleanUser(User user) {

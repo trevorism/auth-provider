@@ -8,8 +8,6 @@ import com.trevorism.data.model.paging.PageRequest
 import com.trevorism.data.model.sorting.ComplexSort
 import com.trevorism.data.model.sorting.Sort
 import com.trevorism.https.SecureHttpClient
-import com.trevorism.secure.Roles
-import io.micronaut.security.authentication.Authentication
 import org.junit.jupiter.api.Test
 
 import java.time.Instant

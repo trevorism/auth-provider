@@ -51,6 +51,7 @@ class UserController {
     @Operation(summary = "Register a user with username, password, and email")
     @Post(value = "/", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     User registerUser(@Body RegistrationRequest user) {
+
         tenantAwareUserService.registerUser(user)
     }
 
