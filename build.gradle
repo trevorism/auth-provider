@@ -56,17 +56,15 @@ dependencies {
     }
 
     runtimeOnly("ch.qos.logback:logback-classic")
-    implementation ('com.trevorism:micronaut-utility-beans:1.6.0')
-    implementation ('com.trevorism:datastore-client:3.2.0'){
-        exclude module:"slf4j-nop"
-    }
+
+    implementation 'com.trevorism:micronaut-utility-beans:1.6.0'
+    implementation 'com.trevorism:datastore-client:4.0.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.trevorism:reactions-client:0.6.0'
 
     testImplementation 'com.trevorism:test-result-events:0.3.0'
     acceptanceImplementation 'io.cucumber:cucumber-groovy:6.10.4'
-    acceptanceImplementation("ch.qos.logback:logback-classic:1.5.6")
-
+    acceptanceImplementation "ch.qos.logback:logback-classic:1.5.6"
 }
 
 application {
@@ -92,7 +90,7 @@ appengine {
     stage.artifact = layout.buildDirectory.file("libs/${project.name}-all.jar")
     deploy {
         projectId = "trevorism-auth"
-        version = "2-6-0"
+        version = "2-6-1"
         stopPreviousVersion = true
         promote = true
     }

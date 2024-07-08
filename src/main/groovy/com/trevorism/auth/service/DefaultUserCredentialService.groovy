@@ -3,7 +3,7 @@ package com.trevorism.auth.service
 import com.trevorism.auth.model.*
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
-import com.trevorism.data.model.filtering.FilterBuilder
+import com.trevorism.data.model.filtering.FilterConstants
 import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.https.SecureHttpClient
 import io.micronaut.runtime.http.scope.RequestScope
@@ -46,7 +46,7 @@ class DefaultUserCredentialService implements UserService {
 
     private User getUserByUsername(String username) {
         try {
-            return repository.filter(new FilterBuilder().addFilter(new SimpleFilter("username", "=", username.toLowerCase())).build())[0]
+            return repository.filter(new SimpleFilter("username", FilterConstants.OPERATOR_EQUAL, username.toLowerCase()))[0]
         } catch (Exception e) {
             log.error("Unable to retrieve user credentials from database for user: ${username} with message: ${e.message}")
             return null
