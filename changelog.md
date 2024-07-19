@@ -1,3 +1,7 @@
+# 2.7.0
+
+Attempting always on for this API.
+
 # 2.6.1
 
 Update dependencies

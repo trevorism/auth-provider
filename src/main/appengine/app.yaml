@@ -1,5 +1,9 @@
 runtime: java17
 entrypoint: java -jar auth-provider-all.jar
+
+automatic_scaling:
+  min_idle_instances: 1
+
 handlers:
   - url: /.*
     secure: always

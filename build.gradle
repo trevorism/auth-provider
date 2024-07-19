@@ -48,7 +48,7 @@ dependencies {
     runtimeOnly("org.yaml:snakeyaml")
 
     implementation("jakarta.annotation:jakarta.annotation-api")
-    implementation 'io.projectreactor:reactor-core:3.6.7'
+    implementation 'io.projectreactor:reactor-core:3.6.8'
 
     implementation("io.swagger.core.v3:swagger-annotations")
     compileOnly("io.micronaut.openapi:micronaut-openapi"){
@@ -58,7 +58,7 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
 
     implementation 'com.trevorism:micronaut-utility-beans:1.6.0'
-    implementation 'com.trevorism:datastore-client:4.0.0'
+    implementation 'com.trevorism:datastore-client:4.1.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.trevorism:reactions-client:0.6.0'
 
@@ -90,7 +90,7 @@ appengine {
     stage.artifact = layout.buildDirectory.file("libs/${project.name}-all.jar")
     deploy {
         projectId = "trevorism-auth"
-        version = "2-6-1"
+        version = "2-7-0"
         stopPreviousVersion = true
         promote = true
     }
