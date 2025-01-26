@@ -1,3 +1,7 @@
+# 2.8.0
+
+Update dependencies and fix always on for this API.
+
 # 2.7.0
 
 Attempting always on for this API.
