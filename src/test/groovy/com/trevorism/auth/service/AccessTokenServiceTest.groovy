@@ -10,7 +10,6 @@ import io.jsonwebtoken.security.Keys
 import org.junit.jupiter.api.Test
 
 import javax.crypto.SecretKey
-import java.security.Key
 
 class AccessTokenServiceTest {
 

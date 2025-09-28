@@ -3,9 +3,12 @@ package com.trevorism.auth.service
 import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
 import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.SupportedOauth2Provider
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
 import com.trevorism.secure.Roles
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -130,6 +133,34 @@ class AccessTokenService implements TokenService {
                 .expiration(Date.from(Instant.now().plusSeconds(TWO_HOURS_IN_SECONDS)))
                 .audience().add(aud).and()
                 .claims(claims)
+                .signWith(key)
+                .compressWith(Jwts.ZIP.GZIP)
+                .compact()
+    }
+
+    /**
+     * Creates a read-only Trevorism token from the claims provided by the oauth provider
+     * @param provider
+     * @param claims
+     * @return
+     */
+
+    @Override
+    String issueTokenFromOauthProvider(SupportedOauth2Provider provider, Jws<Claims> claims) {
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
+        String email = claims.payload.get("email", String)
+        String name = claims.payload.get("name", String)
+        String originIssuer = claims.payload.get("iss", String)
+        String role = "Oauth2"
+        String permissions = "R"
+        Map claimsMap = ["name": name, "originIssuer": originIssuer, "email": email, "role": role, "permissions": permissions, provider: provider.name()]
+
+        return Jwts.builder().subject(email)
+                .issuer("https://trevorism.com")
+                .issuedAt(new Date())
+                .expiration(Date.from(Instant.now().plusSeconds(FIFTEEN_MINUTES_IN_SECONDS)))
+                .audience().add("trevorism.com").and()
+                .claims(claimsMap)
                 .signWith(key)
                 .compressWith(Jwts.ZIP.GZIP)
                 .compact()

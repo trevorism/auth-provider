@@ -9,7 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 
 @Controller("/_ah")
 class WarmupController {
-    @Tag(name = "Root Operations")
+
+    @Tag(name = "Warmup Operations")
     @Operation(summary = "Warmup")
     @ApiResponse(responseCode = "200")
     @Get(value = "/warmup")

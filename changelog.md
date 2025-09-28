@@ -1,3 +1,9 @@
+# 3.0.0
+
+Introduced an oauth2 based token. Users may now exchange a valid oauth2 token for a Trevorism token. Microsoft is the first provider.  
+
+Also updated dependencies, micronaut, gradle, and java versions.
+
 # 2.8.0
 
 Update dependencies and fix always on for this API.
