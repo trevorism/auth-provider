@@ -18,29 +18,30 @@ import jakarta.inject.Named
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-@Controller("/microsoft")
-class MicrosoftController {
+@Controller("/google")
+class GoogleController {
 
-    private static final Logger log = LoggerFactory.getLogger(MicrosoftController)
+    private static final Logger log = LoggerFactory.getLogger(GoogleController)
 
     @Inject
     private TokenService tokenService
 
     @Inject
-    @Named("microsoft")
+    @Named("google")
     private Oauth2Parser oauth2Parser
 
-    @Tag(name = "Microsoft Operations")
-    @Operation(summary = "Create a token from a validated Microsoft token")
+    @Tag(name = "Google Operations")
+    @Operation(summary = "Create a token from a validated Google token")
     @Post(value = "/", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
     String createToken(@Body Oauth2Tokens tokens) {
         try {
             Jws<Claims> claims = oauth2Parser.parse(tokens)
-            return tokenService.issueTokenFromOauthProvider(SupportedOauth2Provider.Microsoft, claims, tokens.tenantId)
+            return tokenService.issueTokenFromOauthProvider(SupportedOauth2Provider.Google, claims, tokens.tenantId)
         }
         catch (Exception e) {
-            log.warn("Error validating Microsoft token", e)
-            throw new AuthException("Unable to issue token, unable to authenticate with Microsoft")
+            log.warn("Error validating Google token", e)
+            throw new AuthException("Unable to issue token, unable to authenticate with Google")
         }
     }
+
 }

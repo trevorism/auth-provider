@@ -5,7 +5,6 @@ import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.*
 import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
-import com.trevorism.data.model.filtering.FilterBuilder
 import com.trevorism.data.model.filtering.FilterConstants
 import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.secure.Permissions

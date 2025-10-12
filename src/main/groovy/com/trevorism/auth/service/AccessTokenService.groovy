@@ -138,15 +138,8 @@ class AccessTokenService implements TokenService {
                 .compact()
     }
 
-    /**
-     * Creates a read-only Trevorism token from the claims provided by the oauth provider
-     * @param provider
-     * @param claims
-     * @return
-     */
-
     @Override
-    String issueTokenFromOauthProvider(SupportedOauth2Provider provider, Jws<Claims> claims) {
+    String issueTokenFromOauthProvider(SupportedOauth2Provider provider, Jws<Claims> claims, String tenantId) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
         String email = claims.payload.get("email", String)
         String name = claims.payload.get("name", String)
@@ -154,6 +147,9 @@ class AccessTokenService implements TokenService {
         String role = "Oauth2"
         String permissions = "R"
         Map claimsMap = ["name": name, "originIssuer": originIssuer, "email": email, "role": role, "permissions": permissions, provider: provider.name()]
+        if (tenantId) {
+            claimsMap.put("tenant", tenantId)
+        }
 
         return Jwts.builder().subject(email)
                 .issuer("https://trevorism.com")

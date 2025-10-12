@@ -4,15 +4,9 @@ import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.model.TokenRequest
-import com.trevorism.auth.model.User
-import com.trevorism.auth.service.AppRegistrationService
 import com.trevorism.auth.service.TokenService
-import com.trevorism.auth.service.UserService
-import com.trevorism.ClaimProperties
 import com.trevorism.secure.Roles
-import io.micronaut.http.HttpHeaders
 import io.micronaut.security.authentication.Authentication
-import org.apache.hc.client5.http.HttpResponseException
 import org.junit.jupiter.api.Test
 
 import static org.junit.jupiter.api.Assertions.assertThrows

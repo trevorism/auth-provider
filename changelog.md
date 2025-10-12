@@ -1,3 +1,8 @@
+# 3.1.0
+
+Add support for oauth2 token exchange with Google as a provider. Changed the oauth2 API endpoints to use trevorism standard json format.
+Optimized injection of http clients. 
+
 # 3.0.0
 
 Introduced an oauth2 based token. Users may now exchange a valid oauth2 token for a Trevorism token. Microsoft is the first provider.  

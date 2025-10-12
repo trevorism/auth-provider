@@ -1,4 +1,4 @@
-# auth-provider
+ # auth-provider
 ![Build](https://github.com/trevorism/auth-provider/actions/workflows/deploy.yml/badge.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/trevorism/auth-provider)
 ![GitHub language count](https://img.shields.io/github/languages/count/trevorism/auth-provider)

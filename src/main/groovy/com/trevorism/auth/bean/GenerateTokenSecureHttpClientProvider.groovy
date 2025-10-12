@@ -9,24 +9,25 @@ import com.trevorism.https.SecureHttpClient
 import com.trevorism.https.SecureHttpClientBase
 import com.trevorism.https.token.ObtainTokenFromAuthServiceFromPropertiesFile
 import com.trevorism.https.token.ObtainTokenStrategy
+import jakarta.inject.Inject
+import jakarta.inject.Named
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @jakarta.inject.Singleton
 class GenerateTokenSecureHttpClientProvider implements TenantTokenSecureHttpClientProvider {
-
-    private HttpClient singletonClient = new JsonHttpClient()
+    @Inject
+    @Named("injectableHttpClient")
+    private HttpClient singletonClient
 
     @Override
     SecureHttpClient getSecureHttpClient(String tenantId, String audience) {
         return new GenerateTokenSecureHttpClient(singletonClient, tenantId, audience)
     }
-
 }
 
 class GenerateTokenSecureHttpClient extends SecureHttpClientBase {
-
     GenerateTokenSecureHttpClient(HttpClient singletonClient, String tenantId, String audience) {
         super(singletonClient, new GenerateTokenStrategy(tenantId, audience))
     }
