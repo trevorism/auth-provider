@@ -1,3 +1,7 @@
+# 3.1.1
+
+Add an endpoint to retrieve oauth2 token claims.
+
 # 3.1.0
 
 Add support for oauth2 token exchange with Google as a provider. Changed the oauth2 API endpoints to use trevorism standard json format.

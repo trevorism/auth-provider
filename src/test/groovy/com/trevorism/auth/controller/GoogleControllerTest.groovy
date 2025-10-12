@@ -22,4 +22,13 @@ class GoogleControllerTest {
         assert fakeTrevorismToken == controller.createToken(new Oauth2Tokens(idToken: googleIdToken))
     }
 
+    @Test
+    void testFetchClaims(){
+        String googleIdToken = "ey.google.token"
+        GoogleController controller = new GoogleController()
+        controller.oauth2Parser = [parse: {tokens -> [getPayload: { -> [iss:"unittest"]}] as Jws<Claims> } ] as Oauth2Parser
+        def claims = controller.fetchClaims(new Oauth2Tokens(idToken: googleIdToken))
+        assert claims.iss == "unittest"
+    }
+
 }

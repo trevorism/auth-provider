@@ -19,4 +19,14 @@ class MicrosoftControllerTest {
         controller.tokenService = [issueTokenFromOauthProvider: {provider, claims, tenantId -> fakeTrevorismToken}] as TokenService
         assert fakeTrevorismToken == controller.createToken(new Oauth2Tokens(idToken: microsoftIdToken))
     }
+
+    @Test
+    void testFetchClaims(){
+        String microsoftIdToken = "ey.microsoft.token"
+        MicrosoftController controller = new MicrosoftController()
+        controller.oauth2Parser = [parse: {tokens -> [getPayload: { -> [iss:"unittest"]}] as Jws<Claims> } ] as Oauth2Parser
+        def claims = controller.fetchClaims(new Oauth2Tokens(idToken: microsoftIdToken))
+        assert claims.iss == "unittest"
+
+    }
 }

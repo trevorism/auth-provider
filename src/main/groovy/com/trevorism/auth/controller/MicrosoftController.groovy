@@ -5,6 +5,8 @@ import com.trevorism.auth.model.Oauth2Tokens
 import com.trevorism.auth.model.SupportedOauth2Provider
 import com.trevorism.auth.service.TokenService
 import com.trevorism.auth.service.oauth.Oauth2Parser
+import com.trevorism.secure.Roles
+import com.trevorism.secure.Secure
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.micronaut.http.MediaType
@@ -37,6 +39,21 @@ class MicrosoftController {
         try {
             Jws<Claims> claims = oauth2Parser.parse(tokens)
             return tokenService.issueTokenFromOauthProvider(SupportedOauth2Provider.Microsoft, claims, tokens.tenantId)
+        }
+        catch (Exception e) {
+            log.warn("Error validating Microsoft token", e)
+            throw new AuthException("Unable to issue token, unable to authenticate with Microsoft")
+        }
+    }
+
+    @Tag(name = "Microsoft Operations")
+    @Operation(summary = "Get token claims from a validated Microsoft token **Secure")
+    @Post(value = "/claims", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Secure(Roles.SYSTEM)
+    Map fetchClaims(@Body Oauth2Tokens tokens) {
+        try {
+            Jws<Claims> claims = oauth2Parser.parse(tokens)
+            return claims.payload
         }
         catch (Exception e) {
             log.warn("Error validating Microsoft token", e)
