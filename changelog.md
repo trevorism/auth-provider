@@ -1,3 +1,7 @@
+# 3.1.2
+
+Update internal dependency.
+
 # 3.1.1
 
 Add an endpoint to retrieve oauth2 token claims.

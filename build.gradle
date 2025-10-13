@@ -24,7 +24,7 @@ buildscript {
 plugins {
     id "groovy"
     id("com.gradleup.shadow") version "8.3.8"
-    id("io.micronaut.application") version "4.5.4"
+    id("io.micronaut.application") version "4.5.5"
     id "jacoco"
 }
 
@@ -48,7 +48,7 @@ dependencies {
     runtimeOnly("org.yaml:snakeyaml")
 
     implementation("jakarta.annotation:jakarta.annotation-api")
-    implementation 'io.projectreactor:reactor-core:3.7.8'
+    implementation 'io.projectreactor:reactor-core:3.7.11'
 
     implementation("io.swagger.core.v3:swagger-annotations")
     compileOnly("io.micronaut.openapi:micronaut-openapi"){
@@ -57,14 +57,14 @@ dependencies {
 
     runtimeOnly("ch.qos.logback:logback-classic")
 
-    implementation 'com.trevorism:micronaut-utility-beans:1.6.0'
+    implementation 'com.trevorism:micronaut-utility-beans:1.7.2'
     implementation 'com.trevorism:datastore-client:4.1.0'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.trevorism:reactions-client:0.6.0'
 
     testImplementation 'com.trevorism:test-result-events:0.3.0'
     acceptanceImplementation 'io.cucumber:cucumber-groovy:6.10.4'
-    acceptanceImplementation "ch.qos.logback:logback-classic:1.5.18"
+    acceptanceImplementation "ch.qos.logback:logback-classic:1.5.19"
 }
 
 application {
@@ -90,7 +90,7 @@ appengine {
     stage.artifact = layout.buildDirectory.file("libs/${project.name}-all.jar")
     deploy {
         projectId = "trevorism-auth"
-        version = "3-1-1"
+        version = "3-1-2"
         stopPreviousVersion = true
         promote = true
     }
