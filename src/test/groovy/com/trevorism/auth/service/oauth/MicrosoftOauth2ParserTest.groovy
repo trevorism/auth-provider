@@ -9,16 +9,22 @@ class MicrosoftOauth2ParserTest {
 
     @Test
     void testGetCertUrl() {
-        assert parser.getCertUrl() == "https://login.microsoftonline.com/d77da90e-329a-41c3-b8b7-f76b8bf71b06/discovery/v2.0/keys?appid=c3ede79b-cc30-4f21-818c-45f727113b0e"
+        assert parser.getCertUrl() == "https://login.microsoftonline.com/d77da90e-329a-41c3-b8b7-f76b8bf71b06/discovery/v2.0/keys"
     }
 
     @Test
-    void testGetIssuer() {
-        assert parser.getIssuer() == "https://sts.windows.net/d77da90e-329a-41c3-b8b7-f76b8bf71b06/"
+    void testGetIssuers() {
+        assert parser.getIssuers() == [
+                "https://sts.windows.net/d77da90e-329a-41c3-b8b7-f76b8bf71b06/",
+                "https://login.microsoftonline.com/d77da90e-329a-41c3-b8b7-f76b8bf71b06/v2.0"
+        ]
     }
 
     @Test
-    void testGetClientId() {
-        assert parser.getClientId() == "c3ede79b-cc30-4f21-818c-45f727113b0e"
+    void testGetClientIds() {
+        assert parser.getClientIds() == [
+                "c3ede79b-cc30-4f21-818c-45f727113b0e",
+                "6a213614-458e-4167-a7d7-7a0b099a6e5a"
+        ]
     }
 }
