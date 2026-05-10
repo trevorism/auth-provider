@@ -28,12 +28,12 @@ class TestOauth2ParserBase extends Oauth2ParserBase{
     }
 
     @Override
-    List<String> getIssuers() {
+    String getIssuer() {
         return null
     }
 
     @Override
-    List<String> getClientIds() {
+    String getClientId() {
         return null
     }
 }

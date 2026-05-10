@@ -15,12 +15,12 @@ class GoogleOauth2ParserTest {
     }
 
     @Test
-    void testGetIssuers() {
-        assert parser.getIssuers() == ["https://accounts.google.com"]
+    void testGetIssuer() {
+        assert parser.getIssuer() == "https://accounts.google.com"
     }
 
     @Test
-    void testGetClientIds() {
-        assert parser.getClientIds() == ["20040999009-8gnongpbu2fujg8at7bvl3st1h37hpaq.apps.googleusercontent.com"]
+    void testGetClientId() {
+        assert parser.getClientId() == "20040999009-8gnongpbu2fujg8at7bvl3st1h37hpaq.apps.googleusercontent.com"
     }
 }

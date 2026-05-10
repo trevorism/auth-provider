@@ -31,8 +31,8 @@ abstract class Oauth2ParserBase implements Oauth2Parser {
     }
 
     abstract String getCertUrl()
-    abstract List<String> getIssuers()
-    abstract List<String> getClientIds()
+    abstract String getIssuer()
+    abstract String getClientId()
 
     Jws<Claims> parse(Oauth2Tokens tokens) {
         try {
@@ -44,11 +44,10 @@ abstract class Oauth2ParserBase implements Oauth2Parser {
 
             Jws<Claims> claims = Jwts.parser()
                     .verifyWith(publicKey)
+                    .requireIssuer(getIssuer())
+                    .requireAudience(getClientId())
                     .clockSkewSeconds(20)
                     .build().parseSignedClaims(tokens.idToken)
-
-            validateIssuer(claims.payload.getIssuer())
-            validateAudience(claims.payload)
 
             return claims
         }
@@ -56,32 +55,6 @@ abstract class Oauth2ParserBase implements Oauth2Parser {
             log.warn("Error validating token", e)
             throw new AuthException("Unable to issue token, unable to authenticate with oauth2 provider")
         }
-    }
-
-    private void validateIssuer(String issuer) {
-        List<String> allowedIssuers = getIssuers()
-        if (!allowedIssuers?.contains(issuer)) {
-            throw new IllegalArgumentException("Unexpected issuer ${issuer}")
-        }
-    }
-
-    private void validateAudience(Claims claims) {
-        List<String> allowedClientIds = getClientIds()
-        List<String> tokenAudiences = extractAudiences(claims)
-        if (!tokenAudiences.any { allowedClientIds?.contains(it) }) {
-            throw new IllegalArgumentException("Unexpected audience ${tokenAudiences}")
-        }
-    }
-
-    private Collection<String> extractAudiences(Claims claims) {
-        def audience = claims.get("aud")
-        if (audience instanceof Collection) {
-            return audience.collect { it?.toString() }
-        }
-        if (audience == null) {
-            return []
-        }
-        return [audience.toString()]
     }
 
     private PublicKey getPublicKeyFromJwks(String jwks, String kid) {
