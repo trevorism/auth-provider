@@ -47,7 +47,7 @@ abstract class Oauth2ParserBase implements Oauth2Parser {
                     .clockSkewSeconds(20)
                     .build().parseSignedClaims(tokens.idToken)
 
-            validateIssuer(claims.payload.issuer)
+            validateIssuer(claims.payload.getIssuer())
             validateAudience(claims.payload)
 
             return claims
