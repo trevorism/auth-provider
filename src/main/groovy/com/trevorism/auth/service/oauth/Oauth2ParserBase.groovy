@@ -1,17 +1,14 @@
 package com.trevorism.auth.service.oauth
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Oauth2Tokens
-import com.trevorism.auth.model.SupportedOauth2Provider
-import com.trevorism.auth.service.TokenService
 import com.trevorism.http.HttpClient
-import com.trevorism.http.JsonHttpClient
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import tools.jackson.databind.ObjectMapper
 
 import java.security.KeyFactory
 import java.security.PublicKey
@@ -26,12 +23,14 @@ abstract class Oauth2ParserBase implements Oauth2Parser {
 
     private HttpClient httpClient
 
-    Oauth2ParserBase(HttpClient httpClient){
+    Oauth2ParserBase(HttpClient httpClient) {
         this.httpClient = httpClient
     }
 
     abstract String getCertUrl()
+
     abstract String getIssuer()
+
     abstract String getClientId()
 
     Jws<Claims> parse(Oauth2Tokens tokens) {
