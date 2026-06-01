@@ -6,11 +6,16 @@ import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 
 import java.lang.reflect.Type
+import java.time.Instant
 
 class JsonDateDeserializer implements JsonDeserializer<Date> {
 
     Date deserialize(JsonElement json, Type date, JsonDeserializationContext context) {
         String stringDate = json.getAsJsonPrimitive().getAsString()
-        return new Date(Long.parseLong(stringDate))
+        try {
+            return new Date(Long.parseLong(stringDate))
+        } catch (NumberFormatException e) {
+            return Date.from(Instant.parse(stringDate))
+        }
     }
 }
