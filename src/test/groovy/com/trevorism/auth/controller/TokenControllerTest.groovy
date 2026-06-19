@@ -48,7 +48,7 @@ class TokenControllerTest {
     @Test
     void testRedeemMissingRefreshTokenThrows() {
         TokenController tokenController = new TokenController()
-        tokenController.tokenService = [redeemRefreshToken: {t, aud -> FAKE_TOKEN}] as TokenService
+        tokenController.tokenService = [redeemRefreshToken: {t -> FAKE_TOKEN}] as TokenService
         assertThrows(AuthException, () -> tokenController.redeemRefreshToken(new RedeemRequest()))
     }
 

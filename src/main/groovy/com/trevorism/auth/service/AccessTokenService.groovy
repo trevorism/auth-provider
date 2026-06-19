@@ -24,7 +24,7 @@ class AccessTokenService implements TokenService {
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
     public static final int TWO_HOURS_IN_SECONDS = 60 * 60 * 2
-    public static final String REFRESH_AUDIENCE = "auth.trevorism.com"
+    public static final String REFRESH_AUDIENCE = "refresh_auth.trevorism.com"
 
     @Inject
     private TenantUserService tenantUserService
@@ -101,10 +101,8 @@ class AccessTokenService implements TokenService {
         }
 
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
-
-        String aud = audience ?: REFRESH_AUDIENCE
         String type = TokenRequest.REFRESH_TYPE
-        Map<String,?> claims = ["dbId": identity.id, "entityType": type]
+        Map<String,?> claims = ["dbId": identity.id, "entityType": type, "targetAudience": audience ?: "trevorism.com"]
         if (identity.tenantGuid) {
             claims.put("tenant", identity.tenantGuid)
         }
@@ -114,7 +112,7 @@ class AccessTokenService implements TokenService {
                 .issuer("https://trevorism.com")
                 .issuedAt(new Date())
                 .expiration(Date.from(Instant.now().plusSeconds(ONE_DAY_IN_SECONDS)))
-                .audience().add(aud).and()
+                .audience().add(REFRESH_AUDIENCE).and()
                 .claims(claims)
                 .signWith(key)
                 .compressWith(Jwts.ZIP.GZIP)
@@ -144,17 +142,17 @@ class AccessTokenService implements TokenService {
         }
 
         String subject = claims.getSubject()
-        String audience = claims.getAudience()
+        String targetAudience = claims.get("targetAudience", String)
         String tenant = claims.get("tenant", String)
 
-        TokenRequest tokenRequest = new TokenRequest(id: subject, type: TokenRequest.USER_TYPE, tenantGuid: tenant, audience: audience)
+        TokenRequest tokenRequest = new TokenRequest(id: subject, type: TokenRequest.USER_TYPE, tenantGuid: tenant, audience: targetAudience)
         Identity identity = tenantUserService.getIdentity(tokenRequest)
 
         if (!identity) {
             throw new AuthException("Unable to load identity for refresh token")
         }
 
-        return issueToken(identity, audience)
+        return issueToken(identity, targetAudience)
     }
 
     @Override
