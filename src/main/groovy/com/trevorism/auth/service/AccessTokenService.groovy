@@ -96,10 +96,14 @@ class AccessTokenService implements TokenService {
 
     @Override
     String issueRefreshToken(Identity identity, String audience) {
+        if(getTypeForIdentity(identity) != TokenRequest.USER_TYPE) {
+            throw new AuthException("Invalid identity type for refresh token")
+        }
+
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
         String aud = audience ?: REFRESH_AUDIENCE
-        String type = getTypeForIdentity(identity)
+        String type = TokenRequest.REFRESH_TYPE
         Map<String,?> claims = ["dbId": identity.id, "entityType": type]
         if (identity.tenantGuid) {
             claims.put("tenant", identity.tenantGuid)
@@ -132,21 +136,19 @@ class AccessTokenService implements TokenService {
                     .parseSignedClaims(refreshToken)
                     .payload
         } catch (Exception e) {
-            throw new AuthException("Invalid or expired refresh token")
+            throw new AuthException("Invalid or expired refresh token ${e.message}")
+        }
+
+        if(claims.get("entityType", String) != TokenRequest.REFRESH_TYPE){
+            throw new AuthException("Invalid refresh token")
         }
 
         String subject = claims.getSubject()
         String audience = claims.getAudience()
-        String entityType = claims.get("entityType", String)
         String tenant = claims.get("tenant", String)
 
-        Identity identity
-        if (entityType == TokenRequest.USER_TYPE) {
-            TokenRequest tokenRequest = new TokenRequest(id: subject, type: TokenRequest.USER_TYPE, tenantGuid: tenant, audience: audience)
-            identity = tenantUserService.getIdentity(tokenRequest)
-        } else {
-            identity = appRegistrationService.getIdentity(subject)
-        }
+        TokenRequest tokenRequest = new TokenRequest(id: subject, type: TokenRequest.USER_TYPE, tenantGuid: tenant, audience: audience)
+        Identity identity = tenantUserService.getIdentity(tokenRequest)
 
         if (!identity) {
             throw new AuthException("Unable to load identity for refresh token")
