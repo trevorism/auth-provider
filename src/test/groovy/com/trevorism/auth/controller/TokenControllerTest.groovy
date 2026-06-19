@@ -55,7 +55,7 @@ class TokenControllerTest {
     @Test
     void testRedeemRefreshToken() {
         TokenController tokenController = new TokenController()
-        tokenController.tokenService = [redeemRefreshToken: {t, aud -> FAKE_TOKEN}] as TokenService
+        tokenController.tokenService = [redeemRefreshToken: {t -> FAKE_TOKEN}] as TokenService
         assert FAKE_TOKEN == tokenController.redeemRefreshToken(new RedeemRequest(refreshToken: "some.refresh.token"))
     }
 
