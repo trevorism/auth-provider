@@ -39,7 +39,7 @@ class AccessTokenServiceTest {
         TokenService accessTokenService = new AccessTokenService()
         accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
 
-        String token = accessTokenService.issueRefreshToken(new User())
+        String token = accessTokenService.issueRefreshToken(new User(), null)
         assert token
     }
 

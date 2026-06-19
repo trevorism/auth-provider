@@ -64,7 +64,7 @@ class TokenController {
 
         if (identity) {
             log.info("Issuing token for ${identity.id}")
-            return tokenService.issueRefreshToken(identity)
+            return tokenService.issueRefreshToken(identity, tokenRequest.audience)
         }
 
         throw new AuthException("Unable to issue token, unable to authenticate ${tokenRequest.id}")

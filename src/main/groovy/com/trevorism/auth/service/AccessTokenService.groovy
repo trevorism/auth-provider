@@ -95,10 +95,10 @@ class AccessTokenService implements TokenService {
     }
 
     @Override
-    String issueRefreshToken(Identity identity) {
+    String issueRefreshToken(Identity identity, String audience) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
-        String aud = REFRESH_AUDIENCE
+        String aud = audience ?: REFRESH_AUDIENCE
         String type = getTypeForIdentity(identity)
         Map<String,?> claims = ["dbId": identity.id, "entityType": type]
         if (identity.tenantGuid) {
