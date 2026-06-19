@@ -3,6 +3,7 @@ package com.trevorism.auth.controller
 import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.InternalTokenRequest
+import com.trevorism.auth.model.RedeemRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.service.TokenService
 import com.trevorism.secure.Roles
@@ -67,6 +68,16 @@ class TokenController {
         }
 
         throw new AuthException("Unable to issue token, unable to authenticate ${tokenRequest.id}")
+    }
+
+    @Tag(name = "Token Operations")
+    @Operation(summary = "Redeem a refresh token for a new access token")
+    @Post(value = "/refresh/redeem", produces = MediaType.TEXT_PLAIN, consumes = MediaType.APPLICATION_JSON)
+    String redeemRefreshToken(@Body RedeemRequest redeemRequest) {
+        if (!redeemRequest?.refreshToken) {
+            throw new AuthException("Unable to redeem token, missing refresh token")
+        }
+        return tokenService.redeemRefreshToken(redeemRequest.refreshToken)
     }
 
     private static Identity createIdentityFromInternalTokenRequest(authentication, internalTokenRequest) {

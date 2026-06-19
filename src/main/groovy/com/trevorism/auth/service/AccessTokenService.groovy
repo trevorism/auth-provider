@@ -2,6 +2,7 @@ package com.trevorism.auth.service
 
 import com.trevorism.ClasspathBasedPropertiesProvider
 import com.trevorism.PropertiesProvider
+import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.SupportedOauth2Provider
 import com.trevorism.auth.model.TokenRequest
@@ -23,6 +24,7 @@ class AccessTokenService implements TokenService {
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
     public static final int TWO_HOURS_IN_SECONDS = 60 * 60 * 2
+    public static final String REFRESH_AUDIENCE = "auth.trevorism.com"
 
     @Inject
     private TenantUserService tenantUserService
@@ -96,7 +98,7 @@ class AccessTokenService implements TokenService {
     String issueRefreshToken(Identity identity) {
         Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
 
-        String aud = "auth.trevorism.com"
+        String aud = REFRESH_AUDIENCE
         String type = getTypeForIdentity(identity)
         Map<String,?> claims = ["dbId": identity.id, "entityType": type]
         if (identity.tenantGuid) {
@@ -113,6 +115,44 @@ class AccessTokenService implements TokenService {
                 .signWith(key)
                 .compressWith(Jwts.ZIP.GZIP)
                 .compact()
+    }
+
+    @Override
+    String redeemRefreshToken(String refreshToken) {
+        if (!refreshToken) {
+            throw new AuthException("Missing refresh token")
+        }
+        Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(propertiesProvider.getProperty("signingKey")))
+
+        Claims claims
+        try {
+            claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(refreshToken)
+                    .payload
+        } catch (Exception e) {
+            throw new AuthException("Invalid or expired refresh token")
+        }
+
+        String subject = claims.getSubject()
+        String audience = claims.getAudience()
+        String entityType = claims.get("entityType", String)
+        String tenant = claims.get("tenant", String)
+
+        Identity identity
+        if (entityType == TokenRequest.USER_TYPE) {
+            TokenRequest tokenRequest = new TokenRequest(id: subject, type: TokenRequest.USER_TYPE, tenantGuid: tenant, audience: audience)
+            identity = tenantUserService.getIdentity(tokenRequest)
+        } else {
+            identity = appRegistrationService.getIdentity(subject)
+        }
+
+        if (!identity) {
+            throw new AuthException("Unable to load identity for refresh token")
+        }
+
+        return issueToken(identity, audience)
     }
 
     @Override
