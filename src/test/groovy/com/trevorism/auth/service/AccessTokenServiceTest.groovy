@@ -66,7 +66,7 @@ class AccessTokenServiceTest {
     void testRedeemRefreshTokenPreservesTargetAudience() {
         AccessTokenService accessTokenService = new AccessTokenService()
         accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
-        accessTokenService.tenantUserService = [getIdentity: {TokenRequest req -> new User(username: "testUsername") }] as TenantUserService
+        accessTokenService.tenantUserService = [getIdentity: {TokenRequest req -> new User(username: "testUsername", active: true) }] as TenantUserService
 
         String refreshToken = accessTokenService.issueRefreshToken(new User(username: "testUsername"), "service.trevorism.com")
         String accessToken = accessTokenService.redeemRefreshToken(refreshToken)
@@ -84,6 +84,16 @@ class AccessTokenServiceTest {
 
         String accessToken = accessTokenService.issueToken(new User(username: "testUsername"), "service.trevorism.com")
         assertThrows(AuthException, () -> accessTokenService.redeemRefreshToken(accessToken))
+    }
+
+    @Test
+    void testRedeemThrowsWhenIdentityInactive() {
+        AccessTokenService accessTokenService = new AccessTokenService()
+        accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
+        accessTokenService.tenantUserService = [getIdentity: {TokenRequest req -> new User(username: "testUsername", active: false) }] as TenantUserService
+
+        String refreshToken = accessTokenService.issueRefreshToken(new User(username: "testUsername"), null)
+        assertThrows(AuthException, () -> accessTokenService.redeemRefreshToken(refreshToken))
     }
 
     @Test

@@ -152,6 +152,10 @@ class AccessTokenService implements TokenService {
             throw new AuthException("Unable to load identity for refresh token")
         }
 
+        if (!identity.active) {
+            throw new AuthException("Identity is not active for refresh token")
+        }
+
         return issueToken(identity, targetAudience)
     }
 
