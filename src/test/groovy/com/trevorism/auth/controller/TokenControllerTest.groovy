@@ -3,6 +3,7 @@ package com.trevorism.auth.controller
 import com.trevorism.auth.errors.AuthException
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.InternalTokenRequest
+import com.trevorism.auth.model.RedeemRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.service.TokenService
 import com.trevorism.secure.Roles
@@ -42,6 +43,20 @@ class TokenControllerTest {
         TokenController tokenController = new TokenController()
         tokenController.tokenService = [getValidatedIdentity: {tr -> { } as Identity}, issueToken: {u,aud -> FAKE_TOKEN}] as TokenService
         assert FAKE_TOKEN == tokenController.createToken(new TokenRequest(id:"username", password: "password", type: TokenRequest.APP_TYPE))
+    }
+
+    @Test
+    void testRedeemMissingRefreshTokenThrows() {
+        TokenController tokenController = new TokenController()
+        tokenController.tokenService = [redeemRefreshToken: {t -> FAKE_TOKEN}] as TokenService
+        assertThrows(AuthException, () -> tokenController.redeemRefreshToken(new RedeemRequest()))
+    }
+
+    @Test
+    void testRedeemRefreshToken() {
+        TokenController tokenController = new TokenController()
+        tokenController.tokenService = [redeemRefreshToken: {t -> FAKE_TOKEN}] as TokenService
+        assert FAKE_TOKEN == tokenController.redeemRefreshToken(new RedeemRequest(refreshToken: "some.refresh.token"))
     }
 
     @Test

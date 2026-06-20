@@ -57,7 +57,7 @@ dependencies {
 
     runtimeOnly("ch.qos.logback:logback-classic")
 
-    implementation 'com.trevorism:micronaut-utility-beans:1.7.2'
+    implementation 'com.trevorism:micronaut-utility-beans:2.0.0'
     implementation 'com.trevorism:datastore-client:4.1.0'
     implementation 'com.google.code.gson:gson:2.14.0'
     implementation 'com.trevorism:reactions-client:0.6.0'
@@ -90,7 +90,7 @@ appengine {
     stage.artifact = layout.buildDirectory.file("libs/${project.name}-all.jar")
     deploy {
         projectId = "trevorism-auth"
-        version = "3-2-0"
+        version = "3-3-0"
         stopPreviousVersion = true
         promote = true
     }
