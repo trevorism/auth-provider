@@ -1,3 +1,7 @@
+# 3.4.0
+
+Send domain with activation email.
+
 # 3.3.0
 
 Allow for redeeming of issued refresh tokens.
