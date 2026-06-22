@@ -2,12 +2,18 @@ package com.trevorism.auth.service
 
 import com.trevorism.EmailClient
 import com.trevorism.auth.bean.TenantTokenSecureHttpClientProvider
+import com.trevorism.auth.model.Tenant
+import com.trevorism.data.FastDatastoreRepository
+import com.trevorism.data.Repository
+import com.trevorism.data.model.filtering.FilterConstants
+import com.trevorism.data.model.filtering.SimpleFilter
 import com.trevorism.model.Email
 
 @jakarta.inject.Singleton
 class Emailer {
 
     private EmailClient emailClient
+    private Repository<Tenant> tenantRepository = new FastDatastoreRepository<>(Tenant)
 
     Emailer(TenantTokenSecureHttpClientProvider generateTokenSecureHttpClientProvider) {
         emailClient = new EmailClient(generateTokenSecureHttpClientProvider.getSecureHttpClient(null,null))
@@ -18,9 +24,19 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    boolean sendActivationEmail(String emailAddress) {
-        Email email = new Email(recipients: [emailAddress], subject: "Trevorism: Activation", body: buildActivationBody())
+    boolean sendActivationEmail(String emailAddress, String tenantGuid) {
+        String domain = fetchDomainFromTenantGuid(tenantGuid)
+        String domainString = domain != "trevorism.com" ? domain : "Trevorism"
+        Email email = new Email(recipients: [emailAddress], subject: "${domainString}: Activation", body: buildActivationBody(domain))
         emailClient.sendEmail(email)
+    }
+
+    private String fetchDomainFromTenantGuid(String tenantGuid) {
+        def tenantList = tenantRepository.filter(new SimpleFilter("guid" , FilterConstants.OPERATOR_EQUAL, tenantGuid))
+        if(tenantList){
+            return tenantList[0].domain
+        }
+        return "trevorism.com"
     }
 
     boolean sendRegistrationEmailToNotifySiteAdmin(String username, String emailAddress, String tenantGuid) {
@@ -36,10 +52,10 @@ class Emailer {
         return sb.toString()
     }
 
-    private static String buildActivationBody() {
+    private static String buildActivationBody(String domain) {
         StringBuilder sb = new StringBuilder()
         sb << "Congratulations your account has been activated!\n"
-        sb << "Login to https://trevorism.com"
+        sb << "Login to https://${domain}"
         return sb.toString()
     }
 

@@ -72,7 +72,7 @@ class TenantAwareUserService implements TenantUserService {
         def result = repository.update(toUpdate.id, toUpdate)
         if (result) {
             if (!activationRequest.doNotSendWelcomeEmail) {
-                emailer.sendActivationEmail(toUpdate.email)
+                emailer.sendActivationEmail(toUpdate.email, activationRequest.tenantGuid)
             }
             return true
         }
