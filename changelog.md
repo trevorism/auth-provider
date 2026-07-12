@@ -1,3 +1,7 @@
+# 3.5.0
+
+Fix bug with emailing users in other tenants with different domains.
+
 # 3.4.0
 
 Send domain with activation email.

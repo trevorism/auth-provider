@@ -7,16 +7,19 @@ import com.trevorism.data.FastDatastoreRepository
 import com.trevorism.data.Repository
 import com.trevorism.data.model.filtering.FilterConstants
 import com.trevorism.data.model.filtering.SimpleFilter
+import com.trevorism.https.SecureHttpClient
 import com.trevorism.model.Email
 
 @jakarta.inject.Singleton
 class Emailer {
 
     private EmailClient emailClient
-    private Repository<Tenant> tenantRepository = new FastDatastoreRepository<>(Tenant)
+    private Repository<Tenant> tenantRepository
 
     Emailer(TenantTokenSecureHttpClientProvider generateTokenSecureHttpClientProvider) {
-        emailClient = new EmailClient(generateTokenSecureHttpClientProvider.getSecureHttpClient(null,null))
+        SecureHttpClient secureHttpClient = generateTokenSecureHttpClientProvider.getSecureHttpClient(null, null)
+        emailClient = new EmailClient(secureHttpClient)
+        tenantRepository = new FastDatastoreRepository<>(Tenant, secureHttpClient)
     }
 
     boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience) {
