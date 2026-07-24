@@ -38,7 +38,8 @@ class AdminUserSecureHttpClient extends SecureHttpClientBase implements SecureHt
             tokenRequest.tenantGuid = tenantGuid
             tokenRequest.audience = audience
             tokenRequest.type = TokenRequest.USER_TYPE
-            token = httpClient.post("https://auth.trevorism.com/token", gson.toJson(tokenRequest))
+            String baseUrl = System.getenv("ACCEPTANCE_BASE_URL") ?: "https://auth.trevorism.com"
+            token = httpClient.post("${baseUrl}/token", gson.toJson(tokenRequest))
             return token
         }
 

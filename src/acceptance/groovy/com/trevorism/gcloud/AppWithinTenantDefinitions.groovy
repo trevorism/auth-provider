@@ -19,6 +19,7 @@ SecureHttpClient appClientSecureHttpClient = new AppClientSecureHttpClient()
 App createdApp
 String clientSecret
 String clientSecret2
+String baseUrl = System.getenv("ACCEPTANCE_BASE_URL") ?: "https://auth.trevorism.com"
 
 Given(/the auth test tenant is registered/) { ->
     String jsonArr = appClientSecureHttpClient.get("https://tenant.auth.trevorism.com/tenant")
@@ -31,7 +32,7 @@ Given(/an auth test tenant admin user is registered/) { ->
     DecryptionRequest decryptionRequest = new DecryptionRequest(payload: "+wSPLFuzP229Pf9a2GYf+rnJf9H/hNNC", key: appClientSecureHttpClient.obtainTokenStrategy.clientId)
     String password = appClientSecureHttpClient.post("https://encryption.project.trevorism.com/crypt/decryption", TestContext.gson.toJson(decryptionRequest))
     TestContext.adminClient = new AdminUserSecureHttpClient(httpClient, password, TestContext.testTenant.guid, "testing.trevorism.com")
-    String tenantAdminJson = TestContext.adminClient.get("https://auth.trevorism.com/user/me")
+    String tenantAdminJson = TestContext.adminClient.get("${baseUrl}/user/me")
     User tenantAdminUser = TestContext.gson.fromJson(tenantAdminJson, User.class)
     assert tenantAdminUser
     assert tenantAdminUser.active
@@ -42,7 +43,7 @@ Given(/an auth test tenant admin user is registered/) { ->
 When(/an app is registered with a clientId/) { ->
     App app = new App(appName: "zz_TestApp", tenantGuid: TestContext.testTenant.guid)
     String json = TestContext.gson.toJson(app)
-    String responseJson = TestContext.adminClient.post("https://auth.trevorism.com/app", json)
+    String responseJson = TestContext.adminClient.post("${baseUrl}/app", json)
     createdApp = TestContext.gson.fromJson(responseJson, App.class)
 }
 
@@ -58,11 +59,11 @@ Then(/an app is successfully registered with a clientId/) { ->
 
 
 Then(/the app is cleaned up afterwards/) { ->
-    TestContext.adminClient.delete("https://auth.trevorism.com/app/${createdApp.id}")
+    TestContext.adminClient.delete("${baseUrl}/app/${createdApp.id}")
 }
 
 When(/a client secret is requested for the registered app/) { ->
-    clientSecret = TestContext.adminClient.put("https://auth.trevorism.com/app/${createdApp.clientId}/secret", "{}")
+    clientSecret = TestContext.adminClient.put("${baseUrl}/app/${createdApp.clientId}/secret", "{}")
 }
 
 
@@ -72,7 +73,7 @@ Then(/a client secret is successfully generated for the app/) { ->
 
 
 When(/a client secret is requested to be updated for the registered app/) { ->
-    clientSecret2 = TestContext.adminClient.put("https://auth.trevorism.com/app/${createdApp.clientId}/secret", "{}")
+    clientSecret2 = TestContext.adminClient.put("${baseUrl}/app/${createdApp.clientId}/secret", "{}")
 }
 
 
