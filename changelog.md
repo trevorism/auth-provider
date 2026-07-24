@@ -1,3 +1,7 @@
+# 3.6.0
+
+Use new ci/cd pipeline and update dependencies.
+
 # 3.5.0
 
 Fix bug with emailing users in other tenants with different domains.
