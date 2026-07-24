@@ -12,9 +12,10 @@ this.metaClass.mixin(io.cucumber.groovy.EN)
 
 SecureHttpClient secureHttpClient = new AppClientSecureHttpClient()
 String listOfAllUsers = ""
+String baseUrl = System.getenv("ACCEPTANCE_BASE_URL") ?: "https://auth.trevorism.com"
 
 When(/the a list of users is requested/) {  ->
-    listOfAllUsers = secureHttpClient.get("https://auth.trevorism.com/user")
+    listOfAllUsers = secureHttpClient.get("${baseUrl}/user")
 }
 
 Then(/the user list is successfully returned/) {  ->

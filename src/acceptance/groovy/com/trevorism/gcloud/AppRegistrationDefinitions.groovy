@@ -13,10 +13,11 @@ Gson gson = new GsonBuilder().registerTypeAdapter(Date.class,
         new JsonDateDeserializer()).setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create()
 SecureHttpClient secureHttpClient = new AppClientSecureHttpClient()
 String listOfAllApps = ""
+String baseUrl = System.getenv("ACCEPTANCE_BASE_URL") ?: "https://auth.trevorism.com"
 
 
 When(/the a list of apps is requested/) {  ->
-    listOfAllApps = secureHttpClient.get("https://auth.trevorism.com/app")
+    listOfAllApps = secureHttpClient.get("${baseUrl}/app")
 }
 
 Then(/the app list is successfully returned/) {  ->

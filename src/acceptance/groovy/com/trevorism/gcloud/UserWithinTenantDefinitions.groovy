@@ -11,6 +11,7 @@ this.metaClass.mixin(io.cucumber.groovy.EN)
 
 User createdUser
 String userToken
+String baseUrl = System.getenv("ACCEPTANCE_BASE_URL") ?: "https://auth.trevorism.com"
 
 When(/an user is successfully registered and is active/) {  ->
     RegistrationRequest registrationRequest = new RegistrationRequest()
@@ -24,7 +25,7 @@ When(/an user is successfully registered and is active/) {  ->
 
     try{
         String requestJson = TestContext.gson.toJson(registrationRequest)
-        String response = TestContext.adminClient.post("https://auth.trevorism.com/user", requestJson)
+        String response = TestContext.adminClient.post("${baseUrl}/user", requestJson)
         createdUser = TestContext.gson.fromJson(response, User.class)
     }catch(Exception ignored){
         createdUser = registrationRequest.toUser()
@@ -44,7 +45,7 @@ Then(/the user is valid/) {  ->
 
 
 Then(/the user is cleaned up afterwards/) {  ->
-    String response = TestContext.adminClient.delete("https://auth.trevorism.com/user/${createdUser.username}")
+    String response = TestContext.adminClient.delete("${baseUrl}/user/${createdUser.username}")
     assert response
 }
 
@@ -56,7 +57,7 @@ When(/an user requests a token/) {  ->
     tokenRequest.audience = "testing.trevorism.com"
     tokenRequest.type = TokenRequest.USER_TYPE
 
-    userToken = TestContext.adminClient.post("https://auth.trevorism.com/token", TestContext.gson.toJson(tokenRequest))
+    userToken = TestContext.adminClient.post("${baseUrl}/token", TestContext.gson.toJson(tokenRequest))
 }
 
 
