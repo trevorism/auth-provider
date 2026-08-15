@@ -1,134 +1,138 @@
-# 3.6.0
+## 3.7.0
+
+Move to versioning plugin and add user permission modification endpoints. Update dependencies.
+
+## 3.6.0
 
 Use new ci/cd pipeline and update dependencies.
 
-# 3.5.0
+## 3.5.0
 
 Fix bug with emailing users in other tenants with different domains.
 
-# 3.4.0
+## 3.4.0
 
 Send domain with activation email.
 
-# 3.3.0
+## 3.3.0
 
 Allow for redeeming of issued refresh tokens.
 
-# 3.2.0
+## 3.2.0
 
 Upgrade to Micronaut 5.0.0, Java 25, Gradle 9.5.1, and updated dependencies.
 
-# 3.1.2
+## 3.1.2
 
 Update internal dependency.
 
-# 3.1.1
+## 3.1.1
 
 Add an endpoint to retrieve oauth2 token claims.
 
-# 3.1.0
+## 3.1.0
 
 Add support for oauth2 token exchange with Google as a provider. Changed the oauth2 API endpoints to use trevorism standard json format.
 Optimized injection of http clients. 
 
-# 3.0.0
+## 3.0.0
 
 Introduced an oauth2 based token. Users may now exchange a valid oauth2 token for a Trevorism token. Microsoft is the first provider.  
 
 Also updated dependencies, micronaut, gradle, and java versions.
 
-# 2.8.0
+## 2.8.0
 
 Update dependencies and fix always on for this API.
 
-# 2.7.0
+## 2.7.0
 
 Attempting always on for this API.
 
-# 2.6.1
+## 2.6.1
 
 Update dependencies
 
-# 2.6.0
+## 2.6.0
 
 Add permissions to user object and pass that into the tokens.
 
-# 2.5.1
+## 2.5.1
 
 Remove deprecated jjwt functions.
 
-# 2.5.0
+## 2.5.0
 
 Now using the most up to date micronaut and jjwt library
 
-# 2.4.0
+## 2.4.0
 
 Updated dependencies to use deploy and unit test events.
 
-# 2.3.0cd ..
+## 2.3.0
 
 Updated dependencies
 
-# 2.2.0
+## 2.2.0
 
 Major refactor. Multi tenancy now works for all user and app functions. The app no longer needs a rotating/expiring internal token for emailing.
 
-# 2.1.0
+## 2.1.0
 
 Several bug fixes to support multi tenancy.
 
-# 2.0.0
+## 2.0.0
 
 Support multi tenancy for users and apps. Allow for auto-registration of users in other tenants. Upgrade micronaut version.
 
-# 1.5.0
+## 1.5.0
 
 Added better error handling and added a /user/me endpoint. Upgraded to micronaut 4.
 
-# 1.4.1
+## 1.4.1
 
 Add additional validation checks on internal tokens
 
-# 1.4.0
+## 1.4.0
 
 Allow creation of internal tokens
 
-# 1.3.0
+## 1.3.0
 
 Add `tenant_admin` role and update dependencies. Utilize micronaut beans for the datastore client.
 
-# 1.2.0
+## 1.2.0
 
 Enable multi-tenancy by adding a tenant to users. The tenant is encoded within the JWT. 
 
-# 1.1.0
+## 1.1.0
 
 Enforce HTTPS only and improve test coverage
 
-# 1.0.0
+## 1.0.0
 
 Update to Micronaut and Java 17
 
-# 0.9.2
+## 0.9.2
 
 Fixed bug with refresh tokens
 
-# 0.9.1
+## 0.9.1
 
 Use improved datastore client
 
-# 0.9.0
+## 0.9.0
 
 Move to github actions. Lazy load properties. Remove eventhub-client in favor of a reactions-client.
 
-# 0.8.1
+## 0.8.1
 
 Updated dependencies
 
-# 0.8.0
+## 0.8.0
 
 Optimized the getIdentity methods by using a filter instead of retrieving all
 
-# 0.7.0
+## 0.7.0
 
 Provides utilities for users and tokens on Trevorism
