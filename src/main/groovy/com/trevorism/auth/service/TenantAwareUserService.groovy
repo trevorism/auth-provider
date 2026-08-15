@@ -22,6 +22,10 @@ class TenantAwareUserService implements TenantUserService {
 
     private static final Logger log = LoggerFactory.getLogger(TenantAwareUserService)
 
+    private static final List<String> SUPPORTED_PERMISSIONS = [Permissions.CREATE, Permissions.READ,
+                                                               Permissions.UPDATE, Permissions.DELETE,
+                                                               Permissions.EXECUTE]
+
     @Inject
     private Emailer emailer
 
@@ -30,7 +34,7 @@ class TenantAwareUserService implements TenantUserService {
 
     @Override
     User registerUser(RegistrationRequest request) {
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(request.tenantGuid, request.audience))
+        Repository<User> repository = createUserRepository(request.tenantGuid, request.audience)
         validateRegistration(repository, request)
 
         User user = createDefaultUserFromRegistrationRequest(request)
@@ -44,7 +48,7 @@ class TenantAwareUserService implements TenantUserService {
 
     @Override
     User forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(forgotPasswordRequest.tenantGuid, forgotPasswordRequest.audience))
+        Repository<User> repository = createUserRepository(forgotPasswordRequest.tenantGuid, forgotPasswordRequest.audience)
 
         User user = getUserByUsername(repository, forgotPasswordRequest.username)
         if (!user) {
@@ -63,7 +67,7 @@ class TenantAwareUserService implements TenantUserService {
     @Override
     boolean activateUser(ActivationRequest activationRequest, Authentication authentication) {
         validateActivationRequest(authentication, activationRequest)
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(activationRequest.tenantGuid, null))
+        Repository<User> repository = createUserRepository(activationRequest.tenantGuid, null)
         User toUpdate = getUserByUsername(repository, activationRequest.getUsername())
 
         toUpdate.active = true
@@ -82,7 +86,7 @@ class TenantAwareUserService implements TenantUserService {
     @Override
     boolean deactivateUser(ActivationRequest activationRequest, Authentication authentication) {
         validateActivationRequest(authentication, activationRequest)
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(activationRequest.tenantGuid, null))
+        Repository<User> repository = createUserRepository(activationRequest.tenantGuid, null)
         User toUpdate = getUserByUsername(repository, activationRequest.getUsername())
         toUpdate.active = false
         return repository.update(toUpdate.id, toUpdate)
@@ -97,7 +101,7 @@ class TenantAwareUserService implements TenantUserService {
             return false
         }
 
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(tokenRequest.tenantGuid, tokenRequest.audience))
+        Repository<User> repository = createUserRepository(tokenRequest.tenantGuid, tokenRequest.audience)
         User user = getUserByUsername(repository, username)
 
         if (!user || !user.username || !user.password || !user.salt || !user.active || HashUtils.isExpired(user.dateExpired)) {
@@ -111,13 +115,13 @@ class TenantAwareUserService implements TenantUserService {
     User getCurrentUser(Authentication authentication) {
         String id = authentication.getAttributes().get("id")
         String tenant = authentication.getAttributes().get("tenant")
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(tenant, null))
+        Repository<User> repository = createUserRepository(tenant, null)
         return cleanUser(repository.get(id))
     }
 
     @Override
     boolean changePassword(ChangePasswordRequest changePasswordRequest) {
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(changePasswordRequest.tenantGuid, changePasswordRequest.audience))
+        Repository<User> repository = createUserRepository(changePasswordRequest.tenantGuid, changePasswordRequest.audience)
         User user = getUserByUsername(repository, changePasswordRequest.username)
 
         if (!validatePasswordsMatch(user, changePasswordRequest.currentPassword)) {
@@ -132,8 +136,40 @@ class TenantAwareUserService implements TenantUserService {
     }
 
     @Override
+    User updatePermissions(PermissionsRequest permissionsRequest, Authentication authentication) {
+        validatePermissionsRequest(authentication, permissionsRequest)
+        Repository<User> repository = createUserRepository(permissionsRequest.tenantGuid, null)
+        User toUpdate = getUserByUsername(repository, permissionsRequest.username)
+        if (!toUpdate) {
+            throw new AuthException("Unable to locate user: ${permissionsRequest.username}")
+        }
+
+        toUpdate.permissions = normalizePermissions(permissionsRequest.permissions)
+        return cleanUser(repository.update(toUpdate.id, toUpdate))
+    }
+
+    protected Repository<User> createUserRepository(String tenantGuid, String audience) {
+        return new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(tenantGuid, audience))
+    }
+
+    private static void validatePermissionsRequest(Authentication authentication, PermissionsRequest permissionsRequest) {
+        if (!permissionsRequest?.username) {
+            throw new AuthException("A username is required")
+        }
+        String tenant = authentication.getAttributes().get("tenant")
+        if (tenant && tenant != permissionsRequest.tenantGuid) {
+            throw new AuthException("Tenant Admins may only update permissions for their tenant")
+        }
+    }
+
+    private static String normalizePermissions(String permissions) {
+        String requested = permissions?.toUpperCase() ?: ""
+        return SUPPORTED_PERMISSIONS.findAll { requested.contains(it) }.join("")
+    }
+
+    @Override
     Identity getIdentity(TokenRequest tokenRequest) {
-        Repository<User> repository = new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(tokenRequest.tenantGuid, tokenRequest.audience))
+        Repository<User> repository = createUserRepository(tokenRequest.tenantGuid, tokenRequest.audience)
         return getUserByUsername(repository, tokenRequest.id)
     }
 
