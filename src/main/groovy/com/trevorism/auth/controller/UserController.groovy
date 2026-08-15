@@ -102,4 +102,12 @@ class UserController {
         tenantAwareUserService.deactivateUser(activationRequest, authentication)
     }
 
+    @Tag(name = "User Operations")
+    @Operation(summary = "Update the permissions of a user by username **Secure")
+    @Post(value = "/permissions", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Secure(Roles.TENANT_ADMIN)
+    User updatePermissions(@Body PermissionsRequest permissionsRequest, Authentication authentication) {
+        tenantAwareUserService.updatePermissions(permissionsRequest, authentication)
+    }
+
 }

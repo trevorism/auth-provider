@@ -4,6 +4,7 @@ import com.trevorism.auth.model.ActivationRequest
 import com.trevorism.auth.model.ChangePasswordRequest
 import com.trevorism.auth.model.ForgotPasswordRequest
 import com.trevorism.auth.model.Identity
+import com.trevorism.auth.model.PermissionsRequest
 import com.trevorism.auth.model.RegistrationRequest
 import com.trevorism.auth.model.TokenRequest
 import com.trevorism.auth.model.User
@@ -18,5 +19,6 @@ interface TenantUserService {
     boolean validateCredentials(TokenRequest tokenRequest)
     User getCurrentUser(Authentication authentication)
     boolean changePassword(ChangePasswordRequest changePasswordRequest)
+    User updatePermissions(PermissionsRequest permissionsRequest, Authentication authentication)
     Identity getIdentity(TokenRequest tokenRequest)
 }

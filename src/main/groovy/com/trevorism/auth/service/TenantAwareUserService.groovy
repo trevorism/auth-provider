@@ -22,6 +22,10 @@ class TenantAwareUserService implements TenantUserService {
 
     private static final Logger log = LoggerFactory.getLogger(TenantAwareUserService)
 
+    private static final List<String> SUPPORTED_PERMISSIONS = [Permissions.CREATE, Permissions.READ,
+                                                               Permissions.UPDATE, Permissions.DELETE,
+                                                               Permissions.EXECUTE]
+
     @Inject
     private Emailer emailer
 
@@ -129,6 +133,38 @@ class TenantAwareUserService implements TenantUserService {
 
         User updatedUser = repository.update(user.id, user)
         return updatedUser
+    }
+
+    @Override
+    User updatePermissions(PermissionsRequest permissionsRequest, Authentication authentication) {
+        validatePermissionsRequest(authentication, permissionsRequest)
+        Repository<User> repository = createUserRepository(permissionsRequest.tenantGuid)
+        User toUpdate = getUserByUsername(repository, permissionsRequest.username)
+        if (!toUpdate) {
+            throw new AuthException("Unable to locate user: ${permissionsRequest.username}")
+        }
+
+        toUpdate.permissions = normalizePermissions(permissionsRequest.permissions)
+        return cleanUser(repository.update(toUpdate.id, toUpdate))
+    }
+
+    protected Repository<User> createUserRepository(String tenantGuid) {
+        return new FastDatastoreRepository<>(User, generateTokenSecureHttpClientProvider.getSecureHttpClient(tenantGuid, null))
+    }
+
+    private static void validatePermissionsRequest(Authentication authentication, PermissionsRequest permissionsRequest) {
+        if (!permissionsRequest?.username) {
+            throw new AuthException("A username is required")
+        }
+        String tenant = authentication.getAttributes().get("tenant")
+        if (tenant && tenant != permissionsRequest.tenantGuid) {
+            throw new AuthException("Tenant Admins may only update permissions for their tenant")
+        }
+    }
+
+    private static String normalizePermissions(String permissions) {
+        String requested = permissions?.toUpperCase() ?: ""
+        return SUPPORTED_PERMISSIONS.findAll { requested.contains(it) }.join("")
     }
 
     @Override
