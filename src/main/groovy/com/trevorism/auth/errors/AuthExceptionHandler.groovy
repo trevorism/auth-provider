@@ -17,7 +17,7 @@ class AuthExceptionHandler implements ExceptionHandler<AuthException, HttpRespon
 
     @Override
     HttpResponse handle(HttpRequest request, AuthException exception) {
-        log.error("Auth exception", exception)
+        log.warn("Auth exception: ${exception.message}")
         return HttpResponse.badRequest(exception.message)
     }
 }
