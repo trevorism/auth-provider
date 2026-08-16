@@ -35,7 +35,10 @@ class Emailer {
     }
 
     private String fetchDomainFromTenantGuid(String tenantGuid) {
-        def tenantList = tenantRepository.filter(new SimpleFilter("guid" , FilterConstants.OPERATOR_EQUAL, tenantGuid))
+        if (!tenantGuid) {
+            return "trevorism.com"
+        }
+        def tenantList = tenantRepository.filter(new SimpleFilter("guid" , FilterConstants.OPERATOR_EQUAL, tenantGuid as String))
         if(tenantList){
             return tenantList[0].domain
         }

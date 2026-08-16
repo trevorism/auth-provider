@@ -33,4 +33,13 @@ class EmailerTest {
 
         assert emailer.sendActivationEmail("trevorism@gmail.com", "missing")
     }
+
+    @Test
+    void testSendActivationEmailWithoutTenantGuid() {
+        Emailer emailer = new Emailer([getSecureHttpClient: { x,y -> {} as SecureHttpClient }] as TenantTokenSecureHttpClientProvider)
+        emailer.emailClient = new EmailClient([post: { x, y -> "{}" }] as SecureHttpClient)
+        emailer.tenantRepository = [filter: { f -> throw new IllegalStateException("should not query for a null tenant") }] as Repository
+
+        assert emailer.sendActivationEmail("trevorism@gmail.com", null)
+    }
 }
