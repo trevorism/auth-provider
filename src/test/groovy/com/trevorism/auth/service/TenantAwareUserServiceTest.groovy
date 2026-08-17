@@ -74,6 +74,34 @@ class TenantAwareUserServiceTest {
     }
 
     @Test
+    void testActivateUserTenantAdminCannotGrantAdmin() {
+        def request = new ActivationRequest(username: "alice", tenantGuid: "t1", isAdmin: true)
+        assertThrows(AuthException) {
+            buildService().activateUser(request, auth([Roles.TENANT_ADMIN], [tenant: "t1"]))
+        }
+    }
+
+    @Test
+    void testActivateUserSystemCanGrantTenantAdmin() {
+        Map persisted = [:]
+        def service = buildServiceWith(repositoryOf([userWithPassword("alice", "secret1", [active: false])], persisted))
+
+        assert service.activateUser(new ActivationRequest(username: "alice", tenantGuid: "t1", isAdmin: true),
+                auth([Roles.SYSTEM], [:]))
+
+        assert persisted.updated.active
+        assert persisted.updated.admin
+    }
+
+    @Test
+    void testActivateUserSystemCannotGrantGlobalAdmin() {
+        def request = new ActivationRequest(username: "alice", isAdmin: true)
+        assertThrows(AuthException) {
+            buildService().activateUser(request, auth([Roles.SYSTEM], [:]))
+        }
+    }
+
+    @Test
     void testActivateUserTenantAdminCannotCrossTenant() {
         def request = new ActivationRequest(username: "alice", tenantGuid: "tenantB", isAdmin: false)
         assertThrows(AuthException) {

@@ -175,13 +175,20 @@ class TenantAwareUserService implements TenantUserService {
 
     private static void validateActivationRequest(Authentication authentication, ActivationRequest activationRequest) {
         String role = authentication.getRoles().first().toString()
-        if (role != Roles.ADMIN && activationRequest.isAdmin) {
+        if (activationRequest.isAdmin && !isAuthorizedToGrantAdmin(role, activationRequest.tenantGuid)) {
             throw new AuthException("User is not authorized to activate an admin user")
         }
         String tenant = authentication.getAttributes().get("tenant")
         if (tenant && tenant != activationRequest.tenantGuid) {
             throw new AuthException("Tenant Admins may only activate users for their tenant")
         }
+    }
+
+    private static boolean isAuthorizedToGrantAdmin(String role, String tenantGuid) {
+        if (role == Roles.ADMIN) {
+            return true
+        }
+        return role == Roles.SYSTEM && tenantGuid
     }
 
     private static boolean validatePasswordsMatch(User user, String password) {
