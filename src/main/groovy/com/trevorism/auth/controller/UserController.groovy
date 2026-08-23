@@ -71,11 +71,10 @@ class UserController {
     @Post(value = "/change", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     boolean changePassword(@Body ChangePasswordRequest changePasswordRequest) {
         try {
-            tenantAwareUserService.changePassword(changePasswordRequest)
+            return tenantAwareUserService.changePassword(changePasswordRequest)
         } catch (Exception ignored) {
             return false
         }
-        return true
     }
 
     @Tag(name = "User Operations")

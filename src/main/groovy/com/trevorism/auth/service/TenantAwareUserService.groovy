@@ -60,7 +60,8 @@ class TenantAwareUserService implements TenantUserService {
         user.dateExpired = Date.from(Instant.now().plus(1, ChronoUnit.DAYS))
         User updatedUser = repository.update(user.id, user)
 
-        emailer.sendForgotPasswordEmail(user.email, user.username, newPassword, forgotPasswordRequest.audience ?: "trevorism.com")
+        emailer.sendForgotPasswordEmail(user.email, user.username, newPassword,
+                forgotPasswordRequest.audience ?: "trevorism.com", forgotPasswordRequest.tenantGuid)
         return cleanUser(updatedUser)
     }
 

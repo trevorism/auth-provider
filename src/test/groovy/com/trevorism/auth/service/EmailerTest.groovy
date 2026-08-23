@@ -11,9 +11,30 @@ class EmailerTest {
 
     @Test
     void testSendForgotPasswordEmail() {
+        List<String> posted = []
+        Emailer emailer = emailerRecordingInto(posted)
+
+        assert emailer.sendForgotPasswordEmail("trevorism@gmail.com", "username", "12345678", "trevorism.com", null)
+        assert posted[0].contains("https://trevorism.com/change")
+        assert !posted[0].contains("https://trevorism.com/change/")
+    }
+
+    @Test
+    void testSendForgotPasswordEmailPointsATenantUserAtTheirOwnTenant() {
+        List<String> posted = []
+        Emailer emailer = emailerRecordingInto(posted)
+
+        assert emailer.sendForgotPasswordEmail("trevorism@gmail.com", "username", "12345678", "trevorism.com", "guid-1")
+        assert posted[0].contains("https://trevorism.com/change/guid-1")
+    }
+
+    private static Emailer emailerRecordingInto(List<String> posted) {
         Emailer emailer = new Emailer([getSecureHttpClient: { x,y -> {} as SecureHttpClient }] as TenantTokenSecureHttpClientProvider)
-        emailer.emailClient = new EmailClient([post: { x, y -> "{}" }] as SecureHttpClient)
-        assert emailer.sendForgotPasswordEmail("trevorism@gmail.com", "username", "12345678", "trevorism.com")
+        emailer.emailClient = new EmailClient([post: { x, y ->
+            posted << y as String
+            return "{}"
+        }] as SecureHttpClient)
+        return emailer
     }
 
     @Test

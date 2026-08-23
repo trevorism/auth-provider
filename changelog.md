@@ -1,3 +1,7 @@
+## 3.8.0
+
+Update change password to handle tenants also.
+
 ## 3.7.0
 
 Move to versioning plugin and add user permission modification endpoints. Update dependencies.

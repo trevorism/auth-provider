@@ -22,8 +22,8 @@ class Emailer {
         tenantRepository = new FastDatastoreRepository<>(Tenant, secureHttpClient)
     }
 
-    boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience) {
-        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Reset Password", body: buildResetPasswordBody(username, newPassword, audience))
+    boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience, String tenantGuid) {
+        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Reset Password", body: buildResetPasswordBody(username, newPassword, audience, tenantGuid))
         emailClient.sendEmail(email)
     }
 
@@ -50,11 +50,12 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    private static String buildResetPasswordBody(String username, String password, String audience) {
+    private static String buildResetPasswordBody(String username, String password, String audience, String tenantGuid) {
+        String changeUrl = tenantGuid ? "https://${audience}/change/${tenantGuid}" : "https://${audience}/change"
         StringBuilder sb = new StringBuilder()
         sb << "A reset password request has been made for your ${username} account on ${audience}\n\n"
         sb << "Your new password for is: ${password}\n\n"
-        sb << "It will expire in 1 day. Change your password here: https://${audience}/change"
+        sb << "It will expire in 1 day. Change your password here: ${changeUrl}"
         return sb.toString()
     }
 
