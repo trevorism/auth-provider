@@ -323,6 +323,7 @@ class TenantAwareUserServiceTest {
 
         assert emailer.sent[0].type == "forgotPassword"
         assert emailer.sent[0].audience == "trevorism.com"
+        assert emailer.sent[0].tenantGuid == "t1"
         assert HashUtils.validatePasswordsMatch(
                 new SaltedPassword(persisted.updated.salt, persisted.updated.password), emailer.sent[0].password)
         assert !result.password
@@ -591,9 +592,9 @@ class TenantAwareUserServiceTest {
         }
 
         @Override
-        boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience) {
+        boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience, String tenantGuid) {
             sent << [type: "forgotPassword", email: emailAddress, username: username,
-                     password: newPassword, audience: audience]
+                     password: newPassword, audience: audience, tenantGuid: tenantGuid]
             return true
         }
 
