@@ -13,6 +13,8 @@ import com.trevorism.model.Email
 @jakarta.inject.Singleton
 class Emailer {
 
+    static final String LOGIN_BASE_URL = "https://login.auth.trevorism.com"
+
     private EmailClient emailClient
     private Repository<Tenant> tenantRepository
 
@@ -23,14 +25,15 @@ class Emailer {
     }
 
     boolean sendForgotPasswordEmail(String emailAddress, String username, String newPassword, String audience, String tenantGuid) {
-        Email email = new Email(recipients: [emailAddress], subject: "${audience}: Reset Password", body: buildResetPasswordBody(username, newPassword, audience, tenantGuid))
+        String domain = fetchDomainFromTenantGuid(tenantGuid)
+        Email email = new Email(recipients: [emailAddress], subject: "${domain}: Reset Password", body: buildResetPasswordBody(username, newPassword, audience, domain, tenantGuid))
         emailClient.sendEmail(email)
     }
 
     boolean sendActivationEmail(String emailAddress, String tenantGuid) {
         String domain = fetchDomainFromTenantGuid(tenantGuid)
         String domainString = domain != "trevorism.com" ? domain : "Trevorism"
-        Email email = new Email(recipients: [emailAddress], subject: "${domainString}: Activation", body: buildActivationBody(domain))
+        Email email = new Email(recipients: [emailAddress], subject: "${domainString}: Activation", body: buildActivationBody(domainString, tenantGuid))
         emailClient.sendEmail(email)
     }
 
@@ -50,19 +53,20 @@ class Emailer {
         emailClient.sendEmail(email)
     }
 
-    private static String buildResetPasswordBody(String username, String password, String audience, String tenantGuid) {
+    private static String buildResetPasswordBody(String username, String password, String audience, String domain, String tenantGuid) {
         String changeUrl = tenantGuid ? "https://${audience}/change/${tenantGuid}" : "https://${audience}/change"
         StringBuilder sb = new StringBuilder()
-        sb << "A reset password request has been made for your ${username} account on ${audience}\n\n"
+        sb << "A reset password request has been made for your ${username} account on ${domain}\n\n"
         sb << "Your new password for is: ${password}\n\n"
         sb << "It will expire in 1 day. Change your password here: ${changeUrl}"
         return sb.toString()
     }
 
-    private static String buildActivationBody(String domain) {
+    private static String buildActivationBody(String domainString, String tenantGuid) {
+        String loginUrl = tenantGuid ? "${LOGIN_BASE_URL}/${tenantGuid}" : LOGIN_BASE_URL
         StringBuilder sb = new StringBuilder()
-        sb << "Congratulations your account has been activated!\n"
-        sb << "Login to https://${domain}"
+        sb << "Congratulations your account has been activated on ${domainString}!\n"
+        sb << "Login to ${loginUrl}"
         return sb.toString()
     }
 

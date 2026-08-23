@@ -1,3 +1,7 @@
+## 3.8.1
+
+Make a few improvements to email handling.
+
 ## 3.8.0
 
 Update change password to handle tenants also.
