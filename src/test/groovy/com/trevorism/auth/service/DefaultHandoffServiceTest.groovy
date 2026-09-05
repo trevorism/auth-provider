@@ -28,6 +28,7 @@ class DefaultHandoffServiceTest {
         service.@repository = [
                 create: { HandoffCode code -> code.id = "${nextId++}"; store[code.id] = code; return code },
                 get: { String id -> store[id] },
+                list: { -> new ArrayList<HandoffCode>(store.values()) },
                 delete: { String id -> store.remove(id) }
         ] as Repository<HandoffCode>
         return service
@@ -169,6 +170,33 @@ class DefaultHandoffServiceTest {
         DefaultHandoffService service = createService()
         assertThrows(AuthException, () -> service.createCode(authentication("tester", "tenant-a"), "access.jwt", "tester:tenant-b", REDIRECT_URI))
         assert service.createCode(authentication("tester", "tenant-a"), "access.jwt", "tester:tenant-a", REDIRECT_URI).code
+    }
+
+    @Test
+    void testExpiredCodesArePurgedOnMint() {
+        DefaultHandoffService service = createService()
+        HandoffCode stale = new HandoffCode(id: "1", secretHash: "x", dateExpired: new Date(System.currentTimeMillis() - 60000))
+        HandoffCode live = new HandoffCode(id: "2", secretHash: "y", dateExpired: new Date(System.currentTimeMillis() + 60000))
+        store["1"] = stale
+        store["2"] = live
+
+        service.createCode(authentication(), "access.jwt", null, REDIRECT_URI)
+
+        assert !store.containsKey("1")
+        assert store.containsKey("2")
+    }
+
+    @Test
+    void testPurgeIsThrottledAndNeverBreaksMinting() {
+        DefaultHandoffService service = createService()
+        service.@repository = [
+                create: { HandoffCode code -> code.id = "${nextId++}"; store[code.id] = code; return code },
+                get: { String id -> store[id] },
+                list: { -> throw new RuntimeException("down") },
+                delete: { String id -> store.remove(id) }
+        ] as Repository<HandoffCode>
+
+        assert service.createCode(authentication(), "access.jwt", null, REDIRECT_URI).code
     }
 
     @Test

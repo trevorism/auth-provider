@@ -1,3 +1,8 @@
+## 3.10.0
+
+Gate handoff redirects on an explicit list of tenant domains, purge expired
+handoff codes, and require a token to query the redirect allowlist.
+
 ## 3.9.0
 
 Add one-time handoff codes so UI apps on any host can receive a login.

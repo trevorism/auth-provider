@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test
 
 class DefaultRedirectUriPolicyTest {
 
-    private static DefaultRedirectUriPolicy createPolicy(List<Tenant> tenants = [], List<App> apps = []) {
+    private static DefaultRedirectUriPolicy createPolicy(List<Tenant> tenants = [], List<App> apps = [], List<String> tenantDomains = ["memowand.com"]) {
         DefaultRedirectUriPolicy policy = new DefaultRedirectUriPolicy([getSecureHttpClient: { t, a -> null }] as TenantTokenSecureHttpClientProvider)
-        policy.configuration = new HandoffConfiguration(gcpProjects: ["trevorism-project", "trevorism-auth"])
+        policy.configuration = new HandoffConfiguration(gcpProjects: ["trevorism-project", "trevorism-auth"], tenantDomains: tenantDomains)
         policy.@tenantRepository = [list: { -> tenants }] as Repository<Tenant>
         policy.@appRepository = [list: { -> apps }] as Repository<App>
         return policy
@@ -97,6 +97,22 @@ class DefaultRedirectUriPolicyTest {
         assert !policy.isAllowed("not a uri")
         assert !policy.isAllowed("javascript:alert(1)")
         assert !policy.isAllowed("/api/auth/callback")
+    }
+
+    @Test
+    void testTenantDomainNotInConfigurationIsRejected() {
+        DefaultRedirectUriPolicy policy = createPolicy([new Tenant(domain: "sample.com")])
+
+        assert !policy.isAllowed("https://anything.sample.com/api/auth/callback")
+        assert !policy.isAllowed("https://sample.com/api/auth/callback")
+    }
+
+    @Test
+    void testNoConfiguredTenantDomainsMeansNoTenantIsAllowed() {
+        DefaultRedirectUriPolicy policy = createPolicy([new Tenant(domain: "memowand.com")], [], [])
+
+        assert !policy.isAllowed("https://app.memowand.com/api/auth/callback")
+        assert policy.isAllowed("https://certs.project.trevorism.com/api/auth/callback")
     }
 
     @Test

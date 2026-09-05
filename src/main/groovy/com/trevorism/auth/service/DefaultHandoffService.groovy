@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.time.Duration
 import java.time.Instant
 
 @jakarta.inject.Singleton
@@ -32,8 +33,11 @@ class DefaultHandoffService implements HandoffService {
     @Inject
     HandoffConfiguration configuration
 
+    private static final Duration SWEEP_INTERVAL = Duration.ofMinutes(10)
+
     private final SecureRandom secureRandom = new SecureRandom()
     private Repository<HandoffCode> repository
+    private Instant nextSweepAt = Instant.EPOCH
 
     DefaultHandoffService(TenantTokenSecureHttpClientProvider tokenSecureHttpClientProvider) {
         repository = new FastDatastoreRepository<>(HandoffCode, tokenSecureHttpClientProvider.getSecureHttpClient(null, null))
@@ -64,6 +68,7 @@ class DefaultHandoffService implements HandoffService {
                 refreshToken: refreshToken,
                 dateCreated: Date.from(now),
                 dateExpired: Date.from(now.plusSeconds(configuration.codeLifetimeSeconds)))
+        purgeExpiredCodes()
         HandoffCode created = repository.create(handoffCode)
         log.info("Issued handoff code for ${authentication.name} to ${redirectUri}")
         return new HandoffResponse(code: "${created.id}.${secret}", expiresInSeconds: configuration.codeLifetimeSeconds)
@@ -121,6 +126,29 @@ class DefaultHandoffService implements HandoffService {
         }
         if (!deleted) {
             throw new AuthException(INVALID_CODE)
+        }
+    }
+
+    synchronized void purgeExpiredCodes() {
+        if (Instant.now().isBefore(nextSweepAt)) {
+            return
+        }
+        nextSweepAt = Instant.now().plus(SWEEP_INTERVAL)
+        try {
+            Date now = new Date()
+            List<HandoffCode> expired = repository.list().findAll { !it.dateExpired || it.dateExpired.before(now) }
+            expired.each { code ->
+                try {
+                    repository.delete(code.id)
+                } catch (Exception e) {
+                    log.debug("Unable to purge expired handoff code ${code.id}: ${e.message}")
+                }
+            }
+            if (expired) {
+                log.info("Purged ${expired.size()} expired handoff codes")
+            }
+        } catch (Exception e) {
+            log.warn("Unable to purge expired handoff codes: ${e.message}")
         }
     }
 

@@ -115,8 +115,9 @@ class TokenController {
     }
 
     @Tag(name = "Token Operations")
-    @Operation(summary = "Reports whether a redirect URI is allowed to receive handoff codes")
+    @Operation(summary = "Reports whether a redirect URI is allowed to receive handoff codes **Secure")
     @Get(value = "/handoff/allowed", produces = MediaType.APPLICATION_JSON)
+    @Secure(Roles.USER)
     AllowedRedirectResponse isRedirectAllowed(@QueryValue String uri) {
         return new AllowedRedirectResponse(allowed: redirectUriPolicy.isAllowed(uri))
     }
