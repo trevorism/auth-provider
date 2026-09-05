@@ -25,6 +25,7 @@ class DefaultRedirectUriPolicy implements RedirectUriPolicy {
     static final List<String> LOCAL_HOSTS = ["localhost", "127.0.0.1"]
     static final Pattern APPSPOT_HOST = Pattern.compile('^(?:[a-z0-9-]+-dot-)*(?<project>[a-z0-9-]+)(?:[.][a-z0-9]+[.]r)?[.]appspot[.]com$')
     private static final Duration CACHE_DURATION = Duration.ofMinutes(5)
+    private static final Duration FAILURE_RETRY_DURATION = Duration.ofSeconds(30)
 
     @Inject
     HandoffConfiguration configuration
@@ -33,7 +34,7 @@ class DefaultRedirectUriPolicy implements RedirectUriPolicy {
     private Repository<App> appRepository
     private List<String> cachedTenantDomains = []
     private List<String> cachedReplyUrls = []
-    private Instant cacheLoadedAt = Instant.EPOCH
+    private Instant nextRefreshAt = Instant.EPOCH
 
     DefaultRedirectUriPolicy(TenantTokenSecureHttpClientProvider tokenSecureHttpClientProvider) {
         SecureHttpClient secureHttpClient = tokenSecureHttpClientProvider.getSecureHttpClient(null, null)
@@ -102,15 +103,16 @@ class DefaultRedirectUriPolicy implements RedirectUriPolicy {
     }
 
     private synchronized void refreshCacheIfStale() {
-        if (Instant.now().isBefore(cacheLoadedAt.plus(CACHE_DURATION))) {
+        if (Instant.now().isBefore(nextRefreshAt)) {
             return
         }
         try {
             cachedTenantDomains = tenantRepository.list().collect { it.domain?.toLowerCase() }.findAll { it }
             cachedReplyUrls = appRepository.list().findAll { it.active }.collectMany { it.replyUrls ?: [] }
-            cacheLoadedAt = Instant.now()
+            nextRefreshAt = Instant.now().plus(CACHE_DURATION)
         } catch (Exception e) {
-            log.warn("Unable to load tenants and apps for redirect allowlist: ${e.message}")
+            nextRefreshAt = Instant.now().plus(FAILURE_RETRY_DURATION)
+            log.warn("Unable to load tenants and apps for redirect allowlist, retrying in ${FAILURE_RETRY_DURATION.seconds}s: ${e.message}")
         }
     }
 }

@@ -71,12 +71,22 @@ class DefaultHandoffService implements HandoffService {
 
     @Override
     HandoffTokens redeemCode(String code, String redirectUri) {
-        HandoffCode stored = consume(code)
-        String secret = code.substring(code.indexOf('.') + 1)
+        int separator = code ? code.indexOf('.') : -1
+        if (separator <= 0 || separator == code.length() - 1) {
+            throw new AuthException(INVALID_CODE)
+        }
+        String id = code.substring(0, separator)
+        String secret = code.substring(separator + 1)
+        if (!id.isLong()) {
+            throw new AuthException(INVALID_CODE)
+        }
 
+        HandoffCode stored = lookup(id)
         if (!constantTimeEquals(stored.secretHash, hash(secret))) {
             throw new AuthException(INVALID_CODE)
         }
+        consume(id)
+
         if (!stored.dateExpired || stored.dateExpired.before(new Date())) {
             throw new AuthException(INVALID_CODE)
         }
@@ -87,26 +97,31 @@ class DefaultHandoffService implements HandoffService {
         return new HandoffTokens(accessToken: stored.accessToken, refreshToken: stored.refreshToken)
     }
 
-    private HandoffCode consume(String code) {
-        int separator = code ? code.indexOf('.') : -1
-        if (separator <= 0 || separator == code.length() - 1) {
-            throw new AuthException(INVALID_CODE)
-        }
-        String id = code.substring(0, separator)
-        if (!id.isLong()) {
-            throw new AuthException(INVALID_CODE)
-        }
+    private HandoffCode lookup(String id) {
         HandoffCode stored
         try {
-            stored = repository.delete(id)
+            stored = repository.get(id)
         } catch (Exception e) {
-            log.debug("Unable to delete handoff code ${id}: ${e.message}")
+            log.debug("Unable to load handoff code ${id}: ${e.message}")
             throw new AuthException(INVALID_CODE)
         }
         if (!stored?.secretHash) {
             throw new AuthException(INVALID_CODE)
         }
         return stored
+    }
+
+    private void consume(String id) {
+        HandoffCode deleted
+        try {
+            deleted = repository.delete(id)
+        } catch (Exception e) {
+            log.warn("Unable to consume handoff code ${id}: ${e.message}")
+            throw new AuthException(INVALID_CODE)
+        }
+        if (!deleted) {
+            throw new AuthException(INVALID_CODE)
+        }
     }
 
     private void validateRefreshTokenBelongsToCaller(Authentication authentication, String refreshToken) {

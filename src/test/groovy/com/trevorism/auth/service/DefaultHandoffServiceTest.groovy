@@ -27,6 +27,7 @@ class DefaultHandoffServiceTest {
         service.tokenService = [validateRefreshToken: { String token -> claimsFor(token) }] as TokenService
         service.@repository = [
                 create: { HandoffCode code -> code.id = "${nextId++}"; store[code.id] = code; return code },
+                get: { String id -> store[id] },
                 delete: { String id -> store.remove(id) }
         ] as Repository<HandoffCode>
         return service
@@ -88,6 +89,20 @@ class DefaultHandoffServiceTest {
         String lastChar = response.code[-1]
         String tampered = response.code[0..-2] + (lastChar == "A" ? "B" : "A")
         assertThrows(AuthException, () -> service.redeemCode(tampered, REDIRECT_URI))
+        assert store.size() == 1
+        assert service.redeemCode(response.code, REDIRECT_URI).accessToken == "access.jwt"
+    }
+
+    @Test
+    void testGuessedIdCannotBurnACode() {
+        DefaultHandoffService service = createService()
+        HandoffResponse response = service.createCode(authentication(), "access.jwt", null, REDIRECT_URI)
+        String id = response.code.split(/\./)[0]
+
+        assertThrows(AuthException, () -> service.redeemCode("${id}.notTheSecret", REDIRECT_URI))
+        assert store.size() == 1
+        assert service.redeemCode(response.code, REDIRECT_URI).accessToken == "access.jwt"
+        assert store.isEmpty()
     }
 
     @Test
@@ -112,8 +127,19 @@ class DefaultHandoffServiceTest {
     @Test
     void testRedeemTreatsDatastoreFailureAsInvalid() {
         DefaultHandoffService service = createService()
-        service.@repository = [delete: { String id -> throw new RuntimeException("down") }] as Repository<HandoffCode>
+        service.@repository = [get: { String id -> throw new RuntimeException("down") }] as Repository<HandoffCode>
         assertThrows(AuthException, () -> service.redeemCode("123.secret", REDIRECT_URI))
+    }
+
+    @Test
+    void testRedeemFailsWhenCodeCannotBeConsumed() {
+        DefaultHandoffService service = createService()
+        HandoffResponse response = service.createCode(authentication(), "access.jwt", null, REDIRECT_URI)
+        service.@repository = [
+                get: { String id -> store[id] },
+                delete: { String id -> throw new RuntimeException("down") }
+        ] as Repository<HandoffCode>
+        assertThrows(AuthException, () -> service.redeemCode(response.code, REDIRECT_URI))
     }
 
     @Test

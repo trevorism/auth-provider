@@ -18,7 +18,7 @@ Exception handoffFailure
 String redeemResponse
 Exception redeemFailure
 
-When(/a handoff code is requested for "([^"]*)"/) { String redirectUri ->
+When("a handoff code is requested for {string}") { String redirectUri ->
     handoffFailure = null
     handoffResponse = null
     try {
@@ -29,17 +29,17 @@ When(/a handoff code is requested for "([^"]*)"/) { String redirectUri ->
     }
 }
 
-Then(/a handoff code is returned/) { ->
+Then("a handoff code is returned") { ->
     assert !handoffFailure
     assert handoffCode
     assert handoffCode.contains(".")
 }
 
-Then(/the handoff request is rejected/) { ->
+Then("the handoff request is rejected") { ->
     assert handoffFailure
 }
 
-When(/the handoff code is redeemed at "([^"]*)"/) { String redirectUri ->
+When("the handoff code is redeemed at {string}") { String redirectUri ->
     redeemFailure = null
     redeemResponse = null
     try {
@@ -49,23 +49,23 @@ When(/the handoff code is redeemed at "([^"]*)"/) { String redirectUri ->
     }
 }
 
-Then(/the caller's access token is returned/) { ->
+Then("the caller's access token is returned") { ->
     assert !redeemFailure
     Map tokens = TestContext.gson.fromJson(redeemResponse, Map)
     assert tokens.accessToken
     assert tokens.accessToken.split(/\./).length == 3
 }
 
-Then(/the handoff redeem is rejected/) { ->
+Then("the handoff redeem is rejected") { ->
     assert redeemFailure
 }
 
-Then(/the redirect URI "([^"]*)" is allowed/) { String uri ->
+Then("the redirect URI {string} is allowed") { String uri ->
     String json = anonymousClient.get("${baseUrl}/token/handoff/allowed?uri=${URLEncoder.encode(uri, 'UTF-8')}")
     assert TestContext.gson.fromJson(json, Map).allowed == true
 }
 
-Then(/the redirect URI "([^"]*)" is not allowed/) { String uri ->
+Then("the redirect URI {string} is not allowed") { String uri ->
     String json = anonymousClient.get("${baseUrl}/token/handoff/allowed?uri=${URLEncoder.encode(uri, 'UTF-8')}")
     assert TestContext.gson.fromJson(json, Map).allowed == false
 }

@@ -106,4 +106,26 @@ class DefaultRedirectUriPolicyTest {
         assert policy.isAllowed("https://certs.project.trevorism.com/api/auth/callback")
         assert !policy.isAllowed("https://memowand.com/api/auth/callback")
     }
+
+    @Test
+    void testDatastoreFailureIsNotRetriedOnEveryCall() {
+        int attempts = 0
+        DefaultRedirectUriPolicy policy = createPolicy()
+        policy.@tenantRepository = [list: { -> attempts++; throw new RuntimeException("down") }] as Repository<Tenant>
+
+        5.times { policy.isAllowed("https://memowand.com/api/auth/callback") }
+
+        assert attempts == 1
+    }
+
+    @Test
+    void testSuccessfulLoadIsCached() {
+        int attempts = 0
+        DefaultRedirectUriPolicy policy = createPolicy()
+        policy.@tenantRepository = [list: { -> attempts++; [new Tenant(domain: "memowand.com")] }] as Repository<Tenant>
+
+        5.times { assert policy.isAllowed("https://memowand.com/api/auth/callback") }
+
+        assert attempts == 1
+    }
 }
