@@ -1,3 +1,7 @@
+## 3.9.0
+
+Add one-time handoff codes so UI apps on any host can receive a login.
+
 ## 3.8.1
 
 Make a few improvements to email handling.

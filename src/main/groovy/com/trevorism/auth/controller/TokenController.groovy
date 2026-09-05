@@ -1,17 +1,28 @@
 package com.trevorism.auth.controller
 
 import com.trevorism.auth.errors.AuthException
+import com.trevorism.auth.model.AllowedRedirectResponse
+import com.trevorism.auth.model.HandoffRedeemRequest
+import com.trevorism.auth.model.HandoffRequest
+import com.trevorism.auth.model.HandoffResponse
+import com.trevorism.auth.model.HandoffTokens
 import com.trevorism.auth.model.Identity
 import com.trevorism.auth.model.InternalTokenRequest
 import com.trevorism.auth.model.RedeemRequest
 import com.trevorism.auth.model.TokenRequest
+import com.trevorism.auth.service.HandoffService
+import com.trevorism.auth.service.RedirectUriPolicy
 import com.trevorism.auth.service.TokenService
+import com.trevorism.micronaut.SecurityConstants
 import com.trevorism.secure.Roles
 import com.trevorism.secure.Secure
+import io.micronaut.http.HttpRequest
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.QueryValue
 import io.micronaut.security.authentication.Authentication
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -29,6 +40,10 @@ class TokenController {
 
     @Inject
     private TokenService tokenService
+    @Inject
+    private HandoffService handoffService
+    @Inject
+    private RedirectUriPolicy redirectUriPolicy
 
     @Tag(name = "Token Operations")
     @Operation(summary = "Create a bearer token from valid credentials")
@@ -78,6 +93,40 @@ class TokenController {
             throw new AuthException("Unable to redeem token, missing refresh token")
         }
         return tokenService.redeemRefreshToken(redeemRequest.refreshToken)
+    }
+
+    @Tag(name = "Token Operations")
+    @Operation(summary = "Exchange the caller's session for a one-time handoff code bound to a redirect URI **Secure")
+    @Post(value = "/handoff", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    @Secure(Roles.USER)
+    HandoffResponse createHandoffCode(@Body HandoffRequest handoffRequest, Authentication authentication, HttpRequest<?> request) {
+        String accessToken = extractCallerToken(request)
+        return handoffService.createCode(authentication, accessToken, handoffRequest?.refreshToken, handoffRequest?.redirectUri)
+    }
+
+    @Tag(name = "Token Operations")
+    @Operation(summary = "Redeem a one-time handoff code for the tokens it carries")
+    @Post(value = "/handoff/redeem", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
+    HandoffTokens redeemHandoffCode(@Body HandoffRedeemRequest redeemRequest) {
+        if (!redeemRequest?.code) {
+            throw new AuthException("Unable to redeem handoff code, missing code")
+        }
+        return handoffService.redeemCode(redeemRequest.code, redeemRequest.redirectUri)
+    }
+
+    @Tag(name = "Token Operations")
+    @Operation(summary = "Reports whether a redirect URI is allowed to receive handoff codes")
+    @Get(value = "/handoff/allowed", produces = MediaType.APPLICATION_JSON)
+    AllowedRedirectResponse isRedirectAllowed(@QueryValue String uri) {
+        return new AllowedRedirectResponse(allowed: redirectUriPolicy.isAllowed(uri))
+    }
+
+    static String extractCallerToken(HttpRequest<?> request) {
+        String authorization = request.headers.get(SecurityConstants.Http.AUTHORIZATION_HEADER)
+        if (authorization && authorization.toLowerCase().startsWith(SecurityConstants.Http.BEARER_PREFIX)) {
+            return authorization.substring(SecurityConstants.Http.BEARER_PREFIX.length())
+        }
+        return request.cookies.get(SecurityConstants.Http.SESSION_COOKIE)?.value
     }
 
     private static Identity createIdentityFromInternalTokenRequest(authentication, internalTokenRequest) {

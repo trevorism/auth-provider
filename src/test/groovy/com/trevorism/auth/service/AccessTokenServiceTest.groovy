@@ -114,6 +114,29 @@ class AccessTokenServiceTest {
         assertThrows(AuthException, () -> accessTokenService.redeemRefreshToken("not.a.validtoken"))
     }
 
+    @Test
+    void testValidateRefreshTokenReturnsClaims() {
+        AccessTokenService accessTokenService = new AccessTokenService()
+        accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
+
+        String refreshToken = accessTokenService.issueRefreshToken(new User(username: "testUsername", tenantGuid: "tenant-1"), null)
+        Claims claims = accessTokenService.validateRefreshToken(refreshToken)
+
+        assert claims.subject == "testUsername"
+        assert claims.get("tenant") == "tenant-1"
+        assert claims.get("entityType") == TokenRequest.REFRESH_TYPE
+    }
+
+    @Test
+    void testValidateRefreshTokenDoesNotLeakParserMessage() {
+        AccessTokenService accessTokenService = new AccessTokenService()
+        accessTokenService.propertiesProvider = [getProperty: {x -> return TEST_SIGNING_KEY }] as PropertiesProvider
+
+        AuthException exception = assertThrows(AuthException, () -> accessTokenService.validateRefreshToken("not.a.validtoken"))
+        assert exception.message == "Invalid or expired refresh token"
+        assertThrows(AuthException, () -> accessTokenService.validateRefreshToken(null))
+    }
+
     private static Claims parseClaims(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(TEST_SIGNING_KEY))
         return Jwts.parser()
