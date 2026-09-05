@@ -14,12 +14,16 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import jakarta.inject.Inject
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.security.Key
 import java.time.Instant
 
 @jakarta.inject.Singleton
 class AccessTokenService implements TokenService {
+
+    private static final Logger log = LoggerFactory.getLogger(AccessTokenService)
 
     public static final int FIFTEEN_MINUTES_IN_SECONDS = 60 * 15
     public static final int ONE_DAY_IN_SECONDS = 60 * 60 * 24
@@ -120,7 +124,7 @@ class AccessTokenService implements TokenService {
     }
 
     @Override
-    String redeemRefreshToken(String refreshToken) {
+    Claims validateRefreshToken(String refreshToken) {
         if (!refreshToken) {
             throw new AuthException("Missing refresh token")
         }
@@ -134,12 +138,19 @@ class AccessTokenService implements TokenService {
                     .parseSignedClaims(refreshToken)
                     .payload
         } catch (Exception e) {
-            throw new AuthException("Invalid or expired refresh token ${e.message}")
+            log.debug("Refresh token rejected: ${e.message}")
+            throw new AuthException("Invalid or expired refresh token")
         }
 
-        if(claims.get("entityType", String) != TokenRequest.REFRESH_TYPE){
+        if (claims.get("entityType", String) != TokenRequest.REFRESH_TYPE) {
             throw new AuthException("Invalid refresh token")
         }
+        return claims
+    }
+
+    @Override
+    String redeemRefreshToken(String refreshToken) {
+        Claims claims = validateRefreshToken(refreshToken)
 
         String subject = claims.getSubject()
         String targetAudience = claims.get("targetAudience", String)

@@ -14,6 +14,7 @@ interface TokenService {
     String issueToken(Identity identity, String audience)
     String issueRefreshToken(Identity identity, String audience)
     String redeemRefreshToken(String refreshToken)
+    Claims validateRefreshToken(String refreshToken)
     String issueInternalToken(Identity identity, String audience, String tenantId)
     String issueTokenFromOauthProvider(SupportedOauth2Provider provider, Jws<Claims> claims, String tenantId)
 }

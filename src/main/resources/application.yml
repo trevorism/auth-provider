@@ -21,3 +21,19 @@ netty:
   default:
     allocator:
       max-order: 3
+trevorism:
+  handoff:
+    code-lifetime-seconds: 60
+    gcp-projects:
+      - trevorism
+      - trevorism-action
+      - trevorism-auth
+      - trevorism-billing
+      - trevorism-cleo
+      - trevorism-data
+      - trevorism-draw
+      - trevorism-gcloud
+      - trevorism-memo
+      - trevorism-project
+      - trevorism-testing
+      - trevorism-trade
