@@ -61,11 +61,11 @@ Then("the handoff redeem is rejected") { ->
 }
 
 Then("the redirect URI {string} is allowed") { String uri ->
-    String json = anonymousClient.get("${baseUrl}/token/handoff/allowed?uri=${URLEncoder.encode(uri, 'UTF-8')}")
+    String json = secureHttpClient.get("${baseUrl}/token/handoff/allowed?uri=${URLEncoder.encode(uri, 'UTF-8')}")
     assert TestContext.gson.fromJson(json, Map).allowed == true
 }
 
 Then("the redirect URI {string} is not allowed") { String uri ->
-    String json = anonymousClient.get("${baseUrl}/token/handoff/allowed?uri=${URLEncoder.encode(uri, 'UTF-8')}")
+    String json = secureHttpClient.get("${baseUrl}/token/handoff/allowed?uri=${URLEncoder.encode(uri, 'UTF-8')}")
     assert TestContext.gson.fromJson(json, Map).allowed == false
 }

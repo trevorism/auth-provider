@@ -24,6 +24,10 @@ netty:
 trevorism:
   handoff:
     code-lifetime-seconds: 60
+    tenant-domains:
+      - cliomentor.com
+      - memowand.com
+      - trevorismdemo.com
     gcp-projects:
       - trevorism
       - trevorism-action

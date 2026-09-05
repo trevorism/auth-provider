@@ -89,6 +89,14 @@ class DefaultRedirectUriPolicy implements RedirectUriPolicy {
         return cachedTenantDomains.any { isUnderDomain(host, it) }
     }
 
+    private List<String> permittedTenantDomains(List<String> registeredDomains) {
+        List<String> permitted = configuration.tenantDomains.collect { it?.toLowerCase()?.trim() }.findAll { it }
+        if (!permitted) {
+            return []
+        }
+        return registeredDomains.findAll { permitted.contains(it) }
+    }
+
     private boolean isKnownAppspotProject(String host) {
         Matcher matcher = APPSPOT_HOST.matcher(host)
         if (!matcher.matches()) {
@@ -107,7 +115,8 @@ class DefaultRedirectUriPolicy implements RedirectUriPolicy {
             return
         }
         try {
-            cachedTenantDomains = tenantRepository.list().collect { it.domain?.toLowerCase() }.findAll { it }
+            List<String> registeredDomains = tenantRepository.list().collect { it.domain?.toLowerCase()?.trim() }.findAll { it }
+            cachedTenantDomains = permittedTenantDomains(registeredDomains)
             cachedReplyUrls = appRepository.list().findAll { it.active }.collectMany { it.replyUrls ?: [] }
             nextRefreshAt = Instant.now().plus(CACHE_DURATION)
         } catch (Exception e) {
