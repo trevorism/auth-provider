@@ -1,3 +1,7 @@
+## 3.11.0
+
+Stop robots from registering with crazy emails.
+
 ## 3.10.0
 
 Gate handoff redirects on an explicit list of tenant domains, purge expired

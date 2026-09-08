@@ -259,6 +259,10 @@ class TenantAwareUserService implements TenantUserService {
             log.warn("Email is not formatted correctly")
             throw new AuthException("Unable to register user")
         }
+        if (request.email.count(".") > 5) {
+            log.warn("Email has too many periods")
+            throw new AuthException("Unable to register user")
+        }
         if (userMatchesCurrentUsers(repository, request)) {
             log.warn("Registration detected duplicate username or email")
             throw new AuthException("Unable to register user. Duplicate detected.")
