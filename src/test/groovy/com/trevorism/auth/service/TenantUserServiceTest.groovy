@@ -22,7 +22,7 @@ class TenantUserServiceTest {
         assertThrows(AuthException, () -> service.validateRegistration(repository, new RegistrationRequest(username: "te", password: "TESTer", email: "test@trevorism.com")))
         assertThrows(AuthException, () -> service.validateRegistration(repository, new RegistrationRequest(username: "tester", password: "TESTe", email: "test@trevorism.com")))
         assert service.validateRegistration(repository, new RegistrationRequest(username: "tester", password: "TESTer", email: "testz@trevorism.com"))
-        assert service.validateRegistration(repository, new RegistrationRequest(username: "tester", password: "TESTer", email: "3.2.1.3.45@gmail.com"))
+        assert service.validateRegistration(repository, new RegistrationRequest(username: "tester", password: "TESTer", email: "3.21.3.45@gmail.com"))
         assert service.validateRegistration(repository, new RegistrationRequest(username: "test123", password: "testPassword", email: "testx@trevorism.com"))
     }
 
