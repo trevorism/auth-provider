@@ -55,7 +55,7 @@ class UserController {
     }
 
     @Tag(name = "User Operations")
-    @Operation(summary = "Reset Password **Secure")
+    @Operation(summary = "Reset Password")
     @Post(value = "/reset", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     boolean resetPassword(@Body ForgotPasswordRequest forgotPasswordRequest) {
         try {
@@ -67,7 +67,7 @@ class UserController {
     }
 
     @Tag(name = "User Operations")
-    @Operation(summary = "Change Password **Secure")
+    @Operation(summary = "Change Password")
     @Post(value = "/change", produces = MediaType.APPLICATION_JSON, consumes = MediaType.APPLICATION_JSON)
     boolean changePassword(@Body ChangePasswordRequest changePasswordRequest) {
         try {
